@@ -1,0 +1,10 @@
+^azr\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^\.github$
+^codecov\.yml$
+^\..+$
+^tests$
+^docs$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
