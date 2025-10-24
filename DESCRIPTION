@@ -6,7 +6,7 @@ Authors@R:
 Description: Implements a credential chain for Azure OAuth 2.0 authentication 
       based on 'httr2''s OAuth framework. Sequentially attempts authentication 
       methods until one succeeds. During development allows interactive 
-      browser-based flows (DeviceCode and AuthCode Flow) and non-interactive 
+      browser-based flows (DeviceCode and AuthCode Flows) and non-interactive 
       flow (Client Secret) in batch mode.
 License: MIT + file LICENSE
 Encoding: UTF-8
