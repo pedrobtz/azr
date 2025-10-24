@@ -3,11 +3,17 @@ Title: Credential Chain for Seamless OAuth 2.0 Authentication to Azure Services
 Version: 0.1.0
 Authors@R:
     person("Pedro", "Baltazar",, "pedrobtz@gmail.com", role = c("aut", "cre"))
-Description: Implements a credential chain for Azure OAuth 2.0 authentication based on 'httr2''s OAuth framework. Sequentially attempts authentication methods until one succeeds. During development allows interactive browser-based (Device Code and Auth Code Flows) login and non-interactive flows (Client Secret) in batch mode.
+Description: Implements a credential chain for Azure OAuth 2.0 authentication 
+      based on 'httr2''s OAuth framework. Sequentially attempts authentication 
+      methods until one succeeds. During development allows interactive 
+      browser-based flows (DeviceCode and AuthCode Flow) and non-interactive 
+      flow (Client Secret) in batch mode.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+URL: https://pedrobtz.github.io/azr/, https://github.com/pedrobtz/azr
+BugReports: https://github.com/pedrobtz/azr/issues
 Imports: 
     methods,
     R6,
@@ -16,6 +22,5 @@ Imports:
     jsonlite,
     rlang
 Suggests: 
-    httpuv,
-    testthat (>= 3.0.0)
+    httpuv
 Config/testthat/edition: 3
