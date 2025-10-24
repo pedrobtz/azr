@@ -6,7 +6,7 @@
 \alias{azr-package}
 \title{azr: Credential Chain for Seamless OAuth 2.0 Authentication to Azure Services}
 \description{
-Implements a credential chain for Azure OAuth 2.0 authentication based on 'httr2''s OAuth framework. Sequentially attempts authentication methods until one succeeds. During development allows interactive browser-based flows (Device Code and Auth Code Flow) and non-interactive flow (Client Secret) in batch mode.
+Implements a credential chain for Azure OAuth 2.0 authentication based on 'httr2''s OAuth framework. Sequentially attempts authentication methods until one succeeds. During development allows interactive browser-based flows (DeviceCode and AuthCode Flows) and non-interactive flow (Client Secret) in batch mode.
 }
 \seealso{
 Useful links:
