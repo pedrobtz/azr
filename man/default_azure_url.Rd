@@ -29,7 +29,6 @@ If \code{endpoint} is \code{NULL}, returns a named list of all endpoint URLs.
 Constructs Azure OAuth 2.0 endpoint URLs for a given tenant and authority host.
 }
 \examples{
-\dontrun{
 # Get all URLs
 default_azure_url()
 
@@ -38,5 +37,4 @@ default_azure_url("token")
 
 # Custom tenant
 default_azure_url("authorize", tenant_id = "my-tenant-id")
-}
 }

@@ -50,6 +50,9 @@ a convenience function that combines credential discovery and token
 acquisition in a single step.
 }
 \examples{
+# In non-interactive sessions, this function will return an error if the
+# environment is not setup with valid credentials. And in an interactive session
+# the user will be prompted to attempt one of the interactive authentication flows.
 \dontrun{
 token <- get_token(
   scope = "https://graph.microsoft.com/.default",

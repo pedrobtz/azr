@@ -16,18 +16,15 @@ The credential supports token caching to avoid repeated authentication.
 Tokens can be cached to disk or in memory.
 }
 \examples{
+# DeviceCodeCredential requires an interactive session
 \dontrun{
 # Create credential with default settings
-cred <- DeviceCodeCredential$new(
-  tenant_id = "your-tenant-id",
-  client_id = "your-client-id",
-  scope = "https://management.azure.com/.default"
-)
+cred <- DeviceCodeCredential$new()
 
-# Get an access token (will prompt for device code flow)
+# Get an access token (will prompt for 'device code' flow)
 token <- cred$get_token()
 
-# Force reauthentication
+# Force re-authentication
 token <- cred$get_token(reauth = TRUE)
 
 # Use with httr2 request

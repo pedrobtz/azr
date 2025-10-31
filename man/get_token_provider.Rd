@@ -52,6 +52,9 @@ discovery process and returns the token acquisition method from the
 discovered credential object.
 }
 \examples{
+# In non-interactive sessions, this function will return an error if the
+# environment is not set up with valid credentials. In an interactive session
+# the user will be prompted to attempt one of the interactive authentication flows.
 \dontrun{
 token_provider <- get_token_provider(
   scope = "https://graph.microsoft.com/.default",

@@ -14,7 +14,5 @@ Retrieves the Azure tenant ID from the \code{AZURE_TENANT_ID} environment variab
 or falls back to the default value if not set.
 }
 \examples{
-\dontrun{
 default_azure_tenant_id()
-}
 }

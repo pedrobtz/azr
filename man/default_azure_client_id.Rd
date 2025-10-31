@@ -14,7 +14,5 @@ Retrieves the Azure client ID from the \code{AZURE_CLIENT_ID} environment variab
 or falls back to the default Azure CLI client ID if not set.
 }
 \examples{
-\dontrun{
 default_azure_client_id()
-}
 }

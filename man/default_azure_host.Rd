@@ -14,7 +14,5 @@ Retrieves the Azure authority host from the \code{AZURE_AUTHORITY_HOST} environm
 variable, or falls back to Azure Public Cloud if not set.
 }
 \examples{
-\dontrun{
 default_azure_host()
-}
 }

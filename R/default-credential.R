@@ -29,6 +29,9 @@
 #' @seealso [get_request_authorizer()], [get_token()]
 #'
 #' @examples
+#' # In non-interactive sessions, this function will return an error if the
+#' # environment is not set up with valid credentials. In an interactive session
+#' # the user will be prompted to attempt one of the interactive authentication flows.
 #' \dontrun{
 #' token_provider <- get_token_provider(
 #'   scope = "https://graph.microsoft.com/.default",
@@ -94,6 +97,9 @@ get_token_provider <- function(scope = NULL,
 #' @seealso [get_token_provider()], [get_token()]
 #'
 #' @examples
+#' # In non-interactive sessions, this function will return an error if the
+#' # environment is not setup with valid credentials. And in an interactive session
+#' # the user will be prompted to attempt one of the interactive authentication flows.
 #' \dontrun{
 #' req_auth <- get_request_authorizer(
 #'   scope = "https://graph.microsoft.com/.default"
@@ -152,6 +158,9 @@ get_request_authorizer <- function(scope = NULL,
 #' @seealso [get_token_provider()], [get_request_authorizer()]
 #'
 #' @examples
+#' # In non-interactive sessions, this function will return an error if the
+#' # environment is not setup with valid credentials. And in an interactive session
+#' # the user will be prompted to attempt one of the interactive authentication flows.
 #' \dontrun{
 #' token <- get_token(
 #'   scope = "https://graph.microsoft.com/.default",
@@ -192,8 +201,12 @@ find_credential <- function(scope = NULL,
                             offline = FALSE,
                             oauth_host = NULL,
                             oauth_endpoint = NULL,
-                            .chain = default_credential_chain(),
+                            .chain = NULL,
                             .verbose = FALSE) {
+  if (is.null(.chain) || length(.chain) == 0L) {
+    .chain <- default_credential_chain()
+  }
+
   for (crd in .chain) {
     if (R6::is.R6Class(crd)) {
       obj <- try(new_instance(crd, env = rlang::current_env()), silent = TRUE)
@@ -204,8 +217,15 @@ find_credential <- function(scope = NULL,
         next
       }
     } else {
-      obj <- crd
-      cli::cli_alert_info("Trying: {.cls {class(obj)[[1]]}}")
+      if (R6::is.R6(crd) && inherits(obj, "Credential")) {
+        obj <- crd
+        cli::cli_alert_info("Trying: {.cls {class(obj)[[1]]}}")
+      } else {
+        cli::cli_abort(c(
+          "Invalid object class {.cls {class(crd)}}",
+          "Object must be of class {.cls Credential}"
+        ))
+      }
     }
 
     if (obj$is_interactive() && !rlang::is_interactive()) {

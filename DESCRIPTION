@@ -1,13 +1,13 @@
 Package: azr
-Title: Credential Chain for Seamless OAuth 2.0 Authentication to Azure Services
+Title: Credential Chain for Seamless 'OAuth 2.0' Authentication to 'Azure Services'
 Version: 0.1.0
 Authors@R:
     person("Pedro", "Baltazar",, "pedrobtz@gmail.com", role = c("aut", "cre"))
-Description: Implements a credential chain for Azure OAuth 2.0 authentication 
-      based on 'httr2''s OAuth framework. Sequentially attempts authentication 
+Description: Implements a credential chain for 'Azure OAuth 2.0' authentication 
+      based on the package 'httr2''s 'OAuth' framework. Sequentially attempts authentication 
       methods until one succeeds. During development allows interactive 
-      browser-based flows (DeviceCode and AuthCode Flows) and non-interactive 
-      flow (Client Secret) in batch mode.
+      browser-based flows ('Device Code' and 'Auth Code' flows) and non-interactive 
+      flow ('Client Secret') in batch mode.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

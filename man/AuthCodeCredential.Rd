@@ -17,6 +17,7 @@ Tokens can be cached to disk or in memory. A redirect URI is required for
 the OAuth flow to complete.
 }
 \examples{
+# AuthCodeCredential requires an interactive session
 \dontrun{
 # Create credential with default settings
 cred <- AuthCodeCredential$new(

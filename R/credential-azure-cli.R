@@ -12,7 +12,6 @@
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' # Create credential with default settings
 #' cred <- AzureCLICredential$new()
 #'
@@ -22,12 +21,15 @@
 #'   tenant_id = "your-tenant-id"
 #' )
 #'
+#' # To get a token or authenticate a request it is required that
+#' # 'az login' is successfully executed, otherwise it will return an error.
+#' \dontrun{
 #' # Get an access token
 #' token <- cred$get_token()
 #'
 #' # Use with httr2 request
 #' req <- httr2::request("https://management.azure.com/subscriptions")
-#' req <- cred$req_auth(req)
+#' resp <- httr2::req_perform(cred$req_auth(req))
 #' }
 AzureCLICredential <- R6::R6Class(
   classname = "AzureCLICredential",

@@ -52,6 +52,9 @@ credential discovery process and returns the request authentication method
 from the discovered credential object.
 }
 \examples{
+# In non-interactive sessions, this function will return an error if the
+# environment is not setup with valid credentials. And in an interactive session
+# the user will be prompted to attempt one of the interactive authentication flows.
 \dontrun{
 req_auth <- get_request_authorizer(
   scope = "https://graph.microsoft.com/.default"

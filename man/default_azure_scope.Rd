@@ -19,8 +19,6 @@ A character string with the OAuth scope URL
 Returns the default OAuth scope for a specified Azure resource.
 }
 \examples{
-\dontrun{
 default_azure_scope()
 default_azure_scope("azure_graph")
-}
 }

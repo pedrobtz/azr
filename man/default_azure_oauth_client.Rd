@@ -26,11 +26,9 @@ An \code{\link[httr2:oauth_client]{httr2::oauth_client()}} object
 Creates an \code{\link[httr2:oauth_client]{httr2::oauth_client()}} configured for Azure authentication.
 }
 \examples{
-\dontrun{
 client <- default_azure_oauth_client()
 client <- default_azure_oauth_client(
   client_id = "my-client-id",
   client_secret = "my-secret"
 )
-}
 }

@@ -18,7 +18,5 @@ Constructs a redirect URI for OAuth flows. If the provided URI doesn't have
 a port, assigns a random port using \code{\link[httpuv:randomPort]{httpuv::randomPort()}}.
 }
 \examples{
-\dontrun{
 default_redirect_uri()
-}
 }

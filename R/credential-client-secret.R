@@ -11,7 +11,6 @@
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' # Create credential with client secret
 #' cred <- ClientSecretCredential$new(
 #'   tenant_id = "your-tenant-id",
@@ -20,12 +19,16 @@
 #'   scope = "https://management.azure.com/.default"
 #' )
 #'
+#' # To get a token or authenticate a request it requires
+#' # valid 'client_id' and 'client_secret' credentials,
+#' # otherwise it will return an error.
+#' \dontrun{
 #' # Get an access token
 #' token <- cred$get_token()
 #'
 #' # Use with httr2 request
 #' req <- httr2::request("https://management.azure.com/subscriptions")
-#' req <- cred$req_auth(req)
+#' resp <- httr2::req_perform(cred$req_auth(req))
 #' }
 ClientSecretCredential <- R6::R6Class(
   classname = "ClientSecretCredential",

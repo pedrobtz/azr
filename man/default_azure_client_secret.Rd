@@ -14,7 +14,5 @@ Retrieves the Azure client secret from the \code{AZURE_CLIENT_SECRET} environmen
 variable, or returns \code{NA_character_} if not set.
 }
 \examples{
-\dontrun{
 default_azure_client_secret()
-}
 }

@@ -15,18 +15,15 @@
 #'
 #' @export
 #' @examples
+#' # DeviceCodeCredential requires an interactive session
 #' \dontrun{
 #' # Create credential with default settings
-#' cred <- DeviceCodeCredential$new(
-#'   tenant_id = "your-tenant-id",
-#'   client_id = "your-client-id",
-#'   scope = "https://management.azure.com/.default"
-#' )
+#' cred <- DeviceCodeCredential$new()
 #'
-#' # Get an access token (will prompt for device code flow)
+#' # Get an access token (will prompt for 'device code' flow)
 #' token <- cred$get_token()
 #'
-#' # Force reauthentication
+#' # Force re-authentication
 #' token <- cred$get_token(reauth = TRUE)
 #'
 #' # Use with httr2 request
@@ -123,6 +120,7 @@ DeviceCodeCredential <- R6::R6Class(
 #'
 #' @export
 #' @examples
+#' # AuthCodeCredential requires an interactive session
 #' \dontrun{
 #' # Create credential with default settings
 #' cred <- AuthCodeCredential$new(
@@ -219,7 +217,7 @@ AuthCodeCredential <- R6::R6Class(
   )
 )
 
-
+# InteractiveCredential ----
 #' Interactive credential base class
 #'
 #' @description

@@ -23,6 +23,10 @@ Credential <- R6::R6Class(
                           use_cache = c("disk", "memory"),
                           offline = FALSE,
                           oauth_endpoint = NULL) {
+      if (!rlang::is_interactive() && self$is_interactive()) {
+        cli::cli_abort("Credential {.cls {class(self)[[1]]}} requires an interactive session")
+      }
+
       self$.scope <- scope %||% default_azure_scope(resource = "azure_arm")
 
       if (isTRUE(offline)) {

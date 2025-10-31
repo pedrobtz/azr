@@ -8,9 +8,7 @@
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' default_azure_tenant_id()
-#' }
 default_azure_tenant_id <- function() {
   Sys.getenv(
     environment_variables$azure_tenant_id,
@@ -29,9 +27,7 @@ default_azure_tenant_id <- function() {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' default_azure_client_id()
-#' }
 default_azure_client_id <- function() {
   Sys.getenv(
     environment_variables$azure_client_id,
@@ -50,9 +46,7 @@ default_azure_client_id <- function() {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' default_azure_client_secret()
-#' }
 default_azure_client_secret <- function() {
   Sys.getenv(
     environment_variables$azure_client_secret,
@@ -75,10 +69,8 @@ default_azure_client_secret <- function() {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' default_azure_scope()
 #' default_azure_scope("azure_graph")
-#' }
 default_azure_scope <- function(resource = "azure_arm") {
   resource <- rlang::arg_match(resource, values = names(azure_scopes))
   azure_scopes[[resource]]
@@ -100,13 +92,11 @@ default_azure_scope <- function(resource = "azure_arm") {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' client <- default_azure_oauth_client()
 #' client <- default_azure_oauth_client(
 #'   client_id = "my-client-id",
 #'   client_secret = "my-secret"
 #' )
-#' }
 default_azure_oauth_client <- function(client_id = default_azure_client_id(),
                                        client_secret = NULL,
                                        name = NULL) {
@@ -138,7 +128,6 @@ default_azure_oauth_client <- function(client_id = default_azure_client_id(),
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' # Get all URLs
 #' default_azure_url()
 #'
@@ -147,7 +136,6 @@ default_azure_oauth_client <- function(client_id = default_azure_client_id(),
 #'
 #' # Custom tenant
 #' default_azure_url("authorize", tenant_id = "my-tenant-id")
-#' }
 default_azure_url <- function(endpoint = NULL,
                               oauth_host = default_azure_host(),
                               tenant_id = default_azure_tenant_id()) {
@@ -180,9 +168,7 @@ default_azure_url <- function(endpoint = NULL,
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' default_azure_host()
-#' }
 default_azure_host <- function() {
   Sys.getenv(
     environment_variables$azure_authority_host,
@@ -204,9 +190,7 @@ default_azure_host <- function() {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' default_redirect_uri()
-#' }
 default_redirect_uri <- function(redirect_uri = httr2::oauth_redirect_uri()) {
   parsed <- httr2::url_parse(redirect_uri)
 
