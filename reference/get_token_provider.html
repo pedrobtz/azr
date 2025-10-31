@@ -117,7 +117,10 @@ called.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># In non-interactive sessions, this function will return an error if the</span></span></span>
+<span class="r-in"><span><span class="co"># environment is not set up with valid credentials. In an interactive session</span></span></span>
+<span class="r-in"><span><span class="co"># the user will be prompted to attempt one of the interactive authentication flows.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">token_provider</span> <span class="op">&lt;-</span> <span class="fu">get_token_provider</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  scope <span class="op">=</span> <span class="st">"https://graph.microsoft.com/.default"</span>,</span></span>
 <span class="r-in"><span>  tenant_id <span class="op">=</span> <span class="st">"my-tenant-id"</span>,</span></span>
