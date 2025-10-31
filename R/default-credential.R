@@ -217,7 +217,7 @@ find_credential <- function(scope = NULL,
         next
       }
     } else {
-      if (R6::is.R6(crd) && inherits(obj, "Credential")) {
+      if (R6::is.R6(crd) && inherits(crd, "Credential")) {
         obj <- crd
         cli::cli_alert_info("Trying: {.cls {class(obj)[[1]]}}")
       } else {
