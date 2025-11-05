@@ -4,3 +4,4 @@
 
 * This is a new release.
 * re-submission that fixes 'formatting-software-names' and improves examples by removing or explaining "\dontrun{}".
+* includes a bug fix in 'find_credential'
