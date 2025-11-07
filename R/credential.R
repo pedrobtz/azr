@@ -16,6 +16,7 @@ Credential <- R6::R6Class(
     .oauth_url = NULL,
     .token_url = NULL,
     .redirect_uri = NULL,
+    .classname = NULL,
     initialize = function(scope = NULL,
                           tenant_id = NULL,
                           client_id = NULL,
@@ -27,6 +28,8 @@ Credential <- R6::R6Class(
         cli::cli_abort("Credential {.cls {class(self)[[1]]}} requires an interactive session")
       }
 
+      self$.classname <- paste(class(self), collapse = "/")
+
       self$.scope <- scope %||% default_azure_scope(resource = "azure_arm")
 
       if (isTRUE(offline)) {
@@ -36,13 +39,13 @@ Credential <- R6::R6Class(
       self$.scope_str <- collapse_scope(self$.scope)
       self$.resource <- get_scope_resource(self$.scope)
 
-      self$.client_id <- client_id %|||% default_azure_client_id()
-      self$.client_secret <- client_secret %|||% default_azure_client_secret() %|||% NULL
+      self$.client_id <- client_id %||% default_azure_client_id()
+      self$.client_secret <- client_secret %||% default_azure_client_secret()
 
       self$.tenant_id <- tenant_id %||% default_azure_tenant_id()
       self$.use_cache <- rlang::arg_match(use_cache)
 
-      self$.cache_key <- c(self$.client_id, self$.tenant_id, self$.scope)
+      self$.cache_key <- c(self$.client_id, self$.tenant_id, self$.scope, self$.classname)
       self$.id <- rlang::hash(self$.cache_key)
 
       self$.oauth_host <- default_azure_host()
@@ -96,6 +99,13 @@ Credential <- R6::R6Class(
     }
   )
 )
+
+
+credential_chain <- function(...) {
+  res <- rlang::enquos(...)
+  class(res) <- c("credential_chain", class(res))
+  res
+}
 
 
 collapse_scope <- function(scope) {

@@ -64,7 +64,7 @@ Validate the credential configuration
 }
 
 \subsection{Details}{
-Checks that the client secret is provided and not NA. Calls the parent
+Checks that the client secret is provided and not NA or NULL. Calls the parent
 class validation method.
 }
 

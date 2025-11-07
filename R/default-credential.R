@@ -20,8 +20,8 @@
 #' @param .chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param .verbose Logical. If `TRUE`, prints detailed diagnostic information
-#'   during credential discovery and authentication. Defaults to `FALSE`.
+#' @param .silent Logical. If `FALSE`, prints detailed diagnostic information
+#'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return A function that retrieves and returns an authentication token when
 #'   called.
@@ -50,7 +50,7 @@ get_token_provider <- function(scope = NULL,
                                use_cache = "disk",
                                offline = FALSE,
                                .chain = default_credential_chain(),
-                               .verbose = FALSE) {
+                               .silent = TRUE) {
   crd <- find_credential(
     scope = scope,
     tenant_id = tenant_id,
@@ -59,10 +59,16 @@ get_token_provider <- function(scope = NULL,
     use_cache = use_cache,
     offline = offline,
     .chain = .chain,
-    .verbose = .verbose
+    .silent = .silent
   )
 
-  crd$get_token
+  if (isFALSE(.silent)) {
+    print(crd)
+  }
+
+  function() {
+    crd$get_token()
+  }
 }
 
 #' Get Default Request Authorizer Function
@@ -87,8 +93,8 @@ get_token_provider <- function(scope = NULL,
 #' @param .chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param .verbose Logical. If `TRUE`, prints detailed diagnostic information
-#'   during credential discovery and authentication. Defaults to `FALSE`.
+#' @param .silent Logical. If `FALSE`, prints detailed diagnostic information
+#'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return A function that authorizes HTTP requests with appropriate credentials
 #'   when called.
@@ -115,7 +121,7 @@ get_request_authorizer <- function(scope = NULL,
                                    use_cache = "disk",
                                    offline = FALSE,
                                    .chain = default_credential_chain(),
-                                   .verbose = FALSE) {
+                                   .silent = TRUE) {
   crd <- find_credential(
     scope = scope,
     tenant_id = tenant_id,
@@ -124,9 +130,12 @@ get_request_authorizer <- function(scope = NULL,
     use_cache = use_cache,
     offline = offline,
     .chain = .chain,
-    .verbose = .verbose
+    .silent = .silent
   )
-  crd$req_auth
+
+  function(req) {
+    crd$req_auth(req)
+  }
 }
 
 #' Get Authentication Token
@@ -150,8 +159,8 @@ get_request_authorizer <- function(scope = NULL,
 #' @param .chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param .verbose Logical. If `TRUE`, prints detailed diagnostic information
-#'   during credential discovery and authentication. Defaults to `FALSE`.
+#' @param .silent Logical. If `FALSE`, prints detailed diagnostic information
+#'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return An [httr2::oauth_token()] object.
 #'
@@ -178,7 +187,7 @@ get_token <- function(scope = NULL,
                       use_cache = "disk",
                       offline = FALSE,
                       .chain = default_credential_chain(),
-                      .verbose = FALSE) {
+                      .silent = TRUE) {
   provider <- get_token_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -187,8 +196,9 @@ get_token <- function(scope = NULL,
     use_cache = use_cache,
     offline = offline,
     .chain = .chain,
-    .verbose = .verbose
+    .silent = .silent
   )
+
   provider()
 }
 
@@ -202,59 +212,61 @@ find_credential <- function(scope = NULL,
                             oauth_host = NULL,
                             oauth_endpoint = NULL,
                             .chain = NULL,
-                            .verbose = FALSE) {
+                            .silent = TRUE) {
   if (is.null(.chain) || length(.chain) == 0L) {
     .chain <- default_credential_chain()
   }
 
-  for (crd in .chain) {
+  if (!inherits(.chain, "credential_chain")) {
+    cli::cli_abort("Argument {.arg .chain} must be of class {.cls credential_chain}.")
+  }
+
+  for (crd_expr in .chain) {
+    crd <- try(rlang::eval_tidy(crd_expr), silent = .silent)
+
     if (R6::is.R6Class(crd)) {
-      obj <- try(new_instance(crd, env = rlang::current_env()), silent = TRUE)
-      cli::cli_alert_info("Trying: {.cls {crd$classname}}")
+      obj <- try(new_instance(crd, env = rlang::current_env()), silent = .silent)
 
       if (inherits(obj, "try-error") || !inherits(obj, "Credential")) {
-        cli::cli_alert_danger("Unsuccessful!")
         next
       }
+    } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
+      obj <- crd
     } else {
-      if (R6::is.R6(crd) && inherits(crd, "Credential")) {
-        obj <- crd
-        cli::cli_alert_info("Trying: {.cls {class(obj)[[1]]}}")
-      } else {
-        cli::cli_abort(c(
-          "Invalid object class {.cls {class(crd)}}",
-          "Object must be of class {.cls Credential}"
-        ))
-      }
-    }
-
-    if (obj$is_interactive() && !rlang::is_interactive()) {
-      cli::cli_alert_warning("Skipping (non-interactive session)")
       next
     }
 
-    if (isTRUE(.verbose)) {
-      print(obj)
+    if (isFALSE(.silent)) {
+      cli::cli_alert_info("Trying: {.cls {class(obj)[[1]]}}")
+    }
+
+    if (obj$is_interactive() && !rlang::is_interactive()) {
+      if (isFALSE(.silent)) {
+        cli::cli_alert_warning("Skipping (non-interactive session)")
+      }
+      next
     }
 
     token <- tryCatch(
       obj$get_token(),
       error = function(e) {
-        if (isTRUE(.verbose)) {
+        if (isFALSE(.silent)) {
           print(e)
-        } else {
-          cli::cli_alert_danger("Unsuccessful!")
         }
         NULL
       },
       interrupt = function(e) {
-        cli::cli_alert_danger("Interrupted!")
+        if (isFALSE(.silent)) {
+          cli::cli_alert_danger("Interrupted!")
+        }
         NULL
       }
     )
 
     if (inherits(token, "httr2_token")) {
-      cli::cli_alert_success("Successful!")
+      if (isFALSE(.silent)) {
+        cli::cli_alert_danger("Successful!")
+      }
       return(obj)
     }
   }
@@ -264,7 +276,7 @@ find_credential <- function(scope = NULL,
 
 
 default_credential_chain <- function() {
-  list(
+  credential_chain(
     client_secret = ClientSecretCredential,
     azure_cli = AzureCLICredential,
     auth_code = AuthCodeCredential,

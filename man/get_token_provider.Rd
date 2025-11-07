@@ -12,7 +12,7 @@ get_token_provider(
   use_cache = "disk",
   offline = FALSE,
   .chain = default_credential_chain(),
-  .verbose = FALSE
+  .silent = TRUE
 )
 }
 \arguments{
@@ -38,8 +38,8 @@ for in-memory caching.}
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
 
-\item{.verbose}{Logical. If \code{TRUE}, prints detailed diagnostic information
-during credential discovery and authentication. Defaults to \code{FALSE}.}
+\item{.silent}{Logical. If \code{FALSE}, prints detailed diagnostic information
+during credential discovery and authentication. Defaults to \code{TRUE}.}
 }
 \value{
 A function that retrieves and returns an authentication token when

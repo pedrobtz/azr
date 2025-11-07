@@ -48,10 +48,16 @@ default_azure_client_id <- function() {
 #' @examples
 #' default_azure_client_secret()
 default_azure_client_secret <- function() {
-  Sys.getenv(
+  res <- Sys.getenv(
     environment_variables$azure_client_secret,
     unset = NA_character_
   )
+
+  if (is.na(res)) {
+    NULL
+  } else {
+    res
+  }
 }
 
 
