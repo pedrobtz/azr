@@ -1,0 +1,87 @@
+# Get Authentication Token
+
+Retrieves an authentication token using the default token provider. This
+is a convenience function that combines credential discovery and token
+acquisition in a single step.
+
+## Usage
+
+``` r
+get_token(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = FALSE,
+  .chain = default_credential_chain(),
+  .silent = TRUE
+)
+```
+
+## Arguments
+
+- scope:
+
+  Optional character string specifying the authentication scope.
+
+- tenant_id:
+
+  Optional character string specifying the tenant ID for authentication.
+
+- client_id:
+
+  Optional character string specifying the client ID for authentication.
+
+- client_secret:
+
+  Optional character string specifying the client secret for
+  authentication.
+
+- use_cache:
+
+  Character string indicating the caching strategy. Defaults to
+  `"disk"`. Options include `"disk"` for disk-based caching or
+  `"memory"` for in-memory caching.
+
+- offline:
+
+  Logical. If `TRUE`, operates in offline mode. Defaults to `FALSE`.
+
+- .chain:
+
+  A list of credential objects, where each element must inherit from the
+  `Credential` base class. Credentials are attempted in the order
+  provided until `get_token` succeeds.
+
+- .silent:
+
+  Logical. If `FALSE`, prints detailed diagnostic information during
+  credential discovery and authentication. Defaults to `TRUE`.
+
+## Value
+
+An
+[`httr2::oauth_token()`](https://httr2.r-lib.org/reference/oauth_token.html)
+object.
+
+## See also
+
+[`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md),
+[`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md)
+
+## Examples
+
+``` r
+# In non-interactive sessions, this function will return an error if the
+# environment is not setup with valid credentials. And in an interactive session
+# the user will be prompted to attempt one of the interactive authentication flows.
+if (FALSE) { # \dontrun{
+token <- get_token(
+  scope = "https://graph.microsoft.com/.default",
+  tenant_id = "my-tenant-id",
+  client_id = "my-client-id",
+  client_secret = "my-secret"
+)
+} # }
+```
