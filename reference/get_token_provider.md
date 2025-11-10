@@ -14,7 +14,7 @@ get_token_provider(
   client_id = NULL,
   client_secret = NULL,
   use_cache = "disk",
-  offline = FALSE,
+  offline = TRUE,
   .chain = default_credential_chain(),
   .silent = TRUE
 )
@@ -47,7 +47,8 @@ get_token_provider(
 
 - offline:
 
-  Logical. If `TRUE`, operates in offline mode. Defaults to `FALSE`.
+  Logical. If `TRUE`, adds 'offline_access' to the scope to request a
+  'refresh_token'. Defaults to `TRUE`.
 
 - .chain:
 

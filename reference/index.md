@@ -10,6 +10,8 @@
   : Client secret credential authentication
 - [`DeviceCodeCredential`](https://pedrobtz.github.io/azr/reference/DeviceCodeCredential.md)
   : Device code credential authentication
+- [`credential_chain()`](https://pedrobtz.github.io/azr/reference/credential_chain.md)
+  : Create Custom Credential Chain
 - [`default_azure_client_id()`](https://pedrobtz.github.io/azr/reference/default_azure_client_id.md)
   : Get default Azure client ID
 - [`default_azure_client_secret()`](https://pedrobtz.github.io/azr/reference/default_azure_client_secret.md)
@@ -24,6 +26,8 @@
   : Get default Azure tenant ID
 - [`default_azure_url()`](https://pedrobtz.github.io/azr/reference/default_azure_url.md)
   : Get default Azure OAuth URLs
+- [`default_credential_chain()`](https://pedrobtz.github.io/azr/reference/default_credential_chain.md)
+  : Create Default Credential Chain
 - [`default_redirect_uri()`](https://pedrobtz.github.io/azr/reference/default_redirect_uri.md)
   : Get default OAuth redirect URI
 - [`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md)

@@ -54,8 +54,8 @@ from the discovered credential object.</p>
 <span>  client_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  client_secret <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  use_cache <span class="op">=</span> <span class="st">"disk"</span>,</span>
-<span>  offline <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  .chain <span class="op">=</span> <span class="fu">default_credential_chain</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  offline <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .chain <span class="op">=</span> <span class="fu"><a href="default_credential_chain.html">default_credential_chain</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  .silent <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -90,8 +90,8 @@ for in-memory caching.</p></dd>
 
 
 <dt id="arg-offline">offline<a class="anchor" aria-label="anchor" href="#arg-offline"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, operates in offline mode. Defaults to
-<code>FALSE</code>.</p></dd>
+<dd><p>Logical. If <code>TRUE</code>, adds 'offline_access' to the scope to request a 'refresh_token'.
+Defaults to <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg--chain">.chain<a class="anchor" aria-label="anchor" href="#arg--chain"></a></dt>
