@@ -15,8 +15,8 @@
 #' @param use_cache Character string indicating the caching strategy. Defaults
 #'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
 #'   for in-memory caching.
-#' @param offline Logical. If `TRUE`, operates in offline mode. Defaults to
-#'   `FALSE`.
+#' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
+#'   Defaults to `TRUE`.
 #' @param .chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
@@ -48,7 +48,7 @@ get_token_provider <- function(scope = NULL,
                                client_id = NULL,
                                client_secret = NULL,
                                use_cache = "disk",
-                               offline = FALSE,
+                               offline = TRUE,
                                .chain = default_credential_chain(),
                                .silent = TRUE) {
   crd <- find_credential(
@@ -88,8 +88,8 @@ get_token_provider <- function(scope = NULL,
 #' @param use_cache Character string indicating the caching strategy. Defaults
 #'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
 #'   for in-memory caching.
-#' @param offline Logical. If `TRUE`, operates in offline mode. Defaults to
-#'   `FALSE`.
+#' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
+#'   Defaults to `TRUE`.
 #' @param .chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
@@ -119,7 +119,7 @@ get_request_authorizer <- function(scope = NULL,
                                    client_id = NULL,
                                    client_secret = NULL,
                                    use_cache = "disk",
-                                   offline = FALSE,
+                                   offline = TRUE,
                                    .chain = default_credential_chain(),
                                    .silent = TRUE) {
   crd <- find_credential(
@@ -154,8 +154,8 @@ get_request_authorizer <- function(scope = NULL,
 #' @param use_cache Character string indicating the caching strategy. Defaults
 #'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
 #'   for in-memory caching.
-#' @param offline Logical. If `TRUE`, operates in offline mode. Defaults to
-#'   `FALSE`.
+#' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
+#'   Defaults to `TRUE`.
 #' @param .chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
@@ -185,7 +185,7 @@ get_token <- function(scope = NULL,
                       client_id = NULL,
                       client_secret = NULL,
                       use_cache = "disk",
-                      offline = FALSE,
+                      offline = TRUE,
                       .chain = default_credential_chain(),
                       .silent = TRUE) {
   provider <- get_token_provider(
@@ -275,6 +275,24 @@ find_credential <- function(scope = NULL,
 }
 
 
+#' Create Default Credential Chain
+#'
+#' Creates the default chain of credentials to attempt during authentication.
+#' The credentials are tried in order until one successfully authenticates.
+#' The default chain includes:
+#' \enumerate{
+#'   \item Client Secret Credential - Uses client ID and secret
+#'   \item Azure CLI Credential - Uses credentials from Azure CLI
+#'   \item Authorization Code Credential - Interactive browser-based authentication
+#'   \item Device Code Credential - Interactive device code flow
+#' }
+#'
+#' @return A `credential_chain` object containing the default sequence of
+#'   credential providers.
+#'
+#' @seealso [credential_chain()], [get_token_provider()]
+#'
+#' @export
 default_credential_chain <- function() {
   credential_chain(
     client_secret = ClientSecretCredential,
@@ -284,6 +302,45 @@ default_credential_chain <- function() {
   )
 }
 
+
+#' Create Custom Credential Chain
+#'
+#' Creates a custom chain of credential providers to attempt during
+#' authentication. Credentials are tried in the order they are provided
+#' until one successfully authenticates. This allows you to customize
+#' the authentication flow beyond the default credential chain.
+#'
+#' @param ... Named credential objects or credential classes. Each element
+#'   should be a credential class (e.g., `ClientSecretCredential`) or an
+#'   instantiated credential object that inherits from the `Credential`
+#'   base class. The names are used for identification purposes.
+#'
+#' @return A `credential_chain` object containing the specified sequence
+#'   of credential providers.
+#'
+#' @seealso [default_credential_chain()], [get_token_provider()]
+#'
+#' @examples
+#' # Create a custom chain with only non-interactive credentials
+#' custom_chain <- credential_chain(
+#'   client_secret = ClientSecretCredential,
+#'   azure_cli = AzureCLICredential
+#' )
+#'
+#' # Use the custom chain to get a token
+#' \dontrun{
+#' token <- get_token(
+#'   scope = "https://graph.microsoft.com/.default",
+#'   .chain = custom_chain
+#' )
+#' }
+#'
+#' @export
+credential_chain <- function(...) {
+  res <- rlang::enquos(...)
+  class(res) <- c("credential_chain", class(res))
+  res
+}
 
 new_instance <- function(cls, env = rlang::caller_env()) {
   cls_args <- r6_get_initialize_arguments(cls)

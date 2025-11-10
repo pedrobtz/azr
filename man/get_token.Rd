@@ -10,7 +10,7 @@ get_token(
   client_id = NULL,
   client_secret = NULL,
   use_cache = "disk",
-  offline = FALSE,
+  offline = TRUE,
   .chain = default_credential_chain(),
   .silent = TRUE
 )
@@ -31,8 +31,8 @@ for authentication.}
 to \code{"disk"}. Options include \code{"disk"} for disk-based caching or \code{"memory"}
 for in-memory caching.}
 
-\item{offline}{Logical. If \code{TRUE}, operates in offline mode. Defaults to
-\code{FALSE}.}
+\item{offline}{Logical. If \code{TRUE}, adds 'offline_access' to the scope to request a 'refresh_token'.
+Defaults to \code{TRUE}.}
 
 \item{.chain}{A list of credential objects, where each element must inherit
 from the \code{Credential} base class. Credentials are attempted in the order
