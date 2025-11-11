@@ -45,7 +45,7 @@ token <- get_token(
 
 # Use the token with httr2
 library(httr2)
-req <- request("https://management.azure.com/subscriptions") |>
+req <- request("https://management.azure.com/subscriptions?api-version=2020-01-01") |>
   req_auth_bearer_token(token$access_token)
 
 resp <- req_perform(req)
