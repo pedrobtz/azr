@@ -1,3 +1,4 @@
+# ClientSecretCredential ----
 #' Client secret credential authentication
 #'
 #' @description

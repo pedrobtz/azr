@@ -59,7 +59,8 @@ DeviceCodeCredential <- R6::R6Class(
         client_id = client_id,
         use_cache = use_cache,
         offline = offline,
-        oauth_endpoint = "devicecode"
+        oauth_endpoint = "devicecode",
+        name = "azr-device-code"
       )
     },
     #' @description
@@ -171,7 +172,8 @@ AuthCodeCredential <- R6::R6Class(
         client_id = client_id,
         use_cache = use_cache,
         offline = offline,
-        oauth_endpoint = "authorize"
+        oauth_endpoint = "authorize",
+        name = "azr-auth-code"
       )
 
       self$.redirect_uri <- default_redirect_uri()

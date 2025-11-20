@@ -2,6 +2,7 @@ Credential <- R6::R6Class(
   classname = "Credential",
   public = list(
     .id = NULL,
+    .name = NULL,
     .scope = NULL,
     .scope_str = NULL,
     .resource = NULL,
@@ -23,7 +24,8 @@ Credential <- R6::R6Class(
                           client_secret = NULL,
                           use_cache = c("disk", "memory"),
                           offline = FALSE,
-                          oauth_endpoint = NULL) {
+                          oauth_endpoint = NULL,
+                          name = NULL) {
       if (!rlang::is_interactive() && self$is_interactive()) {
         cli::cli_abort("Credential {.cls {class(self)[[1]]}} requires an interactive session")
       }
@@ -48,6 +50,8 @@ Credential <- R6::R6Class(
       self$.cache_key <- c(self$.client_id, self$.tenant_id, self$.scope, self$.classname)
       self$.id <- rlang::hash(self$.cache_key)
 
+      self$.name <- name %||% self$.id
+
       self$.oauth_host <- default_azure_host()
       self$.token_url <- default_azure_url(
         endpoint = "token",
@@ -66,7 +70,7 @@ Credential <- R6::R6Class(
       }
 
       self$.oauth_client <- httr2::oauth_client(
-        name = self$.id,
+        name = self$.name,
         id = self$.client_id,
         secret = self$.client_secret,
         token_url = self$.token_url,
