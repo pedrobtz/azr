@@ -110,6 +110,7 @@ get_env_config <- function() {
   client_id_env <- Sys.getenv("AZURE_CLIENT_ID", unset = "")
   client_secret_env <- Sys.getenv("AZURE_CLIENT_SECRET", unset = "")
   authority_host_env <- Sys.getenv("AZURE_AUTHORITY_HOST", unset = "")
+  config_dir_env <- Sys.getenv("AZURE_CONFIG_DIR", unset = "")
 
   # Build bullet items
   c(
@@ -137,6 +138,13 @@ get_env_config <- function() {
     } else {
       cli::format_inline(
         "AZURE_AUTHORITY_HOST: {.val {default_azure_host()}} (default)"
+      )
+    },
+    "*" = if (nzchar(config_dir_env)) {
+      cli::format_inline("AZURE_CONFIG_DIR: {.val {config_dir_env}}")
+    } else {
+      cli::format_inline(
+        "AZURE_CONFIG_DIR: {.val {default_azure_config_dir()}} (default)"
       )
     }
   )

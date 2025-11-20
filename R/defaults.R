@@ -183,6 +183,29 @@ default_azure_host <- function() {
 }
 
 
+#' Get default Azure configuration directory
+#'
+#' @description
+#' Retrieves the Azure configuration directory from the `AZURE_CONFIG_DIR`
+#' environment variable, or falls back to the platform-specific default.
+#'
+#' @return A character string with the Azure configuration directory path
+#'
+#' @export
+#' @examples
+#' default_azure_config_dir()
+default_azure_config_dir <- function() {
+  Sys.getenv(
+    "AZURE_CONFIG_DIR",
+    unset = if (.Platform$OS.type == "windows") {
+      file.path(Sys.getenv("USERPROFILE"), ".azure")
+    } else {
+      "~/.azure"
+    }
+  )
+}
+
+
 #' Get default OAuth redirect URI
 #'
 #' @description
