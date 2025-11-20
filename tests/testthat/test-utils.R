@@ -129,8 +129,8 @@ test_that("get_env_config returns formatted bullet list", {
   result <- get_env_config()
 
   expect_type(result, "character")
-  expect_length(result, 4)
-  expect_named(result, c("*", "*", "*", "*"))
+  expect_length(result, 5)
+  expect_named(result, c("*", "*", "*", "*", "*"))
 })
 
 test_that("get_env_config shows environment variables when set", {

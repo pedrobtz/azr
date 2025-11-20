@@ -126,6 +126,32 @@ test_that("default_azure_host returns default when environment variable is empty
   expect_equal(default_azure_host(), "login.microsoftonline.com")
 })
 
+test_that("default_azure_config_dir returns config dir from environment variable", {
+  withr::local_envvar(AZURE_CONFIG_DIR = "/custom/azure/config")
+  expect_equal(default_azure_config_dir(), "/custom/azure/config")
+})
+
+test_that("default_azure_config_dir returns Unix default when environment variable not set", {
+  skip_on_os("windows")
+  withr::local_envvar(AZURE_CONFIG_DIR = NA)
+  expect_equal(default_azure_config_dir(), "~/.azure")
+})
+
+test_that("default_azure_config_dir returns Windows default when environment variable not set", {
+  skip_on_os(c("mac", "linux", "solaris"))
+  withr::local_envvar(
+    AZURE_CONFIG_DIR = NA,
+    USERPROFILE = "C:\\Users\\TestUser"
+  )
+  expect_equal(default_azure_config_dir(), "C:/Users/TestUser/.azure")
+})
+
+test_that("default_azure_config_dir returns default when environment variable is empty", {
+  skip_on_os("windows")
+  withr::local_envvar(AZURE_CONFIG_DIR = NULL)
+  expect_equal(default_azure_config_dir(), "~/.azure")
+})
+
 test_that("default_azure_url returns all URLs as list when endpoint is NULL", {
   withr::local_envvar(AZURE_TENANT_ID = NA, AZURE_AUTHORITY_HOST = NA)
   urls <- default_azure_url()
