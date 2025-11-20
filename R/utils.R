@@ -83,13 +83,13 @@ r6_get_public_fields <- function(cls) {
 }
 
 
-r6_get_class <- function(obj) {
+r6_get_class <- function(obj, envir = rlang::caller_env()) {
   if (!R6::is.R6(obj)) {
     cli::cli_abort(
       "{.arg obj} must be an R6 object, not {.obj_type_friendly {obj}}"
     )
   }
-  get(class(obj)[[1]], envir = getNamespace(methods::getPackageName()))
+  get(class(obj)[[1]], envir = envir)
 }
 
 

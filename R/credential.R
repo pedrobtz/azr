@@ -18,16 +18,20 @@ Credential <- R6::R6Class(
     .token_url = NULL,
     .redirect_uri = NULL,
     .classname = NULL,
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          client_id = NULL,
-                          client_secret = NULL,
-                          use_cache = c("disk", "memory"),
-                          offline = FALSE,
-                          oauth_endpoint = NULL,
-                          name = NULL) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      client_secret = NULL,
+      use_cache = c("disk", "memory"),
+      offline = FALSE,
+      oauth_endpoint = NULL,
+      name = NULL
+    ) {
       if (!rlang::is_interactive() && self$is_interactive()) {
-        cli::cli_abort("Credential {.cls {class(self)[[1]]}} requires an interactive session")
+        cli::cli_abort(
+          "Credential {.cls {class(self)[[1]]}} requires an interactive session"
+        )
       }
 
       self$.classname <- paste(class(self), collapse = "/")
@@ -47,7 +51,12 @@ Credential <- R6::R6Class(
       self$.tenant_id <- tenant_id %||% default_azure_tenant_id()
       self$.use_cache <- rlang::arg_match(use_cache)
 
-      self$.cache_key <- c(self$.client_id, self$.tenant_id, self$.scope, self$.classname)
+      self$.cache_key <- c(
+        self$.client_id,
+        self$.tenant_id,
+        self$.scope,
+        self$.classname
+      )
       self$.id <- rlang::hash(self$.cache_key)
 
       self$.name <- name %||% self$.id
@@ -88,9 +97,19 @@ Credential <- R6::R6Class(
       FALSE
     },
     print = function() {
-      cli::cli_text(cli::style_bold("<", paste(class(self), collapse = "/"), ">"))
+      cli::cli_text(cli::style_bold(
+        "<",
+        paste(class(self), collapse = "/"),
+        ">"
+      ))
 
-      nms <- r6_get_public_fields(cls = r6_get_class(self))
+      nms <- r6_get_public_fields(
+        cls = r6_get_class(
+          self,
+          envir = getNamespace(methods::getPackageName())
+        )
+      )
+
       pfields <- rlang::env_get_list(env = self, nms = nms)
       names(pfields) <- sub("^\\.", "", names(pfields))
 

@@ -43,14 +43,16 @@
 #' }
 #'
 #' @export
-get_token_provider <- function(scope = NULL,
-                               tenant_id = NULL,
-                               client_id = NULL,
-                               client_secret = NULL,
-                               use_cache = "disk",
-                               offline = TRUE,
-                               .chain = default_credential_chain(),
-                               .silent = TRUE) {
+get_token_provider <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  .chain = default_credential_chain(),
+  .silent = TRUE
+) {
   crd <- find_credential(
     scope = scope,
     tenant_id = tenant_id,
@@ -114,14 +116,16 @@ get_token_provider <- function(scope = NULL,
 #' }
 #'
 #' @export
-get_request_authorizer <- function(scope = NULL,
-                                   tenant_id = NULL,
-                                   client_id = NULL,
-                                   client_secret = NULL,
-                                   use_cache = "disk",
-                                   offline = TRUE,
-                                   .chain = default_credential_chain(),
-                                   .silent = TRUE) {
+get_request_authorizer <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  .chain = default_credential_chain(),
+  .silent = TRUE
+) {
   crd <- find_credential(
     scope = scope,
     tenant_id = tenant_id,
@@ -180,14 +184,16 @@ get_request_authorizer <- function(scope = NULL,
 #' }
 #'
 #' @export
-get_token <- function(scope = NULL,
-                      tenant_id = NULL,
-                      client_id = NULL,
-                      client_secret = NULL,
-                      use_cache = "disk",
-                      offline = TRUE,
-                      .chain = default_credential_chain(),
-                      .silent = TRUE) {
+get_token <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  .chain = default_credential_chain(),
+  .silent = TRUE
+) {
   provider <- get_token_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -203,29 +209,36 @@ get_token <- function(scope = NULL,
 }
 
 
-find_credential <- function(scope = NULL,
-                            tenant_id = NULL,
-                            client_id = NULL,
-                            client_secret = NULL,
-                            use_cache = "disk",
-                            offline = FALSE,
-                            oauth_host = NULL,
-                            oauth_endpoint = NULL,
-                            .chain = NULL,
-                            .silent = TRUE) {
+find_credential <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = FALSE,
+  oauth_host = NULL,
+  oauth_endpoint = NULL,
+  .chain = NULL,
+  .silent = TRUE
+) {
   if (is.null(.chain) || length(.chain) == 0L) {
     .chain <- default_credential_chain()
   }
 
   if (!inherits(.chain, "credential_chain")) {
-    cli::cli_abort("Argument {.arg .chain} must be of class {.cls credential_chain}.")
+    cli::cli_abort(
+      "Argument {.arg .chain} must be of class {.cls credential_chain}."
+    )
   }
 
   for (crd_expr in .chain) {
     crd <- try(rlang::eval_tidy(crd_expr), silent = .silent)
 
     if (R6::is.R6Class(crd)) {
-      obj <- try(new_instance(crd, env = rlang::current_env()), silent = .silent)
+      obj <- try(
+        new_instance(crd, env = rlang::current_env()),
+        silent = .silent
+      )
 
       if (inherits(obj, "try-error") || !inherits(obj, "Credential")) {
         next
@@ -338,13 +351,30 @@ default_credential_chain <- function() {
 #' @export
 credential_chain <- function(...) {
   res <- rlang::enquos(...)
+
+  if (length(res) == 0L) {
+    cli::cli_abort(
+      c(
+        "Credential chain cannot be empty.",
+        "i" = "Provide at least one credential class or instance.",
+        "i" = "Use {.fn default_credential_chain} for a pre-configured chain."
+      )
+    )
+  }
+
   class(res) <- c("credential_chain", class(res))
   res
 }
 
 new_instance <- function(cls, env = rlang::caller_env()) {
   cls_args <- r6_get_initialize_arguments(cls)
+
+  if (is.null(cls_args)) {
+    return(cls$new())
+  }
+
   cls_values <- rlang::env_get_list(nms = cls_args, default = NULL, env = env)
+  cls_values <- Filter(Negate(is.null), cls_values)
 
   eval(rlang::call2(cls$new, !!!cls_values))
 }
