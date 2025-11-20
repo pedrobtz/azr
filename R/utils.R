@@ -1,6 +1,8 @@
 validate_tenant_id <- function(x) {
   if (!rlang::is_string(x)) {
-    cli::cli_abort("{.arg x} must be a single string, not {.obj_type_friendly {x}}")
+    cli::cli_abort(
+      "{.arg x} must be a single string, not {.obj_type_friendly {x}}"
+    )
   }
 
   if (!grepl("^[A-Za-z0-9.-]+$", x)) {
@@ -13,7 +15,9 @@ validate_tenant_id <- function(x) {
 
 validate_scope <- function(x) {
   if (!rlang::is_character(x)) {
-    cli::cli_abort("{.arg x} must be a character vector, not {.obj_type_friendly {x}}")
+    cli::cli_abort(
+      "{.arg x} must be a character vector, not {.obj_type_friendly {x}}"
+    )
   }
 
   invalid <- !grepl("^[A-Za-z0-9_.:/-]+$", x)
@@ -43,8 +47,14 @@ get_scope_resource <- function(scope) {
 
 
 r6_get_initialize_arguments <- function(cls) {
+  if (is.null(cls)) {
+    return(NULL)
+  }
+
   if (!R6::is.R6Class(cls)) {
-    cli::cli_abort("{.arg cls} must be an R6 class, not {.obj_type_friendly {cls}}")
+    cli::cli_abort(
+      "{.arg cls} must be an R6 class, not {.obj_type_friendly {cls}}"
+    )
   }
 
   if (is.null(cls$public_methods$initialize)) {
@@ -57,7 +67,9 @@ r6_get_initialize_arguments <- function(cls) {
 
 r6_get_public_fields <- function(cls) {
   if (!R6::is.R6Class(cls)) {
-    cli::cli_abort("{.arg cls} must be an R6 class, not {.obj_type_friendly {cls}}")
+    cli::cli_abort(
+      "{.arg cls} must be an R6 class, not {.obj_type_friendly {cls}}"
+    )
   }
 
   res <- names(cls$public_fields)
@@ -73,7 +85,9 @@ r6_get_public_fields <- function(cls) {
 
 r6_get_class <- function(obj) {
   if (!R6::is.R6(obj)) {
-    cli::cli_abort("{.arg obj} must be an R6 object, not {.obj_type_friendly {obj}}")
+    cli::cli_abort(
+      "{.arg obj} must be an R6 object, not {.obj_type_friendly {obj}}"
+    )
   }
   get(class(obj)[[1]], envir = getNamespace(methods::getPackageName()))
 }
@@ -81,7 +95,8 @@ r6_get_class <- function(obj) {
 
 is_empty <- function(x) {
   is.null(x) ||
-    (rlang::is_scalar_vector(x) && (rlang::is_empty(x) || is.na(x) || !nzchar(x)))
+    (rlang::is_scalar_vector(x) &&
+      (rlang::is_empty(x) || is.na(x) || !nzchar(x)))
 }
 
 
@@ -101,12 +116,16 @@ get_env_config <- function() {
     "*" = if (nzchar(tenant_id_env)) {
       cli::format_inline("AZURE_TENANT_ID: {.val {tenant_id_env}}")
     } else {
-      cli::format_inline("AZURE_TENANT_ID: {.val {default_azure_tenant_id()}} (default)")
+      cli::format_inline(
+        "AZURE_TENANT_ID: {.val {default_azure_tenant_id()}} (default)"
+      )
     },
     "*" = if (nzchar(client_id_env)) {
       cli::format_inline("AZURE_CLIENT_ID: {.val {client_id_env}}")
     } else {
-      cli::format_inline("AZURE_CLIENT_ID: {.val {default_azure_client_id()}} (default)")
+      cli::format_inline(
+        "AZURE_CLIENT_ID: {.val {default_azure_client_id()}} (default)"
+      )
     },
     "*" = if (nzchar(client_secret_env)) {
       paste0("AZURE_CLIENT_SECRET: ", cli::col_grey("<<REDACTED>>"))
@@ -116,7 +135,9 @@ get_env_config <- function() {
     "*" = if (nzchar(authority_host_env)) {
       cli::format_inline("AZURE_AUTHORITY_HOST: {.val {authority_host_env}}")
     } else {
-      cli::format_inline("AZURE_AUTHORITY_HOST: {.val {default_azure_host()}} (default)")
+      cli::format_inline(
+        "AZURE_AUTHORITY_HOST: {.val {default_azure_host()}} (default)"
+      )
     }
   )
 }
