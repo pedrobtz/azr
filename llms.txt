@@ -143,6 +143,8 @@ By contributing to this project, you agree to abide by its terms.
   : Get default Azure client ID
 - [`default_azure_client_secret()`](https://pedrobtz.github.io/azr/reference/default_azure_client_secret.md)
   : Get default Azure client secret
+- [`default_azure_config_dir()`](https://pedrobtz.github.io/azr/reference/default_azure_config_dir.md)
+  : Get default Azure configuration directory
 - [`default_azure_host()`](https://pedrobtz.github.io/azr/reference/default_azure_host.md)
   : Get default Azure authority host
 - [`default_azure_oauth_client()`](https://pedrobtz.github.io/azr/reference/default_azure_oauth_client.md)
