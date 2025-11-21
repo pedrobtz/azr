@@ -44,3 +44,5 @@
   : Get Authentication Token
 - [`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md)
   : Get Default Token Provider Function
+- [`session_graph()`](https://pedrobtz.github.io/azr/reference/session_graph.md)
+  : Create Microsoft Graph API Session
