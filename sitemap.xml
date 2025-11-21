@@ -10,6 +10,8 @@
 <url><loc>https://pedrobtz.github.io/azr/reference/ClientSecretCredential.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/DeviceCodeCredential.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/InteractiveCredential.html</loc></url>
+<url><loc>https://pedrobtz.github.io/azr/reference/api_client.html</loc></url>
+<url><loc>https://pedrobtz.github.io/azr/reference/api_session.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/azr-package.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/azure_authority_hosts.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/azure_client.html</loc></url>
@@ -24,6 +26,7 @@
 <url><loc>https://pedrobtz.github.io/azr/reference/default_azure_tenant_id.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_azure_url.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_credential_chain.html</loc></url>
+<url><loc>https://pedrobtz.github.io/azr/reference/default_non_auth.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_redirect_uri.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/environment_variables.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/get_request_authorizer.html</loc></url>
