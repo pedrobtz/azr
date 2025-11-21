@@ -112,7 +112,7 @@ api_session <- R6::R6Class(
 #' # Use the session to make API calls
 #' # users <- graph$.client$.fetch("/users")
 #' }
-session_graph <- function(version = "v1.0", .chain = NULL) {
+session_graph_api <- function(version = "v1.0", .chain = NULL) {
   credentials <- get_request_authorizer(
     scope = default_azure_scope("azure_graph"),
     tenant_id = default_azure_tenant_id(),
