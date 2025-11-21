@@ -18,7 +18,7 @@ Imports:
     methods,
     R6,
     cli,
-    httr2,
+    httr2 (>= 1.2.1),
     jsonlite,
     rlang
 Suggests: 
