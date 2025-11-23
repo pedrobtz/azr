@@ -30,6 +30,12 @@ account and subscription unless a specific tenant is specified.
 
 - [`AzureCLICredential$req_auth()`](#method-AzureCLICredential-req_auth)
 
+- [`AzureCLICredential$account_show()`](#method-AzureCLICredential-account_show)
+
+- [`AzureCLICredential$login()`](#method-AzureCLICredential-login)
+
+- [`AzureCLICredential$logout()`](#method-AzureCLICredential-logout)
+
 - [`AzureCLICredential$clone()`](#method-AzureCLICredential-clone)
 
 Inherited methods
@@ -46,7 +52,12 @@ Create a new Azure CLI credential
 
 #### Usage
 
-    AzureCLICredential$new(scope = NULL, tenant_id = NULL, process_timeout = NULL)
+    AzureCLICredential$new(
+      scope = NULL,
+      tenant_id = NULL,
+      process_timeout = NULL,
+      login = FALSE
+    )
 
 #### Arguments
 
@@ -64,6 +75,11 @@ Create a new Azure CLI credential
 
   A numeric value specifying the timeout in seconds for the Azure CLI
   process. Defaults to `10`.
+
+- `login`:
+
+  A logical value indicating whether to check if the user is logged in
+  and perform login if needed. Defaults to `FALSE`.
 
 #### Returns
 
@@ -118,6 +134,56 @@ Add authentication to an httr2 request
 #### Returns
 
 The request object with authentication header added
+
+------------------------------------------------------------------------
+
+### Method `account_show()`
+
+Show the currently active Azure CLI account information
+
+#### Usage
+
+    AzureCLICredential$account_show(timeout = NULL)
+
+#### Arguments
+
+- `timeout`:
+
+  A numeric value specifying the timeout in seconds for the Azure CLI
+  command. If `NULL`, uses the process timeout specified during
+  initialization.
+
+#### Returns
+
+A list containing the account information from Azure CLI
+
+------------------------------------------------------------------------
+
+### Method `login()`
+
+Perform Azure CLI login using device code flow
+
+#### Usage
+
+    AzureCLICredential$login()
+
+#### Returns
+
+Invisibly returns the exit status (0 for success, non-zero for failure)
+
+------------------------------------------------------------------------
+
+### Method `logout()`
+
+Log out from Azure CLI
+
+#### Usage
+
+    AzureCLICredential$logout()
+
+#### Returns
+
+Invisibly returns `NULL`
 
 ------------------------------------------------------------------------
 

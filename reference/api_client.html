@@ -33,7 +33,7 @@ and error handling for Azure API requests."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Azure API Client</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/main/R/api_client.R" class="external-link"><code>R/api_client.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/main/R/api-client.R" class="external-link"><code>R/api-client.R</code></a></small>
       <div class="d-none name"><code>api_client.Rd</code></div>
     </div>
 
@@ -63,12 +63,20 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 <dd><p>Base httr2 request object</p></dd>
 
 
+<dt><code>.provider</code></dt>
+<dd><p>Credential provider R6 object</p></dd>
+
+
 <dt><code>.credentials</code></dt>
 <dd><p>Credentials function for authentication</p></dd>
 
 
 <dt><code>.options</code></dt>
 <dd><p>Request options (timeout, connecttimeout, max_tries)</p></dd>
+
+
+<dt><code>.response_handler</code></dt>
+<dd><p>Optional callback function to process response content</p></dd>
 
 
 </dl><p></p></div>
@@ -84,16 +92,20 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 <li><p><a href="#method-api_client-.req_build"><code>api_client$.req_build()</code></a></p></li>
 <li><p><a href="#method-api_client-.req_perform"><code>api_client$.req_perform()</code></a></p></li>
 <li><p><a href="#method-api_client-.resp_content"><code>api_client$.resp_content()</code></a></p></li>
+<li><p><a href="#method-api_client-.get_token"><code>api_client$.get_token()</code></a></p></li>
+<li><p><a href="#method-api_client-clone"><code>api_client$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-api_client-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a new API client instance</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_client.html">api_client</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">host_url</span>,</span>
+<span>  provider <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  credentials <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  timeout <span class="op">=</span> <span class="fl">60L</span>,</span>
 <span>  connecttimeout <span class="op">=</span> <span class="fl">30L</span>,</span>
-<span>  max_tries <span class="op">=</span> <span class="fl">5L</span></span>
+<span>  max_tries <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  response_handler <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -104,10 +116,17 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 (e.g., <code>"https://management.azure.com"</code>).</p></dd>
 
 
+<dt><code>provider</code></dt>
+<dd><p>An R6 credential provider object that inherits from the
+<code>Credential</code> class. If provided, the credential's <code>req_auth</code> method will
+be used for authentication. Takes precedence over <code>credentials</code>.</p></dd>
+
+
 <dt><code>credentials</code></dt>
 <dd><p>A function that adds authentication to requests. If
-<code>NULL</code>, uses <code><a href="default_non_auth.html">default_non_auth()</a></code>. The function should accept
-an httr2 request object and return a modified request with authentication.</p></dd>
+both <code>provider</code> and <code>credentials</code> are <code>NULL</code>, uses <code><a href="default_non_auth.html">default_non_auth()</a></code>.
+The function should accept an httr2 request object and return a modified
+request with authentication.</p></dd>
 
 
 <dt><code>timeout</code></dt>
@@ -123,6 +142,13 @@ seconds. Defaults to <code>30</code>.</p></dd>
 <dt><code>max_tries</code></dt>
 <dd><p>An integer specifying the maximum number of retry
 attempts for failed requests. Defaults to <code>5</code>.</p></dd>
+
+
+<dt><code>response_handler</code></dt>
+<dd><p>An optional function to process the parsed response
+content. The function should accept one argument (the parsed response) and
+return the processed content. If <code>NULL</code>, uses <code><a href="default_response_handler.html">default_response_handler()</a></code>
+which converts data frames to data.table objects. Defaults to <code>NULL</code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -290,6 +316,35 @@ body. If <code>NULL</code>, uses the response's Content-Type header. Common valu
 <li><p>Other: Character string</p></li>
 </ul></div>
 
+</div><p></p><hr><a id="method-api_client-.get_token"></a><div class="section">
+<h3 id="method-get-token-">Method <code>.get_token()</code><a class="anchor" aria-label="anchor" href="#method-get-token-"></a></h3>
+<p>Get authentication token from the credential provider</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.get_token</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<p>An <code><a href="https://httr2.r-lib.org/reference/oauth_token.html" class="external-link">httr2::oauth_token()</a></code> object if a provider is available,
+otherwise returns <code>NULL</code> with a warning.</p>
+</div>
+
+</div><p></p><hr><a id="method-api_client-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>deep</code></dt>
+<dd><p>Whether to make a deep clone.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
 </div>
 
     </div>
@@ -302,7 +357,16 @@ body. If <code>NULL</code>, uses the response's Content-Type header. Common valu
 <span class="r-in"><span>  host_url <span class="op">=</span> <span class="st">"https://management.azure.com"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a client with custom credentials and options</span></span></span>
+<span class="r-in"><span><span class="co"># Create a client with a credential provider</span></span></span>
+<span class="r-in"><span><span class="va">cred_provider</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_credential_provider.html">get_credential_provider</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  scope <span class="op">=</span> <span class="st">"https://management.azure.com/.default"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">client</span> <span class="op">&lt;-</span> <span class="va">api_client</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  host_url <span class="op">=</span> <span class="st">"https://management.azure.com"</span>,</span></span>
+<span class="r-in"><span>  provider <span class="op">=</span> <span class="va">cred_provider</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create a client with custom credentials function</span></span></span>
 <span class="r-in"><span><span class="va">client</span> <span class="op">&lt;-</span> <span class="va">api_client</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  host_url <span class="op">=</span> <span class="st">"https://management.azure.com"</span>,</span></span>
 <span class="r-in"><span>  credentials <span class="op">=</span> <span class="va">my_credential_function</span>,</span></span>
@@ -310,8 +374,18 @@ body. If <code>NULL</code>, uses the response's Content-Type header. Common valu
 <span class="r-in"><span>  max_tries <span class="op">=</span> <span class="fl">3</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create a client with custom response handler</span></span></span>
+<span class="r-in"><span><span class="va">custom_handler</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">content</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Custom processing logic - e.g., keep data frames as-is</span></span></span>
+<span class="r-in"><span>  <span class="va">content</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">client</span> <span class="op">&lt;-</span> <span class="va">api_client</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  host_url <span class="op">=</span> <span class="st">"https://management.azure.com"</span>,</span></span>
+<span class="r-in"><span>  response_handler <span class="op">=</span> <span class="va">custom_handler</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Make a GET request</span></span></span>
-<span class="r-in"><span><span class="va">response</span> <span class="op">&lt;-</span> <span class="va">client</span><span class="op">$</span><span class="fu">.request</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">response</span> <span class="op">&lt;-</span> <span class="va">client</span><span class="op">$</span><span class="fu">.fetch</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  path <span class="op">=</span> <span class="st">"/subscriptions/{subscription_id}/resourceGroups"</span>,</span></span>
 <span class="r-in"><span>  subscription_id <span class="op">=</span> <span class="st">"my-subscription-id"</span>,</span></span>
 <span class="r-in"><span>  req_method <span class="op">=</span> <span class="st">"get"</span></span></span>

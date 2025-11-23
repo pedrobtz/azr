@@ -12,8 +12,22 @@
   : Device code credential authentication
 - [`api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
   : Azure API Client
-- [`api_session`](https://pedrobtz.github.io/azr/reference/api_session.md)
-  : Azure API Session
+- [`api_resource`](https://pedrobtz.github.io/azr/reference/api_resource.md)
+  : Azure API Resource
+- [`api_service`](https://pedrobtz.github.io/azr/reference/api_service.md)
+  : API Service Base Class
+- [`az_cli_account_show()`](https://pedrobtz.github.io/azr/reference/az_cli_account_show.md)
+  : Show Azure CLI Account Information
+- [`az_cli_get_token()`](https://pedrobtz.github.io/azr/reference/az_cli_get_token.md)
+  : Get Access Token from Azure CLI
+- [`az_cli_is_login()`](https://pedrobtz.github.io/azr/reference/az_cli_is_login.md)
+  : Check if User is Logged in to Azure CLI
+- [`az_cli_login()`](https://pedrobtz.github.io/azr/reference/az_cli_login.md)
+  : Azure CLI Device Code Login
+- [`az_cli_logout()`](https://pedrobtz.github.io/azr/reference/az_cli_logout.md)
+  : Azure CLI Logout
+- [`azr_graph_client()`](https://pedrobtz.github.io/azr/reference/azr_graph_client.md)
+  : Create a Microsoft Graph API Client
 - [`credential_chain()`](https://pedrobtz.github.io/azr/reference/credential_chain.md)
   : Create Custom Credential Chain
 - [`default_azure_client_id()`](https://pedrobtz.github.io/azr/reference/default_azure_client_id.md)
@@ -38,11 +52,13 @@
   : Default No Authentication
 - [`default_redirect_uri()`](https://pedrobtz.github.io/azr/reference/default_redirect_uri.md)
   : Get default OAuth redirect URI
+- [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
+  : Default Response Handler
+- [`get_credential_provider()`](https://pedrobtz.github.io/azr/reference/get_credential_provider.md)
+  : Get Credential Provider
 - [`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md)
   : Get Default Request Authorizer Function
 - [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
   : Get Authentication Token
 - [`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md)
   : Get Default Token Provider Function
-- [`session_graph()`](https://pedrobtz.github.io/azr/reference/session_graph.md)
-  : Create Microsoft Graph API Session

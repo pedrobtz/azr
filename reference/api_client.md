@@ -29,6 +29,10 @@ service-specific clients. It provides:
 
   Base httr2 request object
 
+- `.provider`:
+
+  Credential provider R6 object
+
 - `.credentials`:
 
   Credentials function for authentication
@@ -36,6 +40,10 @@ service-specific clients. It provides:
 - `.options`:
 
   Request options (timeout, connecttimeout, max_tries)
+
+- `.response_handler`:
+
+  Optional callback function to process response content
 
 ## Methods
 
@@ -51,6 +59,10 @@ service-specific clients. It provides:
 
 - [`api_client$.resp_content()`](#method-api_client-.resp_content)
 
+- [`api_client$.get_token()`](#method-api_client-.get_token)
+
+- [`api_client$clone()`](#method-api_client-clone)
+
 ------------------------------------------------------------------------
 
 ### Method `new()`
@@ -61,10 +73,12 @@ Create a new API client instance
 
     api_client$new(
       host_url,
+      provider = NULL,
       credentials = NULL,
       timeout = 60L,
       connecttimeout = 30L,
-      max_tries = 5L
+      max_tries = 5L,
+      response_handler = NULL
     )
 
 #### Arguments
@@ -74,9 +88,16 @@ Create a new API client instance
   A character string specifying the base URL for the API (e.g.,
   `"https://management.azure.com"`).
 
+- `provider`:
+
+  An R6 credential provider object that inherits from the `Credential`
+  class. If provided, the credential's `req_auth` method will be used
+  for authentication. Takes precedence over `credentials`.
+
 - `credentials`:
 
-  A function that adds authentication to requests. If `NULL`, uses
+  A function that adds authentication to requests. If both `provider`
+  and `credentials` are `NULL`, uses
   [`default_non_auth()`](https://pedrobtz.github.io/azr/reference/default_non_auth.md).
   The function should accept an httr2 request object and return a
   modified request with authentication.
@@ -95,6 +116,14 @@ Create a new API client instance
 
   An integer specifying the maximum number of retry attempts for failed
   requests. Defaults to `5`.
+
+- `response_handler`:
+
+  An optional function to process the parsed response content. The
+  function should accept one argument (the parsed response) and return
+  the processed content. If `NULL`, uses
+  [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
+  which converts data frames to data.table objects. Defaults to `NULL`.
 
 #### Returns
 
@@ -291,6 +320,39 @@ Parsed response body. Format depends on content type:
 
 - Other: Character string
 
+------------------------------------------------------------------------
+
+### Method `.get_token()`
+
+Get authentication token from the credential provider
+
+#### Usage
+
+    api_client$.get_token()
+
+#### Returns
+
+An
+[`httr2::oauth_token()`](https://httr2.r-lib.org/reference/oauth_token.html)
+object if a provider is available, otherwise returns `NULL` with a
+warning.
+
+------------------------------------------------------------------------
+
+### Method `clone()`
+
+The objects of this class are cloneable with this method.
+
+#### Usage
+
+    api_client$clone(deep = FALSE)
+
+#### Arguments
+
+- `deep`:
+
+  Whether to make a deep clone.
+
 ## Examples
 
 ``` r
@@ -300,7 +362,16 @@ client <- api_client$new(
   host_url = "https://management.azure.com"
 )
 
-# Create a client with custom credentials and options
+# Create a client with a credential provider
+cred_provider <- get_credential_provider(
+  scope = "https://management.azure.com/.default"
+)
+client <- api_client$new(
+  host_url = "https://management.azure.com",
+  provider = cred_provider
+)
+
+# Create a client with custom credentials function
 client <- api_client$new(
   host_url = "https://management.azure.com",
   credentials = my_credential_function,
@@ -308,8 +379,18 @@ client <- api_client$new(
   max_tries = 3
 )
 
+# Create a client with custom response handler
+custom_handler <- function(content) {
+  # Custom processing logic - e.g., keep data frames as-is
+  content
+}
+client <- api_client$new(
+  host_url = "https://management.azure.com",
+  response_handler = custom_handler
+)
+
 # Make a GET request
-response <- client$.request(
+response <- client$.fetch(
   path = "/subscriptions/{subscription_id}/resourceGroups",
   subscription_id = "my-subscription-id",
   req_method = "get"
