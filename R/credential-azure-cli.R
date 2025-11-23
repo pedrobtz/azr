@@ -51,12 +51,10 @@ AzureCLICredential <- R6::R6Class(
     #'   logged in and perform login if needed. Defaults to `FALSE`.
     #'
     #' @return A new `AzureCLICredential` object
-    initialize = function(
-      scope = NULL,
-      tenant_id = NULL,
-      process_timeout = NULL,
-      login = FALSE
-    ) {
+    initialize = function(scope = NULL,
+                          tenant_id = NULL,
+                          process_timeout = NULL,
+                          login = FALSE) {
       super$initialize(scope = scope, tenant_id = tenant_id)
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
@@ -350,7 +348,6 @@ az_cli_is_login <- function(timeout = 10L) {
 #'
 #' @export
 az_cli_login <- function() {
-
   az_path <- az_cli_available()
   az_args <- c("login", "--use-device-code")
 

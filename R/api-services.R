@@ -41,7 +41,10 @@ validate_endpoint_paths <- function(endpoint_paths) {
     # Check for valid URL path characters (alphanumeric, hyphens, underscores, dots, slashes)
     if (!grepl("^[a-zA-Z0-9._/-]+$", endpoint_path)) {
       cli::cli_abort(
-        "Endpoint path at position {i} ({.val {endpoint_path}}) contains invalid characters. Only alphanumeric, '.', '_', '-', and '/' are allowed."
+        c(
+          "Endpoint path at position {i} ({.val {endpoint_path}}) contains invalid characters.",
+          "i" = "Only alphanumeric, '.', '_', '-', and '/' are allowed."
+        )
       )
     }
   }
@@ -81,12 +84,10 @@ api_service <- R6::R6Class(
     #' @param config A list of configuration options. Defaults to an empty list.
     #'
     #' @return A new `api_service` object
-    initialize = function(
-      client = NULL,
-      chain = NULL,
-      endpoints = list(),
-      config = list()
-    ) {
+    initialize = function(client = NULL,
+                          chain = NULL,
+                          endpoints = list(),
+                          config = list()) {
       self$.client <- client
       private$.chain <- chain
       private$.config <- config

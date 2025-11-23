@@ -98,15 +98,13 @@ api_client <- R6::R6Class(
     #'   which converts data frames to data.table objects. Defaults to `NULL`.
     #'
     #' @return A new `api_client` object
-    initialize = function(
-      host_url,
-      provider = NULL,
-      credentials = NULL,
-      timeout = 60L,
-      connecttimeout = 30L,
-      max_tries = 5L,
-      response_handler = NULL
-    ) {
+    initialize = function(host_url,
+                          provider = NULL,
+                          credentials = NULL,
+                          timeout = 60L,
+                          connecttimeout = 30L,
+                          max_tries = 5L,
+                          response_handler = NULL) {
       if (!missing(host_url)) {
         self$.host_url <- host_url
       }
@@ -216,15 +214,13 @@ api_client <- R6::R6Class(
     #'   - `"headers"`: List of response headers
     #'   - `"response"`: Full [httr2::response()] object
     #'   - `"request"`: [httr2::request()] object
-    .fetch = function(
-      path,
-      ...,
-      req_data = NULL,
-      req_method = "get",
-      verbosity = 0L,
-      content = c("body", "headers", "response", "request"),
-      content_type = NULL
-    ) {
+    .fetch = function(path,
+                      ...,
+                      req_data = NULL,
+                      req_method = "get",
+                      verbosity = 0L,
+                      content = c("body", "headers", "response", "request"),
+                      content_type = NULL) {
       content <- match.arg(content)
 
       req <- self$.req_build(
@@ -240,8 +236,7 @@ api_client <- R6::R6Class(
 
       resp <- self$.req_perform(req, verbosity = verbosity)
 
-      switch(
-        content,
+      switch(content,
         body = self$.resp_content(resp, content_type = content_type),
         headers = httr2::resp_headers(resp),
         response = resp
@@ -341,8 +336,7 @@ api_client <- R6::R6Class(
         content_type <- httr2::resp_content_type(resp)
       }
 
-      ans <- switch(
-        content_type,
+      ans <- switch(content_type,
         "application/json" = httr2::resp_body_json(
           resp,
           simplifyVector = TRUE,
