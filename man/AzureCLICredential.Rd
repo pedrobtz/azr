@@ -50,6 +50,9 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \item \href{#method-AzureCLICredential-new}{\code{AzureCLICredential$new()}}
 \item \href{#method-AzureCLICredential-get_token}{\code{AzureCLICredential$get_token()}}
 \item \href{#method-AzureCLICredential-req_auth}{\code{AzureCLICredential$req_auth()}}
+\item \href{#method-AzureCLICredential-account_show}{\code{AzureCLICredential$account_show()}}
+\item \href{#method-AzureCLICredential-login}{\code{AzureCLICredential$login()}}
+\item \href{#method-AzureCLICredential-logout}{\code{AzureCLICredential$logout()}}
 \item \href{#method-AzureCLICredential-clone}{\code{AzureCLICredential$clone()}}
 }
 }
@@ -68,7 +71,12 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \subsection{Method \code{new()}}{
 Create a new Azure CLI credential
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$new(scope = NULL, tenant_id = NULL, process_timeout = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$new(
+  scope = NULL,
+  tenant_id = NULL,
+  process_timeout = NULL,
+  login = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -82,6 +90,9 @@ tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI
 
 \item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
 for the Azure CLI process. Defaults to \code{10}.}
+
+\item{\code{login}}{A logical value indicating whether to check if the user is
+logged in and perform login if needed. Defaults to \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -131,6 +142,54 @@ uses the scope specified during initialization.}
 }
 \subsection{Returns}{
 The request object with authentication header added
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AzureCLICredential-account_show"></a>}}
+\if{latex}{\out{\hypertarget{method-AzureCLICredential-account_show}{}}}
+\subsection{Method \code{account_show()}}{
+Show the currently active Azure CLI account information
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$account_show(timeout = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{timeout}}{A numeric value specifying the timeout in seconds for the
+Azure CLI command. If \code{NULL}, uses the process timeout specified during
+initialization.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list containing the account information from Azure CLI
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AzureCLICredential-login"></a>}}
+\if{latex}{\out{\hypertarget{method-AzureCLICredential-login}{}}}
+\subsection{Method \code{login()}}{
+Perform Azure CLI login using device code flow
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$login()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Invisibly returns the exit status (0 for success, non-zero for failure)
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AzureCLICredential-logout"></a>}}
+\if{latex}{\out{\hypertarget{method-AzureCLICredential-logout}{}}}
+\subsection{Method \code{logout()}}{
+Log out from Azure CLI
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$logout()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Invisibly returns \code{NULL}
 }
 }
 \if{html}{\out{<hr>}}

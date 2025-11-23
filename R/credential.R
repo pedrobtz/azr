@@ -87,6 +87,25 @@ Credential <- R6::R6Class(
       )
 
       self$validate()
+
+      # Lock all public fields to prevent modification
+      lockBinding(".id", self)
+      lockBinding(".name", self)
+      lockBinding(".scope", self)
+      lockBinding(".scope_str", self)
+      lockBinding(".resource", self)
+      lockBinding(".client_id", self)
+      lockBinding(".client_secret", self)
+      lockBinding(".tenant_id", self)
+      lockBinding(".use_cache", self)
+      lockBinding(".cache_key", self)
+      lockBinding(".oauth_client", self)
+      lockBinding(".oauth_host", self)
+      lockBinding(".oauth_endpoint", self)
+      lockBinding(".oauth_url", self)
+      lockBinding(".token_url", self)
+      lockBinding(".redirect_uri", self)
+      lockBinding(".classname", self)
     },
     validate = function() {
       validate_scope(self$.scope)

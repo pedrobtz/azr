@@ -22,7 +22,16 @@
 #'   host_url = "https://management.azure.com"
 #' )
 #'
-#' # Create a client with custom credentials and options
+#' # Create a client with a credential provider
+#' cred_provider <- get_credential_provider(
+#'   scope = "https://management.azure.com/.default"
+#' )
+#' client <- api_client$new(
+#'   host_url = "https://management.azure.com",
+#'   provider = cred_provider
+#' )
+#'
+#' # Create a client with custom credentials function
 #' client <- api_client$new(
 #'   host_url = "https://management.azure.com",
 #'   credentials = my_credential_function,
@@ -30,8 +39,18 @@
 #'   max_tries = 3
 #' )
 #'
+#' # Create a client with custom response handler
+#' custom_handler <- function(content) {
+#'   # Custom processing logic - e.g., keep data frames as-is
+#'   content
+#' }
+#' client <- api_client$new(
+#'   host_url = "https://management.azure.com",
+#'   response_handler = custom_handler
+#' )
+#'
 #' # Make a GET request
-#' response <- client$.request(
+#' response <- client$.fetch(
 #'   path = "/subscriptions/{subscription_id}/resourceGroups",
 #'   subscription_id = "my-subscription-id",
 #'   req_method = "get"
@@ -40,39 +59,53 @@
 api_client <- R6::R6Class(
   # nolint cyclocomp_linter
   classname = "api_client",
-  cloneable = FALSE,
+  cloneable = TRUE,
   # > public ----
   public = list(
     #' @field .host_url Base URL for the API
     .host_url = NULL,
     #' @field .base_req Base httr2 request object
     .base_req = NULL,
+    #' @field .provider Credential provider R6 object
+    .provider = NULL,
     #' @field .credentials Credentials function for authentication
     .credentials = NULL,
     #' @field .options Request options (timeout, connecttimeout, max_tries)
     .options = NULL,
+    #' @field .response_handler Optional callback function to process response content
+    .response_handler = NULL,
     #' @description
     #' Create a new API client instance
     #'
     #' @param host_url A character string specifying the base URL for the API
     #'   (e.g., `"https://management.azure.com"`).
+    #' @param provider An R6 credential provider object that inherits from the
+    #'   `Credential` class. If provided, the credential's `req_auth` method will
+    #'   be used for authentication. Takes precedence over `credentials`.
     #' @param credentials A function that adds authentication to requests. If
-    #'   `NULL`, uses [default_non_auth()]. The function should accept
-    #'   an httr2 request object and return a modified request with authentication.
+    #'   both `provider` and `credentials` are `NULL`, uses [default_non_auth()].
+    #'   The function should accept an httr2 request object and return a modified
+    #'   request with authentication.
     #' @param timeout An integer specifying the request timeout in seconds.
     #'   Defaults to `60`.
     #' @param connecttimeout An integer specifying the connection timeout in
     #'   seconds. Defaults to `30`.
     #' @param max_tries An integer specifying the maximum number of retry
     #'   attempts for failed requests. Defaults to `5`.
+    #' @param response_handler An optional function to process the parsed response
+    #'   content. The function should accept one argument (the parsed response) and
+    #'   return the processed content. If `NULL`, uses [default_response_handler()]
+    #'   which converts data frames to data.table objects. Defaults to `NULL`.
     #'
     #' @return A new `api_client` object
     initialize = function(
       host_url,
+      provider = NULL,
       credentials = NULL,
       timeout = 60L,
       connecttimeout = 30L,
-      max_tries = 5L
+      max_tries = 5L,
+      response_handler = NULL
     ) {
       if (!missing(host_url)) {
         self$.host_url <- host_url
@@ -89,12 +122,33 @@ api_client <- R6::R6Class(
         is.character(self$.host_url)
       )
 
+      # Handle credential provider if provided
+      if (!is.null(provider)) {
+        if (!R6::is.R6(provider) || !inherits(provider, "Credential")) {
+          stop(
+            "Argument 'provider' must be an R6 object that inherits from 'Credential' class.",
+            call. = FALSE
+          )
+        }
+        self$.provider <- provider
+        credentials <- function(req) provider$req_auth(req)
+      }
+
+      # Handle credentials function
       if (is.null(credentials)) {
         credentials <- default_non_auth()
       }
 
       stopifnot(is.function(credentials))
       self$.credentials <- credentials
+
+      # Handle response handler function
+      if (is.null(response_handler)) {
+        response_handler <- default_response_handler()
+      }
+
+      stopifnot(is.function(response_handler))
+      self$.response_handler <- response_handler
 
       self$.base_req <- httr2::request(self$.host_url) |>
         httr2::req_options(
@@ -125,6 +179,14 @@ api_client <- R6::R6Class(
           }
           return(txt)
         })
+
+      # Lock all public fields to prevent modification
+      lockBinding(".host_url", self)
+      lockBinding(".base_req", self)
+      lockBinding(".provider", self)
+      lockBinding(".credentials", self)
+      lockBinding(".options", self)
+      lockBinding(".response_handler", self)
     },
     #' @description
     #' Make an HTTP request to the API
@@ -291,16 +353,25 @@ api_client <- R6::R6Class(
         httr2::resp_body_string(resp)
       )
 
-      if (is.list(ans)) {
-        ans <- lapply(ans, function(x) {
-          if (is.data.frame(x)) {
-            data.table::as.data.table(x)
-          } else {
-            x
-          }
-        })
-      }
+      # Apply response handler callback
+      ans <- self$.response_handler(ans)
+
       return(ans)
+    },
+    #' @description
+    #' Get authentication token from the credential provider
+    #'
+    #' @return An [httr2::oauth_token()] object if a provider is available,
+    #'   otherwise returns `NULL` with a warning.
+    .get_token = function() {
+      if (!is.null(self$.provider)) {
+        return(self$.provider$get_token())
+      } else {
+        cli::cli_warn(
+          "No credential provider available. Cannot retrieve token."
+        )
+        return(invisible(NULL))
+      }
     }
   )
 )
@@ -370,6 +441,62 @@ format_json_body <- function(x, params = NULL, max_size = 12L) {
 #' @export
 default_non_auth <- function(req) {
   req
+}
+
+#' Default Response Handler
+#'
+#' @description
+#' Default callback function for processing API response content. This function
+#' converts data frames within lists to data.table objects for better performance
+#' and functionality, if the data.table package is available.
+#'
+#' @details
+#' The function recursively processes list responses and converts any data.frame
+#' objects to data.table objects using [data.table::as.data.table()], but only
+#' if the data.table package is installed. If data.table is not available,
+#' data frames are returned unchanged. Non-data.frame elements are always
+#' returned unchanged.
+#'
+#' @return A function that accepts parsed response content and returns processed content
+#'
+#' @examples
+#' # Get the default handler
+#' handler <- default_response_handler()
+#'
+#' # Use with a custom handler
+#' custom_handler <- function(content) {
+#'   # Your custom processing logic
+#'   content
+#' }
+#'
+#' @export
+default_response_handler <- function() {
+  function(content) {
+    if (is.list(content)) {
+      # Check if data.table is available
+      has_data_table <- rlang::is_installed("data.table")
+
+      content <- lapply(content, function(x) {
+        if (is.data.frame(x) && has_data_table) {
+          tryCatch(
+            data.table::as.data.table(x),
+            error = function(e) {
+              cli::cli_warn(
+                c(
+                  "Failed to convert data.frame to data.table: {e$message}",
+                  "i" = "Returning original data.frame"
+                )
+              )
+              return(x)
+            }
+          )
+        } else {
+          x
+        }
+      })
+    }
+    return(content)
+  }
 }
 
 drop_null <- function(x) Filter(Negate(is.null), x)

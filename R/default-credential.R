@@ -53,20 +53,15 @@ get_token_provider <- function(
   .chain = default_credential_chain(),
   .silent = TRUE
 ) {
-  crd <- find_credential(
+  crd <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
     client_id = client_id,
     client_secret = client_secret,
     use_cache = use_cache,
     offline = offline,
-    .chain = .chain,
-    .silent = .silent
+    .chain = .chain
   )
-
-  if (isFALSE(.silent)) {
-    print(crd)
-  }
 
   function() {
     crd$get_token()
@@ -126,15 +121,14 @@ get_request_authorizer <- function(
   .chain = default_credential_chain(),
   .silent = TRUE
 ) {
-  crd <- find_credential(
+  crd <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
     client_id = client_id,
     client_secret = client_secret,
     use_cache = use_cache,
     offline = offline,
-    .chain = .chain,
-    .silent = .silent
+    .chain = .chain
   )
 
   function(req) {
@@ -209,7 +203,53 @@ get_token <- function(
 }
 
 
-find_credential <- function(
+#' Get Credential Provider
+#'
+#' @description
+#' Discovers and returns an authenticated credential object from a chain of
+#' credential providers. This function attempts each credential in the chain
+#' until one successfully authenticates, returning the first successful
+#' credential object.
+#'
+#' @param scope Optional character string specifying the authentication scope.
+#' @param tenant_id Optional character string specifying the tenant ID for
+#'   authentication.
+#' @param client_id Optional character string specifying the client ID for
+#'   authentication.
+#' @param client_secret Optional character string specifying the client secret
+#'   for authentication.
+#' @param use_cache Character string indicating the caching strategy. Defaults
+#'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
+#'   for in-memory caching.
+#' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to
+#'   request a 'refresh_token'. Defaults to `FALSE`.
+#' @param oauth_host Optional character string specifying the OAuth host URL.
+#' @param oauth_endpoint Optional character string specifying the OAuth endpoint.
+#' @param .chain A list of credential objects, where each element must inherit
+#'   from the `Credential` base class. Credentials are attempted in the order
+#'   provided until `get_token` succeeds. If `NULL`, uses
+#'   [default_credential_chain()].
+#'
+#' @return A credential object that inherits from the `Credential` class and
+#'   has successfully authenticated.
+#'
+#' @seealso [get_token_provider()], [get_request_authorizer()],
+#'   [default_credential_chain()]
+#'
+#' @examples
+#' \dontrun{
+#' # Get a credential provider with default settings
+#' cred <- get_credential_provider(
+#'   scope = "https://graph.microsoft.com/.default",
+#'   tenant_id = "my-tenant-id"
+#' )
+#'
+#' # Use the credential to get a token
+#' token <- cred$get_token()
+#' }
+#'
+#' @export
+get_credential_provider <- function(
   scope = NULL,
   tenant_id = NULL,
   client_id = NULL,
@@ -218,8 +258,7 @@ find_credential <- function(
   offline = FALSE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  .chain = NULL,
-  .silent = TRUE
+  .chain = NULL
 ) {
   if (is.null(.chain) || length(.chain) == 0L) {
     .chain <- default_credential_chain()
@@ -232,12 +271,12 @@ find_credential <- function(
   }
 
   for (crd_expr in .chain) {
-    crd <- try(rlang::eval_tidy(crd_expr), silent = .silent)
+    crd <- try(rlang::eval_tidy(crd_expr), silent = TRUE)
 
     if (R6::is.R6Class(crd)) {
       obj <- try(
         new_instance(crd, env = rlang::current_env()),
-        silent = .silent
+        silent = TRUE
       )
 
       if (inherits(obj, "try-error") || !inherits(obj, "Credential")) {
@@ -249,37 +288,21 @@ find_credential <- function(
       next
     }
 
-    if (isFALSE(.silent)) {
-      cli::cli_alert_info("Trying: {.cls {class(obj)[[1]]}}")
-    }
-
     if (obj$is_interactive() && !rlang::is_interactive()) {
-      if (isFALSE(.silent)) {
-        cli::cli_alert_warning("Skipping (non-interactive session)")
-      }
       next
     }
 
     token <- tryCatch(
       obj$get_token(),
       error = function(e) {
-        if (isFALSE(.silent)) {
-          print(e)
-        }
         NULL
       },
       interrupt = function(e) {
-        if (isFALSE(.silent)) {
-          cli::cli_alert_danger("Interrupted!")
-        }
         NULL
       }
     )
 
     if (inherits(token, "httr2_token")) {
-      if (isFALSE(.silent)) {
-        cli::cli_alert_danger("Successful!")
-      }
       return(obj)
     }
   }

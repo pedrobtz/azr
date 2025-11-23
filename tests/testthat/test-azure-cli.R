@@ -31,7 +31,7 @@ test_that("AzureCLICredential$get_token fails when Azure CLI is not available", 
 
   expect_error(
     cred$get_token(),
-    "Azure CLI not found on path"
+    "User is not logged in to Azure CLI"
   )
 })
 

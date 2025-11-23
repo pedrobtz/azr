@@ -14,14 +14,18 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 URL: https://pedrobtz.github.io/azr/, https://github.com/pedrobtz/azr
 BugReports: https://github.com/pedrobtz/azr/issues
-Imports: 
+Imports:
     methods,
     R6,
     cli,
+    glue,
     httr2 (>= 1.2.1),
     jsonlite,
+    processx,
+    clipr,
     rlang
-Suggests: 
+Suggests:
+    data.table,
     httpuv,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

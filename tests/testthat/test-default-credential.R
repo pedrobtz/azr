@@ -151,19 +151,19 @@ test_that("new_instance works with classes that have no initialize arguments", {
 })
 
 
-test_that("find_credential validates chain parameter", {
+test_that("get_credential_provider validates chain parameter", {
   expect_error(
-    find_credential(.chain = "not-a-chain"),
+    get_credential_provider(.chain = "not-a-chain"),
     "must be of class"
   )
 
   expect_error(
-    find_credential(.chain = list("not-a-credential-chain")),
+    get_credential_provider(.chain = list("not-a-credential-chain")),
     "must be of class"
   )
 })
 
-test_that("find_credential with empty chain errors at creation", {
+test_that("get_credential_provider with empty chain errors at creation", {
   # credential_chain() now errors when empty, so we test that
   expect_error(
     credential_chain(),
@@ -171,7 +171,7 @@ test_that("find_credential with empty chain errors at creation", {
   )
 })
 
-test_that("find_credential tries credentials in order", {
+test_that("get_credential_provider tries credentials in order", {
   skip_if_not(rlang::is_interactive(), "Requires interactive session")
 
   withr::local_envvar(
@@ -188,12 +188,12 @@ test_that("find_credential tries credentials in order", {
   )
 
   expect_error(
-    find_credential(.chain = custom_chain),
+    get_credential_provider(.chain = custom_chain),
     "All authentication methods in the chain failed"
   )
 })
 
-test_that("find_credential skips interactive credentials in non-interactive session", {
+test_that("get_credential_provider skips interactive credentials in non-interactive session", {
   skip_if(rlang::is_interactive(), "Requires non-interactive session")
 
   custom_chain <- credential_chain(
@@ -201,7 +201,7 @@ test_that("find_credential skips interactive credentials in non-interactive sess
   )
 
   expect_error(
-    find_credential(.chain = custom_chain),
+    get_credential_provider(.chain = custom_chain),
     "All authentication methods in the chain failed"
   )
 })
