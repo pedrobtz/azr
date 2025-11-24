@@ -18,10 +18,6 @@ authentication, endpoint management, and configuration.
 
 - [`api_service$new()`](#method-api_service-new)
 
-- [`api_service$print()`](#method-api_service-print)
-
-- [`api_service$clone()`](#method-api_service-clone)
-
 ------------------------------------------------------------------------
 
 ### Method `new()`
@@ -66,35 +62,3 @@ Create a new API service instance
 #### Returns
 
 A new `api_service` object
-
-------------------------------------------------------------------------
-
-### Method [`print()`](https://rdrr.io/r/base/print.html)
-
-Print method for the API service
-
-#### Usage
-
-    api_service$print(...)
-
-#### Arguments
-
-- `...`:
-
-  Additional arguments (ignored)
-
-------------------------------------------------------------------------
-
-### Method `clone()`
-
-The objects of this class are cloneable with this method.
-
-#### Usage
-
-    api_service$clone(deep = FALSE)
-
-#### Arguments
-
-- `deep`:
-
-  Whether to make a deep clone.

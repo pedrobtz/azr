@@ -15,8 +15,8 @@ get_request_authorizer(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  .chain = default_credential_chain(),
-  .silent = TRUE
+  chain = default_credential_chain(),
+  silent = TRUE
 )
 ```
 
@@ -50,13 +50,13 @@ get_request_authorizer(
   Logical. If `TRUE`, adds 'offline_access' to the scope to request a
   'refresh_token'. Defaults to `TRUE`.
 
-- .chain:
+- chain:
 
   A list of credential objects, where each element must inherit from the
   `Credential` base class. Credentials are attempted in the order
   provided until `get_token` succeeds.
 
-- .silent:
+- silent:
 
   Logical. If `FALSE`, prints detailed diagnostic information during
   credential discovery and authentication. Defaults to `TRUE`.

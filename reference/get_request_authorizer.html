@@ -55,8 +55,8 @@ from the discovered credential object.</p>
 <span>  client_secret <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  use_cache <span class="op">=</span> <span class="st">"disk"</span>,</span>
 <span>  offline <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  .chain <span class="op">=</span> <span class="fu"><a href="default_credential_chain.html">default_credential_chain</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  .silent <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  chain <span class="op">=</span> <span class="fu"><a href="default_credential_chain.html">default_credential_chain</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  silent <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -94,13 +94,13 @@ for in-memory caching.</p></dd>
 Defaults to <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg--chain">.chain<a class="anchor" aria-label="anchor" href="#arg--chain"></a></dt>
+<dt id="arg-chain">chain<a class="anchor" aria-label="anchor" href="#arg-chain"></a></dt>
 <dd><p>A list of credential objects, where each element must inherit
 from the <code>Credential</code> base class. Credentials are attempted in the order
 provided until <code>get_token</code> succeeds.</p></dd>
 
 
-<dt id="arg--silent">.silent<a class="anchor" aria-label="anchor" href="#arg--silent"></a></dt>
+<dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
 <dd><p>Logical. If <code>FALSE</code>, prints detailed diagnostic information
 during credential discovery and authentication. Defaults to <code>TRUE</code>.</p></dd>
 

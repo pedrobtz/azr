@@ -18,10 +18,6 @@ preconfigured with Graph API client and endpoints (v1.0 and beta).
 
 - [`api_graph_service$clone()`](#method-api_graph_service-clone)
 
-Inherited methods
-
-- [`azr::api_service$print()`](https://pedrobtz.github.io/azr/reference/api_service.html#method-print)
-
 ------------------------------------------------------------------------
 
 ### Method `new()`

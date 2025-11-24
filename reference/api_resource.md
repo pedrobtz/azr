@@ -13,9 +13,15 @@ through this resource will automatically include this path prefix.
 
 ## Public fields
 
+- `.endpoint`:
+
+  The API endpoint path segment (e.g., "v1.0", "beta")
+
 - `.client`:
 
   The cloned api_client instance with modified base_req
+
+## Active bindings
 
 - `.endpoint`:
 
@@ -27,8 +33,6 @@ through this resource will automatically include this path prefix.
 
 - [`api_resource$new()`](#method-api_resource-new)
 
-- [`api_resource$clone()`](#method-api_resource-clone)
-
 ------------------------------------------------------------------------
 
 ### Method `new()`
@@ -37,39 +41,26 @@ Create a new API resource instance
 
 #### Usage
 
-    api_resource$new(client, endpoint)
+    api_resource$new(client = NULL, endpoint = NULL)
 
 #### Arguments
 
 - `client`:
 
   An `api_client` object that provides the base HTTP client
-  functionality. This will be cloned to avoid modifying the original.
+  functionality. This will be cloned to avoid modifying the original. If
+  `NULL`, will use the value of `self$.client` (allowing sub-classes to
+  set defaults).
 
 - `endpoint`:
 
   A character string specifying the API endpoint or path segment to
-  append (e.g., `"v1.0"`, `"beta"`).
+  append (e.g., `"v1.0"`, `"beta"`). If `NULL`, will use the value of
+  `private$.endpoint` (allowing sub-classes to set defaults).
 
 #### Returns
 
 A new `api_resource` object
-
-------------------------------------------------------------------------
-
-### Method `clone()`
-
-The objects of this class are cloneable with this method.
-
-#### Usage
-
-    api_resource$clone(deep = FALSE)
-
-#### Arguments
-
-- `deep`:
-
-  Whether to make a deep clone.
 
 ## Examples
 

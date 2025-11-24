@@ -43,7 +43,7 @@ custom_chain <- credential_chain(
 if (FALSE) { # \dontrun{
 token <- get_token(
   scope = "https://graph.microsoft.com/.default",
-  .chain = custom_chain
+  chain = custom_chain
 )
 } # }
 ```

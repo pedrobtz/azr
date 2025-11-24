@@ -17,7 +17,7 @@ get_credential_provider(
   offline = FALSE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  .chain = NULL
+  chain = NULL
 )
 ```
 
@@ -59,7 +59,7 @@ get_credential_provider(
 
   Optional character string specifying the OAuth endpoint.
 
-- .chain:
+- chain:
 
   A list of credential objects, where each element must inherit from the
   `Credential` base class. Credentials are attempted in the order

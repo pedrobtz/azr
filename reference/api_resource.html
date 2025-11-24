@@ -52,11 +52,19 @@ this resource will automatically include this path prefix.</p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
-    <p></p><div class="r6-fields"><dl><dt><code>.client</code></dt>
+    <p></p><div class="r6-fields"><dl><dt><code>.endpoint</code></dt>
+<dd><p>The API endpoint path segment (e.g., "v1.0", "beta")</p></dd>
+
+
+<dt><code>.client</code></dt>
 <dd><p>The cloned api_client instance with modified base_req</p></dd>
 
 
-<dt><code>.endpoint</code></dt>
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
+    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>.endpoint</code></dt>
 <dd><p>The API endpoint path segment (e.g., "v1.0", "beta")</p></dd>
 
 
@@ -69,24 +77,25 @@ this resource will automatically include this path prefix.</p>
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-api_resource-new"><code>api_resource$new()</code></a></p></li>
-<li><p><a href="#method-api_resource-clone"><code>api_resource$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-api_resource-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a new API resource instance</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_resource.html">api_resource</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">client</span>, <span class="va">endpoint</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_resource.html">api_resource</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>client <span class="op">=</span> <span class="cn">NULL</span>, endpoint <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>client</code></dt>
 <dd><p>An <code>api_client</code> object that provides the base HTTP client
-functionality. This will be cloned to avoid modifying the original.</p></dd>
+functionality. This will be cloned to avoid modifying the original.
+If <code>NULL</code>, will use the value of <code>self$.client</code> (allowing sub-classes to set defaults).</p></dd>
 
 
 <dt><code>endpoint</code></dt>
 <dd><p>A character string specifying the API endpoint or path
-segment to append (e.g., <code>"v1.0"</code>, <code>"beta"</code>).</p></dd>
+segment to append (e.g., <code>"v1.0"</code>, <code>"beta"</code>).
+If <code>NULL</code>, will use the value of <code>private$.endpoint</code> (allowing sub-classes to set defaults).</p></dd>
 
 
 </dl><p></p></div>
@@ -94,22 +103,6 @@ segment to append (e.g., <code>"v1.0"</code>, <code>"beta"</code>).</p></dd>
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A new <code>api_resource</code> object</p>
-</div>
-
-</div><p></p><hr><a id="method-api_resource-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_resource</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>deep</code></dt>
-<dd><p>Whether to make a deep clone.</p></dd>
-
-
-</dl><p></p></div>
 </div>
 
 </div>
