@@ -53,17 +53,11 @@ api_resource <- R6::R6Class(
     #'
     #' @param client An `api_client` object that provides the base HTTP client
     #'   functionality. This will be cloned to avoid modifying the original.
-    #'   If `NULL`, will use the value of `self$.client` (allowing sub-classes to set defaults).
     #' @param endpoint A character string specifying the API endpoint or path
     #'   segment to append (e.g., `"v1.0"`, `"beta"`).
-    #'   If `NULL`, will use the value of `private$.endpoint` (allowing sub-classes to set defaults).
     #'
     #' @return A new `api_resource` object
-    initialize = function(client = NULL, endpoint = NULL) {
-      # Allow sub-classes to set defaults for client and endpoint
-      client <- client %||% self$.client
-      endpoint <- endpoint %||% private$.endpoint
-
+    initialize = function(client, endpoint) {
       if (is.null(client)) {
         cli::cli_abort("{.arg client} must not be {.val NULL}.")
       }
