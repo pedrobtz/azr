@@ -93,7 +93,10 @@ api_graph_service <- R6::R6Class(
     #' @return A new `api_graph_service` object
     initialize = function(chain = NULL, ...) {
       # Get the credential provider from the chain
-      provider <- get_credential_provider(chain)
+      provider <- get_credential_provider(
+        scope = default_azure_scope("azure_graph"),
+        chain = chain
+      )
 
       # Create the Graph API client with the credential provider
       client <- api_graph_client$new(

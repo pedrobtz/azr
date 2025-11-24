@@ -556,25 +556,18 @@ az_cli_logout <- function() {
 
   status <- attr(output, "status")
 
-  # Check for command failure
   if (!is.null(status) && status != 0L) {
     error_msg <- paste(output, collapse = "\n")
 
-    # Check if already logged out
-    if (
-      grepl("no logged in accounts", error_msg, ignore.case = TRUE) ||
-        grepl("not logged in", error_msg, ignore.case = TRUE)
-    ) {
-      cli::cli_alert_info("Already logged out from Azure CLI")
-      return(invisible(NULL))
-    }
-
-    cli::cli_abort(
-      sprintf("Azure CLI logout failed (exit code %d): %s", status, error_msg),
-      class = "azr_cli_error"
-    )
+    cli::cli_bullets(c(
+      c(
+        "!" = "Azure CLI logout failed (exit code {.val {status}})",
+        "x" = error_msg
+      )
+    ))
+  } else {
+    cli::cli_alert_success("Successfully logged out from Azure CLI")
   }
 
-  cli::cli_alert_success("Successfully logged out from Azure CLI")
   invisible(NULL)
 }

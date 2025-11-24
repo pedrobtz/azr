@@ -172,7 +172,7 @@ api_client <- R6::R6Class(
 
           if (httr2::resp_has_body(resp)) {
             txt <- httr2::resp_body_string(resp)
-            cli::cli_alert_danger(txt)
+            cli::cli_alert_danger("{txt}")
           } else {
             txt <- ""
           }

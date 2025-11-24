@@ -17,10 +17,10 @@
 #'   for in-memory caching.
 #' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
 #'   Defaults to `TRUE`.
-#' @param .chain A list of credential objects, where each element must inherit
+#' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param .silent Logical. If `FALSE`, prints detailed diagnostic information
+#' @param silent Logical. If `FALSE`, prints detailed diagnostic information
 #'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return A function that retrieves and returns an authentication token when
@@ -44,14 +44,15 @@
 #'
 #' @export
 get_token_provider <- function(
-    scope = NULL,
-    tenant_id = NULL,
-    client_id = NULL,
-    client_secret = NULL,
-    use_cache = "disk",
-    offline = TRUE,
-    .chain = default_credential_chain(),
-    .silent = TRUE) {
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  chain = default_credential_chain(),
+  silent = TRUE
+) {
   crd <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -59,7 +60,7 @@ get_token_provider <- function(
     client_secret = client_secret,
     use_cache = use_cache,
     offline = offline,
-    .chain = .chain
+    chain = chain
   )
 
   function() {
@@ -86,10 +87,10 @@ get_token_provider <- function(
 #'   for in-memory caching.
 #' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
 #'   Defaults to `TRUE`.
-#' @param .chain A list of credential objects, where each element must inherit
+#' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param .silent Logical. If `FALSE`, prints detailed diagnostic information
+#' @param silent Logical. If `FALSE`, prints detailed diagnostic information
 #'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return A function that authorizes HTTP requests with appropriate credentials
@@ -111,14 +112,15 @@ get_token_provider <- function(
 #'
 #' @export
 get_request_authorizer <- function(
-    scope = NULL,
-    tenant_id = NULL,
-    client_id = NULL,
-    client_secret = NULL,
-    use_cache = "disk",
-    offline = TRUE,
-    .chain = default_credential_chain(),
-    .silent = TRUE) {
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  chain = default_credential_chain(),
+  silent = TRUE
+) {
   crd <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -126,7 +128,7 @@ get_request_authorizer <- function(
     client_secret = client_secret,
     use_cache = use_cache,
     offline = offline,
-    .chain = .chain
+    chain = chain
   )
 
   function(req) {
@@ -152,10 +154,10 @@ get_request_authorizer <- function(
 #'   for in-memory caching.
 #' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
 #'   Defaults to `TRUE`.
-#' @param .chain A list of credential objects, where each element must inherit
+#' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param .silent Logical. If `FALSE`, prints detailed diagnostic information
+#' @param silent Logical. If `FALSE`, prints detailed diagnostic information
 #'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return An [httr2::oauth_token()] object.
@@ -177,14 +179,15 @@ get_request_authorizer <- function(
 #'
 #' @export
 get_token <- function(
-    scope = NULL,
-    tenant_id = NULL,
-    client_id = NULL,
-    client_secret = NULL,
-    use_cache = "disk",
-    offline = TRUE,
-    .chain = default_credential_chain(),
-    .silent = TRUE) {
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  chain = default_credential_chain(),
+  silent = TRUE
+) {
   provider <- get_token_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -192,8 +195,8 @@ get_token <- function(
     client_secret = client_secret,
     use_cache = use_cache,
     offline = offline,
-    .chain = .chain,
-    .silent = .silent
+    chain = chain,
+    silent = silent
   )
 
   provider()
@@ -222,7 +225,7 @@ get_token <- function(
 #'   request a 'refresh_token'. Defaults to `FALSE`.
 #' @param oauth_host Optional character string specifying the OAuth host URL.
 #' @param oauth_endpoint Optional character string specifying the OAuth endpoint.
-#' @param .chain A list of credential objects, where each element must inherit
+#' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds. If `NULL`, uses
 #'   [default_credential_chain()].
@@ -247,26 +250,27 @@ get_token <- function(
 #'
 #' @export
 get_credential_provider <- function(
-    scope = NULL,
-    tenant_id = NULL,
-    client_id = NULL,
-    client_secret = NULL,
-    use_cache = "disk",
-    offline = FALSE,
-    oauth_host = NULL,
-    oauth_endpoint = NULL,
-    .chain = NULL) {
-  if (is.null(.chain) || length(.chain) == 0L) {
-    .chain <- default_credential_chain()
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = FALSE,
+  oauth_host = NULL,
+  oauth_endpoint = NULL,
+  chain = NULL
+) {
+  if (is.null(chain) || length(chain) == 0L) {
+    chain <- default_credential_chain()
   }
 
-  if (!inherits(.chain, "credential_chain")) {
+  if (!inherits(chain, "credential_chain")) {
     cli::cli_abort(
-      "Argument {.arg .chain} must be of class {.cls credential_chain}."
+      "Argument {.arg chain} must be of class {.cls credential_chain}."
     )
   }
 
-  for (crd_expr in .chain) {
+  for (crd_expr in chain) {
     crd <- try(rlang::eval_tidy(crd_expr), silent = TRUE)
 
     if (R6::is.R6Class(crd)) {
@@ -363,7 +367,7 @@ default_credential_chain <- function() {
 #' \dontrun{
 #' token <- get_token(
 #'   scope = "https://graph.microsoft.com/.default",
-#'   .chain = custom_chain
+#'   chain = custom_chain
 #' )
 #' }
 #'

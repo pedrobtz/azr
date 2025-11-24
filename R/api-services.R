@@ -1,58 +1,3 @@
-#' Validate Endpoint Paths
-#'
-#' @description
-#' Validates that endpoint paths (names of the endpoints list) are single strings
-#' without spaces and contain only valid URL path characters.
-#'
-#' @param endpoint_paths A character vector of endpoint path strings to validate
-#'
-#' @return Invisibly returns `NULL` if validation passes, otherwise throws an error
-#'
-#' @noRd
-validate_endpoint_paths <- function(endpoint_paths) {
-  if (length(endpoint_paths) == 0) {
-    return(invisible(NULL))
-  }
-
-  for (i in seq_along(endpoint_paths)) {
-    endpoint_path <- endpoint_paths[i]
-
-    # Check if it's a character string
-    if (!is.character(endpoint_path) || length(endpoint_path) != 1) {
-      cli::cli_abort(
-        "Endpoint path at position {i} must be a single character string"
-      )
-    }
-
-    # Check if it's not empty
-    if (!nzchar(endpoint_path)) {
-      cli::cli_abort(
-        "Endpoint path at position {i} must not be an empty string"
-      )
-    }
-
-    # Check for spaces
-    if (grepl("\\s", endpoint_path)) {
-      cli::cli_abort(
-        "Endpoint path at position {i} ({.val {endpoint_path}}) contains spaces"
-      )
-    }
-
-    # Check for valid URL path characters (alphanumeric, hyphens, underscores, dots, slashes)
-    if (!grepl("^[a-zA-Z0-9._/-]+$", endpoint_path)) {
-      cli::cli_abort(
-        c(
-          "Endpoint path at position {i} ({.val {endpoint_path}}) contains invalid characters.",
-          "i" = "Only alphanumeric, '.', '_', '-', and '/' are allowed."
-        )
-      )
-    }
-  }
-
-  invisible(NULL)
-}
-
-
 #' API Service Base Class
 #'
 #' @description
@@ -64,6 +9,7 @@ validate_endpoint_paths <- function(endpoint_paths) {
 api_service <- R6::R6Class(
   classname = "api_service",
   lock_objects = FALSE,
+  cloneable = FALSE,
   private = list(
     .chain = NULL,
     .endpoints = NULL,
@@ -150,40 +96,61 @@ api_service <- R6::R6Class(
       lockBinding(".chain", private)
       lockBinding(".endpoints", private)
       lockBinding(".config", private)
-    },
-
-    #' @description
-    #' Print method for the API service
-    #'
-    #' @param ... Additional arguments (ignored)
-    print = function(...) {
-      cli::cli_h1("API Service")
-
-      if (!is.null(self$.client)) {
-        cli::cli_text("Client: {.cls {class(self$.client)[1]}}")
-      } else {
-        cli::cli_text("Client: {.emph not set}")
-      }
-
-      if (!is.null(private$.chain)) {
-        cli::cli_text("Chain: {.cls {class(private$.chain)[1]}}")
-      } else {
-        cli::cli_text("Chain: {.emph not set}")
-      }
-
-      if (length(private$.endpoints) > 0) {
-        cli::cli_text("Endpoints: {length(private$.endpoints)}")
-      } else {
-        cli::cli_text("Endpoints: {.emph none}")
-      }
-
-      if (!is.null(private$.config) && length(private$.config) > 0) {
-        cli::cli_text("Config: {length(private$.config)} option{?s}")
-      } else {
-        cli::cli_text("Config: {.emph none}")
-      }
-
-      invisible(self)
     }
   )
 )
+
+
+#' Validate Endpoint Paths
+#'
+#' @description
+#' Validates that endpoint paths (names of the endpoints list) are single strings
+#' without spaces and contain only valid URL path characters.
+#'
+#' @param endpoint_paths A character vector of endpoint path strings to validate
+#'
+#' @return Invisibly returns `NULL` if validation passes, otherwise throws an error
+#'
+#' @noRd
+validate_endpoint_paths <- function(endpoint_paths) {
+  if (length(endpoint_paths) == 0) {
+    return(invisible(NULL))
+  }
+
+  for (i in seq_along(endpoint_paths)) {
+    endpoint_path <- endpoint_paths[i]
+
+    # Check if it's a character string
+    if (!is.character(endpoint_path) || length(endpoint_path) != 1) {
+      cli::cli_abort(
+        "Endpoint path at position {i} must be a single character string"
+      )
+    }
+
+    # Check if it's not empty
+    if (!nzchar(endpoint_path)) {
+      cli::cli_abort(
+        "Endpoint path at position {i} must not be an empty string"
+      )
+    }
+
+    # Check for spaces
+    if (grepl("\\s", endpoint_path)) {
+      cli::cli_abort(
+        "Endpoint path at position {i} ({.val {endpoint_path}}) contains spaces"
+      )
+    }
+
+    # Check for valid URL path characters (alphanumeric, hyphens, underscores, dots, slashes)
+    if (!grepl("^[a-zA-Z0-9._/-]+$", endpoint_path)) {
+      cli::cli_abort(
+        c(
+          "Endpoint path at position {i} ({.val {endpoint_path}}) contains invalid characters.",
+          "i" = "Only alphanumeric, '.', '_', '-', and '/' are allowed."
+        )
+      )
+    }
+  }
+
+  invisible(NULL)
+}

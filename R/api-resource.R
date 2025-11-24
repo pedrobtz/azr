@@ -38,13 +38,16 @@
 #' }
 api_resource <- R6::R6Class(
   classname = "api_resource",
-  cloneable = TRUE,
+  cloneable = FALSE,
+  # > private ----
+  private = list(
+    #' @field .endpoint The API endpoint path segment (e.g., "v1.0", "beta")
+    .endpoint = NULL
+  ),
   # > public ----
   public = list(
     #' @field .client The cloned api_client instance with modified base_req
     .client = NULL,
-    #' @field .endpoint The API endpoint path segment (e.g., "v1.0", "beta")
-    .endpoint = NULL,
     #' @description
     #' Create a new API resource instance
     #'
@@ -72,22 +75,24 @@ api_resource <- R6::R6Class(
         cli::cli_abort("{.arg endpoint} must be a character string.")
       }
       if (length(endpoint) != 1L) {
-        cli::cli_abort("{.arg endpoint} must be a single character string, not length {length(endpoint)}.")
+        cli::cli_abort(
+          "{.arg endpoint} must be a single character string, not length {length(endpoint)}."
+        )
       }
       if (!nzchar(endpoint)) {
         cli::cli_abort("{.arg endpoint} must not be an empty string.")
       }
 
-      self$.endpoint <- endpoint
+      private$.endpoint <- endpoint
 
       # Clone the client and modify its base_req to include the endpoint path
       self$.client <- client$clone()
       self$.client$.base_req <- self$.client$.base_req |>
         httr2::req_url_path_append(endpoint)
 
-      # Lock all public fields to prevent modification
+      # Lock all fields to prevent modification
       lockBinding(".client", self)
-      lockBinding(".endpoint", self)
+      lockBinding(".endpoint", private)
     }
   )
 )
