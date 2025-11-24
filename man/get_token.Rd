@@ -11,8 +11,8 @@ get_token(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  .chain = default_credential_chain(),
-  .silent = TRUE
+  chain = default_credential_chain(),
+  silent = TRUE
 )
 }
 \arguments{
@@ -34,11 +34,11 @@ for in-memory caching.}
 \item{offline}{Logical. If \code{TRUE}, adds 'offline_access' to the scope to request a 'refresh_token'.
 Defaults to \code{TRUE}.}
 
-\item{.chain}{A list of credential objects, where each element must inherit
+\item{chain}{A list of credential objects, where each element must inherit
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
 
-\item{.silent}{Logical. If \code{FALSE}, prints detailed diagnostic information
+\item{silent}{Logical. If \code{FALSE}, prints detailed diagnostic information
 during credential discovery and authentication. Defaults to \code{TRUE}.}
 }
 \value{

@@ -19,8 +19,6 @@ endpoint management, and configuration.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-api_service-new}{\code{api_service$new()}}
-\item \href{#method-api_service-print}{\code{api_service$print()}}
-\item \href{#method-api_service-clone}{\code{api_service$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -54,40 +52,6 @@ Defaults to an empty list. If the value is \code{NULL}, \link{api_resource} will
 }
 \subsection{Returns}{
 A new \code{api_service} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_service-print"></a>}}
-\if{latex}{\out{\hypertarget{method-api_service-print}{}}}
-\subsection{Method \code{print()}}{
-Print method for the API service
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_service$print(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{Additional arguments (ignored)}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_service-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-api_service-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_service$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
 }
 }
 }

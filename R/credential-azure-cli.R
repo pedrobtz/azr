@@ -365,6 +365,7 @@ az_cli_login <- function() {
   # Variables to track state
   code_found <- FALSE
   login_url <- "https://microsoft.com/devicelogin"
+  all_stdout <- character()
 
   # Loop to read output while the process is alive
   while (p$is_alive()) {
@@ -375,6 +376,11 @@ az_cli_login <- function() {
     lines_out <- p$read_output_lines()
     lines_err <- p$read_error_lines()
     all_lines <- c(lines_out, lines_err)
+
+    # Collect stdout for later parsing
+    if (length(lines_out) > 0) {
+      all_stdout <- c(all_stdout, lines_out)
+    }
 
     # Print output to console
     if (length(all_lines) > 0) {
@@ -412,7 +418,6 @@ az_cli_login <- function() {
           }
         )
 
-        # Open browser
         cli::cli_alert_info("Opening browser to {.url {login_url}}...")
         utils::browseURL(login_url)
       }

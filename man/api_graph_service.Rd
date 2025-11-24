@@ -18,13 +18,6 @@ This service is preconfigured with Graph API client and endpoints (v1.0 and beta
 \item \href{#method-api_graph_service-clone}{\code{api_graph_service$clone()}}
 }
 }
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_service" data-id="print"><a href='../../azr/html/api_service.html#method-api_service-print'><code>azr::api_service$print()</code></a></span></li>
-</ul>
-</details>
-}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_graph_service-new"></a>}}
 \if{latex}{\out{\hypertarget{method-api_graph_service-new}{}}}

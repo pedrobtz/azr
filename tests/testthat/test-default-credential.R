@@ -153,12 +153,12 @@ test_that("new_instance works with classes that have no initialize arguments", {
 
 test_that("get_credential_provider validates chain parameter", {
   expect_error(
-    get_credential_provider(.chain = "not-a-chain"),
+    get_credential_provider(chain = "not-a-chain"),
     "must be of class"
   )
 
   expect_error(
-    get_credential_provider(.chain = list("not-a-credential-chain")),
+    get_credential_provider(chain = list("not-a-credential-chain")),
     "must be of class"
   )
 })
@@ -201,7 +201,7 @@ test_that("get_credential_provider skips interactive credentials in non-interact
   )
 
   expect_error(
-    get_credential_provider(.chain = custom_chain),
+    get_credential_provider(chain = custom_chain),
     "All authentication methods in the chain failed"
   )
 })

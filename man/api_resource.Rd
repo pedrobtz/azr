@@ -42,8 +42,15 @@ response <- resource_v1$.fetch(
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{.client}}{The cloned api_client instance with modified base_req}
+\item{\code{.endpoint}}{The API endpoint path segment (e.g., "v1.0", "beta")}
 
+\item{\code{.client}}{The cloned api_client instance with modified base_req}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
 \item{\code{.endpoint}}{The API endpoint path segment (e.g., "v1.0", "beta")}
 }
 \if{html}{\out{</div>}}
@@ -52,7 +59,6 @@ response <- resource_v1$.fetch(
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-api_resource-new}{\code{api_resource$new()}}
-\item \href{#method-api_resource-clone}{\code{api_resource$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -61,39 +67,24 @@ response <- resource_v1$.fetch(
 \subsection{Method \code{new()}}{
 Create a new API resource instance
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_resource$new(client, endpoint)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_resource$new(client = NULL, endpoint = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{client}}{An \code{api_client} object that provides the base HTTP client
-functionality. This will be cloned to avoid modifying the original.}
+functionality. This will be cloned to avoid modifying the original.
+If \code{NULL}, will use the value of \code{self$.client} (allowing sub-classes to set defaults).}
 
 \item{\code{endpoint}}{A character string specifying the API endpoint or path
-segment to append (e.g., \code{"v1.0"}, \code{"beta"}).}
+segment to append (e.g., \code{"v1.0"}, \code{"beta"}).
+If \code{NULL}, will use the value of \code{private$.endpoint} (allowing sub-classes to set defaults).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 A new \code{api_resource} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_resource-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-api_resource-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_resource$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
 }
 }
 }

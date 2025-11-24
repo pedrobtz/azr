@@ -13,7 +13,7 @@ get_credential_provider(
   offline = FALSE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  .chain = NULL
+  chain = NULL
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ request a 'refresh_token'. Defaults to \code{FALSE}.}
 
 \item{oauth_endpoint}{Optional character string specifying the OAuth endpoint.}
 
-\item{.chain}{A list of credential objects, where each element must inherit
+\item{chain}{A list of credential objects, where each element must inherit
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds. If \code{NULL}, uses
 \code{\link[=default_credential_chain]{default_credential_chain()}}.}
