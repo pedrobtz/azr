@@ -19,9 +19,11 @@ api_graph_client <- R6::R6Class(
     #' @param ... Additional arguments passed to [api_client] constructor.
     #'
     #' @return A new `api_graph_client` object
-    initialize = function(provider = NULL,
-                          host_url = "https://graph.microsoft.com",
-                          ...) {
+    initialize = function(
+      provider = NULL,
+      host_url = "https://graph.microsoft.com",
+      ...
+    ) {
       super$initialize(
         host_url = host_url,
         provider = provider,
@@ -78,6 +80,7 @@ api_graph_resource <- R6::R6Class(
 #' @keywords internal
 api_graph_service <- R6::R6Class(
   classname = "api_graph_service",
+  lock_objects = FALSE,
   inherit = api_service,
   public = list(
     #' @description

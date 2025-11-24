@@ -84,10 +84,12 @@ api_service <- R6::R6Class(
     #' @param config A list of configuration options. Defaults to an empty list.
     #'
     #' @return A new `api_service` object
-    initialize = function(client = NULL,
-                          chain = NULL,
-                          endpoints = list(),
-                          config = list()) {
+    initialize = function(
+      client = NULL,
+      chain = NULL,
+      endpoints = list(),
+      config = list()
+    ) {
       self$.client <- client
       private$.chain <- chain
       private$.config <- config
@@ -116,21 +118,27 @@ api_service <- R6::R6Class(
             resource_class <- api_resource
           }
 
-          # Validate that resource_class is an R6ClassGenerator
-          if (!inherits(resource_class, "R6ClassGenerator")) {
-            cli::cli_abort(
-              "Endpoint {.val {endpoint_path}} must specify an R6 class, not {.cls {class(resource_class)}}."
+          # Check if resource_class is already an R6 object instance
+          if (R6::is.R6(resource_class)) {
+            # Already an R6 object, assign directly
+            self[[endpoint_path]] <- resource_class
+          } else {
+            # Validate that resource_class is an R6ClassGenerator
+            if (!R6::is.R6Class(resource_class)) {
+              cli::cli_abort(
+                "Endpoint {.val {endpoint_path}} must specify an R6 class, not {.cls {class(resource_class)}}."
+              )
+            }
+
+            # Create resource instance for this endpoint
+            resource <- resource_class$new(
+              client = self$.client,
+              endpoint = endpoint_path
             )
+
+            # Add as a field with the endpoint path name
+            self[[endpoint_path]] <- resource
           }
-
-          # Create resource instance for this endpoint
-          resource <- resource_class$new(
-            client = self$.client,
-            endpoint = endpoint_path
-          )
-
-          # Add as a field with the endpoint path name
-          self[[endpoint_path]] <- resource
 
           # Lock the endpoint field to make it read-only
           lockBinding(endpoint_path, self)

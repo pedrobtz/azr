@@ -51,10 +51,12 @@ AzureCLICredential <- R6::R6Class(
     #'   logged in and perform login if needed. Defaults to `FALSE`.
     #'
     #' @return A new `AzureCLICredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          process_timeout = NULL,
-                          login = FALSE) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      process_timeout = NULL,
+      login = FALSE
+    ) {
       super$initialize(scope = scope, tenant_id = tenant_id)
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
@@ -262,8 +264,7 @@ az_cli_get_token <- function(scope, tenant_id = NULL, timeout = 10L) {
     )
   }
 
-  # Convert expiresOn (Unix timestamp) to POSIXct for httr2
-  expires_at <- as.POSIXct(as.numeric(token$expiresOn), origin = "1970-01-01", tz = "UTC")
+  expires_at <- as.POSIXct(token$expiresOn)
 
   httr2::oauth_token(
     access_token = token$accessToken,
@@ -405,7 +406,9 @@ az_cli_login <- function() {
             cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
           },
           error = function(e) {
-            cli::cli_alert_warning("Could not write to clipboard. Please copy manually.")
+            cli::cli_alert_warning(
+              "Could not write to clipboard. Please copy manually."
+            )
           }
         )
 
@@ -556,6 +559,16 @@ az_cli_logout <- function() {
   # Check for command failure
   if (!is.null(status) && status != 0L) {
     error_msg <- paste(output, collapse = "\n")
+
+    # Check if already logged out
+    if (
+      grepl("no logged in accounts", error_msg, ignore.case = TRUE) ||
+        grepl("not logged in", error_msg, ignore.case = TRUE)
+    ) {
+      cli::cli_alert_info("Already logged out from Azure CLI")
+      return(invisible(NULL))
+    }
+
     cli::cli_abort(
       sprintf("Azure CLI logout failed (exit code %d): %s", status, error_msg),
       class = "azr_cli_error"
