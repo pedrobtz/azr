@@ -167,7 +167,7 @@ api_client <- R6::R6Class(
         ) |>
         httr2::req_error(body = function(resp) {
           cli::cli_alert_danger(
-            "<<< status={.val {resp$status}} | time={.val {format_timing(resp$timing)}} secs."
+            "<<< status = {.val {resp$status}} | time = {format_timing(resp$timing)} secs."
           )
 
           if (httr2::resp_has_body(resp)) {
