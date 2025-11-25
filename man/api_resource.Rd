@@ -67,19 +67,17 @@ response <- resource_v1$.fetch(
 \subsection{Method \code{new()}}{
 Create a new API resource instance
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_resource$new(client = NULL, endpoint = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_resource$new(client, endpoint)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{client}}{An \code{api_client} object that provides the base HTTP client
-functionality. This will be cloned to avoid modifying the original.
-If \code{NULL}, will use the value of \code{self$.client} (allowing sub-classes to set defaults).}
+functionality. This will be cloned to avoid modifying the original.}
 
 \item{\code{endpoint}}{A character string specifying the API endpoint or path
-segment to append (e.g., \code{"v1.0"}, \code{"beta"}).
-If \code{NULL}, will use the value of \code{private$.endpoint} (allowing sub-classes to set defaults).}
+segment to append (e.g., \code{"v1.0"}, \code{"beta"}).}
 }
 \if{html}{\out{</div>}}
 }

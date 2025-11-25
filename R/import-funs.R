@@ -1,3 +1,22 @@
+#' Detect if running in a hosted session
+#'
+#' Determines whether the current R session is running in a hosted environment
+#' such as Google Colab or RStudio Server (non-localhost).
+#'
+#' @return A logical value: `TRUE` if running in a hosted session (Google Colab
+#'   or remote RStudio Server), `FALSE` otherwise.
+#'
+#' @details
+#' This function checks for:
+#' * Google Colab: presence of the `COLAB_RELEASE_TAG` environment variable
+#' * RStudio Server: `RSTUDIO_PROGRAM_MODE` is "server" and
+#'   `RSTUDIO_HTTP_REFERER` does not contain "localhost"
+#'
+#' @export
+#' @examples
+#' if (is_hosted_session()) {
+#'   message("Running in a hosted environment")
+#' }
 is_hosted_session <- function() {
   # Check for Google Colab
   if (nzchar(Sys.getenv("COLAB_RELEASE_TAG"))) {

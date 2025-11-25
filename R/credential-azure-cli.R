@@ -429,9 +429,30 @@ az_cli_login <- function() {
 
   # Check exit status
   exit_status <- p$get_exit_status()
+  output_lines <- p$read_output_lines()
+  error_lines <- p$read_error_lines()
+
+  # Print any remaining error lines
+  if (length(error_lines) > 0) {
+    cli::cli_alert_warning("Error output:")
+    for (line in error_lines) {
+      cli::cli_text(line)
+    }
+  }
 
   if (exit_status == 0) {
     cli::cli_alert_success("Login Completed Successfully!")
+
+    # Parse output_lines as JSON
+    if (length(output_lines) > 0) {
+      result <- tryCatch(
+        jsonlite::fromJSON(paste(output_lines, collapse = "\n")),
+        error = function(e) {
+          NULL
+        }
+      )
+      return(invisible(result))
+    }
   } else {
     cli::cli_alert_danger("Process finished with error (Status: {exit_status})")
   }

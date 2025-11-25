@@ -68,22 +68,27 @@ api_resource <- R6::R6Class(
         cli::cli_abort("{.arg client} must be an {.cls api_client} object.")
       }
 
-      if (is.null(endpoint)) {
-        cli::cli_abort("{.arg endpoint} must not be {.val NULL}.")
-      }
-      if (!is.character(endpoint)) {
-        cli::cli_abort("{.arg endpoint} must be a character string.")
-      }
-      if (length(endpoint) != 1L) {
-        cli::cli_abort(
-          "{.arg endpoint} must be a single character string, not length {length(endpoint)}."
-        )
-      }
-      if (!nzchar(endpoint)) {
-        cli::cli_abort("{.arg endpoint} must not be an empty string.")
-      }
+      # If endpoint is already set, do nothing (ignore the argument)
+      if (!is.null(private$.endpoint)) {
+        # Do nothing - keep existing endpoint
+      } else {
+        if (is.null(endpoint)) {
+          cli::cli_abort("{.arg endpoint} must not be {.val NULL}.")
+        }
+        if (!is.character(endpoint)) {
+          cli::cli_abort("{.arg endpoint} must be a character string.")
+        }
+        if (length(endpoint) != 1L) {
+          cli::cli_abort(
+            "{.arg endpoint} must be a single character string, not length {length(endpoint)}."
+          )
+        }
+        if (!nzchar(endpoint)) {
+          cli::cli_abort("{.arg endpoint} must not be an empty string.")
+        }
 
-      private$.endpoint <- endpoint
+        private$.endpoint <- endpoint
+      }
 
       # Clone the client and modify its base_req to include the endpoint path
       self$.client <- client$clone()
