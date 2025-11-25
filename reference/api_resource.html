@@ -81,21 +81,19 @@ this resource will automatically include this path prefix.</p>
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a new API resource instance</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_resource.html">api_resource</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>client <span class="op">=</span> <span class="cn">NULL</span>, endpoint <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_resource.html">api_resource</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">client</span>, <span class="va">endpoint</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>client</code></dt>
 <dd><p>An <code>api_client</code> object that provides the base HTTP client
-functionality. This will be cloned to avoid modifying the original.
-If <code>NULL</code>, will use the value of <code>self$.client</code> (allowing sub-classes to set defaults).</p></dd>
+functionality. This will be cloned to avoid modifying the original.</p></dd>
 
 
 <dt><code>endpoint</code></dt>
 <dd><p>A character string specifying the API endpoint or path
-segment to append (e.g., <code>"v1.0"</code>, <code>"beta"</code>).
-If <code>NULL</code>, will use the value of <code>private$.endpoint</code> (allowing sub-classes to set defaults).</p></dd>
+segment to append (e.g., <code>"v1.0"</code>, <code>"beta"</code>).</p></dd>
 
 
 </dl><p></p></div>

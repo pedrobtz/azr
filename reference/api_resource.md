@@ -41,22 +41,19 @@ Create a new API resource instance
 
 #### Usage
 
-    api_resource$new(client = NULL, endpoint = NULL)
+    api_resource$new(client, endpoint)
 
 #### Arguments
 
 - `client`:
 
   An `api_client` object that provides the base HTTP client
-  functionality. This will be cloned to avoid modifying the original. If
-  `NULL`, will use the value of `self$.client` (allowing sub-classes to
-  set defaults).
+  functionality. This will be cloned to avoid modifying the original.
 
 - `endpoint`:
 
   A character string specifying the API endpoint or path segment to
-  append (e.g., `"v1.0"`, `"beta"`). If `NULL`, will use the value of
-  `private$.endpoint` (allowing sub-classes to set defaults).
+  append (e.g., `"v1.0"`, `"beta"`).
 
 #### Returns
 

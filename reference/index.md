@@ -62,3 +62,5 @@
   : Get Authentication Token
 - [`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md)
   : Get Default Token Provider Function
+- [`is_hosted_session()`](https://pedrobtz.github.io/azr/reference/is_hosted_session.md)
+  : Detect if running in a hosted session
