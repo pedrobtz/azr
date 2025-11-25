@@ -49,13 +49,18 @@ AzureCLICredential <- R6::R6Class(
     #'   for the Azure CLI process. Defaults to `10`.
     #' @param login A logical value indicating whether to check if the user is
     #'   logged in and perform login if needed. Defaults to `FALSE`.
+    #' @param use_bridge A logical value indicating whether to use the device code
+    #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
+    #'   that displays the device code and facilitates copy-pasting before redirecting
+    #'   to the Microsoft device login page. Only used when `login = TRUE`. Defaults to `FALSE`.
     #'
     #' @return A new `AzureCLICredential` object
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
       process_timeout = NULL,
-      login = FALSE
+      login = FALSE,
+      use_bridge = FALSE
     ) {
       super$initialize(scope = scope, tenant_id = tenant_id)
       self$.process_timeout <- process_timeout %||% self$.process_timeout
@@ -64,7 +69,7 @@ AzureCLICredential <- R6::R6Class(
         # Check if user is logged in
         if (!az_cli_is_login(timeout = self$.process_timeout)) {
           cli::cli_alert_info("User is not logged in to Azure CLI")
-          az_cli_login()
+          az_cli_login(use_bridge = use_bridge)
         }
       }
     },
@@ -339,16 +344,35 @@ az_cli_is_login <- function(timeout = 10L) {
 #' to extract the device code, copies it to the clipboard, and opens
 #' the authentication URL in the default browser.
 #'
+#' @param use_bridge A logical value indicating whether to use the device code
+#'   bridge webpage. If `TRUE`, launches an intermediate local webpage that
+#'   displays the device code and facilitates copy-pasting before redirecting
+#'   to the Microsoft device login page. If `FALSE` (default), copies the code
+#'   directly to the clipboard and opens the Microsoft login page.
+#'
 #' @return Invisibly returns the exit status (0 for success, non-zero for failure)
 #'
 #' @examples
 #' \dontrun{
 #' # Perform Azure CLI login with device code flow
 #' az_cli_login()
+#'
+#' # Use the bridge webpage for easier code handling
+#' az_cli_login(use_bridge = TRUE)
 #' }
 #'
 #' @export
-az_cli_login <- function() {
+az_cli_login <- function(use_bridge = FALSE) {
+  if (!rlang::is_interactive()) {
+    cli::cli_abort(
+      c(
+        "Azure CLI login requires an interactive session",
+        "i" = "This function cannot be used in non-interactive environments"
+      ),
+      class = "azr_cli_non_interactive"
+    )
+  }
+
   az_path <- az_cli_available()
   az_args <- c("login", "--use-device-code")
 
@@ -405,21 +429,35 @@ az_cli_login <- function() {
 
         cli::cli_alert_success("Found Device Code: {.val {device_code}}")
 
-        # Copy to clipboard
-        tryCatch(
-          {
-            clipr::write_clip(device_code)
-            cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
-          },
-          error = function(e) {
-            cli::cli_alert_warning(
-              "Could not write to clipboard. Please copy manually."
-            )
-          }
-        )
+        if (isTRUE(use_bridge)) {
+          tryCatch(
+            {
+              launch_device_code(device_code)
+              cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
+            },
+            error = function(e) {
+              cli::cli_alert_warning(
+                "Could not use browser. Please copy manually."
+              )
+            }
+          )
+        } else {
+          # Copy to clipboard
+          tryCatch(
+            {
+              clipr::write_clip(device_code)
+              cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
+            },
+            error = function(e) {
+              cli::cli_alert_warning(
+                "Could not write to clipboard. Please copy manually."
+              )
+            }
+          )
 
-        cli::cli_alert_info("Opening browser to {.url {login_url}}...")
-        utils::browseURL(login_url)
+          cli::cli_alert_info("Opening browser to {.url {login_url}}...")
+          utils::browseURL(login_url)
+        }
       }
     }
 
@@ -596,4 +634,14 @@ az_cli_logout <- function() {
   }
 
   invisible(NULL)
+}
+
+launch_device_code <- function(code) {
+  html_content <- system.file("code.html", package = "azr") |>
+    paste(collapse = "\n") |>
+    sprintf(code)
+
+  temp_file <- tempfile(fileext = ".html")
+  writeLines(html_content, temp_file)
+  utils::browseURL(temp_file)
 }

@@ -16,6 +16,7 @@ URL: https://pedrobtz.github.io/azr/, https://github.com/pedrobtz/azr
 BugReports: https://github.com/pedrobtz/azr/issues
 Imports:
     methods,
+    utils,
     R6,
     cli,
     glue,

@@ -75,7 +75,8 @@ Create a new Azure CLI credential
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
-  login = FALSE
+  login = FALSE,
+  use_bridge = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -93,6 +94,11 @@ for the Azure CLI process. Defaults to \code{10}.}
 
 \item{\code{login}}{A logical value indicating whether to check if the user is
 logged in and perform login if needed. Defaults to \code{FALSE}.}
+
+\item{\code{use_bridge}}{A logical value indicating whether to use the device code
+bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
+that displays the device code and facilitates copy-pasting before redirecting
+to the Microsoft device login page. Only used when \code{login = TRUE}. Defaults to \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

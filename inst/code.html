@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Azure CLI Flow</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      max-width: 440px;
+      width: 100%%;
+    }
+    h3 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1b1b1b;
+      margin: 0 0 20px 0;
+    }
+    .info-text {
+      font-size: 14px;
+      color: #605e5c;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    input {
+      width: 100%%;
+      padding: 10px 12px;
+      font-size: 1.5rem;
+      font-family: "Segoe UI", monospace;
+      font-weight: bold;
+      text-align: center;
+      border: none;
+      box-sizing: border-box;
+      margin-bottom: 16px;
+      /* background-color: #f3f2f1; */
+    }
+    input:focus {
+      outline: none;
+    }
+    .button-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+    button {
+      width: 108px;
+      padding: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: "Segoe UI", sans-serif;
+      color: #ffffff;
+      background-color: #0078d4;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background-color 0.1s;
+    }
+    button:hover {
+      background-color: #106ebe;
+    }
+    button:active {
+      background-color: #005a9e;
+    }
+    .footnote {
+      font-size: 12px;
+      color: #8a8886;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .footnote a {
+      color: #0078d4;
+      text-decoration: none;
+    }
+    .footnote a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3>Azure CLI Device Code Flow</h3>
+    <div class="info-text">Click Next to copy the code and be redirected to the sign-in page. Then paste the code (Ctrl+V) to continue.</div>
+    <input type="text" id="Code" value="%s" readonly>
+    <div class="button-container">
+      <button onclick="copy_and_continue()">Next</button>
+    </div>
+    <div class="footnote">
+      Powered by <a href="https://cran.r-project.org/web/packages/azr/" target="_blank">azr</a>
+    </div>
+  </div>
+
+  <script>
+  function copy_and_continue() {
+    var copyText = document.getElementById("Code");
+    copyText.select();
+    document.execCommand("copy");
+    setTimeout(function() {
+      window.location.href = "https://microsoft.com/devicelogin";
+    }, 100);
+  }
+  </script>
+</body>
+</html>

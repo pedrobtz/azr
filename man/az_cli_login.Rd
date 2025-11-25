@@ -4,7 +4,14 @@
 \alias{az_cli_login}
 \title{Azure CLI Device Code Login}
 \usage{
-az_cli_login()
+az_cli_login(use_bridge = FALSE)
+}
+\arguments{
+\item{use_bridge}{A logical value indicating whether to use the device code
+bridge webpage. If \code{TRUE}, launches an intermediate local webpage that
+displays the device code and facilitates copy-pasting before redirecting
+to the Microsoft device login page. If \code{FALSE} (default), copies the code
+directly to the clipboard and opens the Microsoft login page.}
 }
 \value{
 Invisibly returns the exit status (0 for success, non-zero for failure)
@@ -23,6 +30,9 @@ the authentication URL in the default browser.
 \dontrun{
 # Perform Azure CLI login with device code flow
 az_cli_login()
+
+# Use the bridge webpage for easier code handling
+az_cli_login(use_bridge = TRUE)
 }
 
 }
