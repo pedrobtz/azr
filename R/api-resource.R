@@ -97,7 +97,7 @@ api_resource <- R6::R6Class(
 
       # Lock all fields to prevent modification
       lockBinding(".client", self)
-      lockBinding(".endpoint", private)
+      lockBinding("endpoint", private)
     }
   )
 )
