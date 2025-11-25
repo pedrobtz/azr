@@ -93,7 +93,7 @@ api_resource <- R6::R6Class(
       # Clone the client and modify its base_req to include the endpoint path
       self$.client <- client$clone()
       self$.client$.base_req <- self$.client$.base_req |>
-        httr2::req_url_path_append(endpoint)
+        httr2::req_url_path_append(private$.endpoint)
 
       # Lock all fields to prevent modification
       lockBinding(".client", self)
