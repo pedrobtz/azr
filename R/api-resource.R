@@ -41,8 +41,8 @@ api_resource <- R6::R6Class(
   cloneable = FALSE,
   # > private ----
   private = list(
-    #' @field .endpoint The API endpoint path segment (e.g., "v1.0", "beta")
-    .endpoint = NULL
+    #' @field endpoint The API endpoint path segment (e.g., "v1.0", "beta")
+    endpoint = NULL
   ),
   # > public ----
   public = list(
@@ -69,7 +69,7 @@ api_resource <- R6::R6Class(
       }
 
       # If endpoint is already set, do nothing (ignore the argument)
-      if (!is.null(private$.endpoint)) {
+      if (!is.null(private$endpoint)) {
         # Do nothing - keep existing endpoint
       } else {
         if (is.null(endpoint)) {
@@ -87,13 +87,13 @@ api_resource <- R6::R6Class(
           cli::cli_abort("{.arg endpoint} must not be an empty string.")
         }
 
-        private$.endpoint <- endpoint
+        private$endpoint <- endpoint
       }
 
       # Clone the client and modify its base_req to include the endpoint path
       self$.client <- client$clone()
       self$.client$.base_req <- self$.client$.base_req |>
-        httr2::req_url_path_append(private$.endpoint)
+        httr2::req_url_path_append(private$endpoint)
 
       # Lock all fields to prevent modification
       lockBinding(".client", self)
