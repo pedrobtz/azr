@@ -21,6 +21,9 @@
 #'   with versioned endpoints (v1.0 and beta). The service is locked using
 #'   [lockEnvironment()] to prevent modification after creation.
 #'
+#' @param scopes A character string specifying the OAuth2 scope suffix to be appended
+#'   to the Graph API URL. Defaults to `".default"`, which requests all permissions
+#'   the app has been granted. The full scope will be `https://graph.microsoft.com/{scopes}`.
 #' @param chain A [credential_chain] instance for authentication. If NULL,
 #'   a default credential chain will be created using [get_credential_provider()].
 #' @param ... Additional arguments passed to the [api_client] constructor.
@@ -49,16 +52,27 @@
 #'   AzureCLICredential$new(scope = "https://graph.microsoft.com/.default")
 #' )
 #' graph <- azr_graph_client(chain = custom_chain)
+#'
+#' # Use specific scopes instead of .default
+#' graph <- azr_graph_client(scopes = "User.Read Mail.Read")
 #' }
 # azr_graph_client ----
-azr_graph_client <- function(..., chain = NULL) {
+azr_graph_client <- function(scopes = ".default", ..., chain = NULL) {
+  graph_url <- "https://graph.microsoft.com"
+
+  # Construct the full scope URL
+  if (length(scopes) > 1) {
+    scopes <- paste(scopes, collapse = " ")
+  }
+  scope <- paste0(graph_url, "/", scopes)
+
   provider <- get_credential_provider(
-    scope = default_azure_scope("azure_graph"),
+    scope = scope,
     chain = chain
   )
 
   client <- api_client$new(
-    host_url = "https://graph.microsoft.com",
+    host_url = graph_url,
     provider = provider,
     ...
   )
