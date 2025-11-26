@@ -266,7 +266,12 @@ get_credential_provider <- function(
     )
   }
 
-  for (crd_expr in chain) {
+  errors <- list()
+
+  for (i in seq_along(chain)) {
+    crd_expr <- chain[[i]]
+    crd_name <- names(chain)[i] %||% paste0("credential_", i)
+
     crd <- try(rlang::eval_tidy(crd_expr), silent = TRUE)
 
     if (R6::is.R6Class(crd)) {
@@ -275,25 +280,35 @@ get_credential_provider <- function(
         silent = TRUE
       )
 
-      if (inherits(obj, "try-error") || !inherits(obj, "Credential")) {
+      if (inherits(obj, "try-error")) {
+        errors[[crd_name]] <- conditionMessage(attr(obj, "condition"))
+        next
+      }
+
+      if (!inherits(obj, "Credential")) {
+        errors[[crd_name]] <- "Object does not inherit from Credential class"
         next
       }
     } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
       obj <- crd
     } else {
+      errors[[crd_name]] <- "Invalid credential type"
       next
     }
 
     if (obj$is_interactive() && !rlang::is_interactive()) {
+      errors[[crd_name]] <- "Credential requires interactive session"
       next
     }
 
     token <- tryCatch(
       obj$get_token(),
       error = function(e) {
+        errors[[crd_name]] <<- conditionMessage(e)
         NULL
       },
       interrupt = function(e) {
+        errors[[crd_name]] <<- "Authentication interrupted by user"
         NULL
       }
     )
@@ -303,7 +318,17 @@ get_credential_provider <- function(
     }
   }
 
-  cli::cli_abort("All authentication methods in the chain failed!")
+  # All credentials failed, report all errors
+  error_msgs <- c(
+    "All authentication methods in the chain failed!",
+    "x" = "Attempted credentials and their errors:"
+  )
+
+  for (cred_name in names(errors)) {
+    error_msgs <- c(error_msgs, setNames(errors[[cred_name]], "x"))
+  }
+
+  cli::cli_abort(error_msgs, class = "azr_credential_chain_failed")
 }
 
 
