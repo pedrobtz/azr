@@ -50,6 +50,7 @@ response <- resource_v1$.fetch(
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-api_resource-new}{\code{api_resource$new()}}
+\item \href{#method-api_resource-clone}{\code{api_resource$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -74,6 +75,23 @@ segment to append (e.g., \code{"v1.0"}, \code{"beta"}).}
 }
 \subsection{Returns}{
 A new \code{api_resource} object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-api_resource-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-api_resource-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{api_resource$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
 }
 }
 }

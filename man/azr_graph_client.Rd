@@ -4,9 +4,13 @@
 \alias{azr_graph_client}
 \title{Create a Microsoft Graph API Client}
 \usage{
-azr_graph_client(..., chain = NULL)
+azr_graph_client(scopes = ".default", ..., chain = NULL)
 }
 \arguments{
+\item{scopes}{A character string specifying the OAuth2 scope suffix to be appended
+to the Graph API URL. Defaults to \code{".default"}, which requests all permissions
+the app has been granted. The full scope will be \verb{https://graph.microsoft.com/\{scopes\}}.}
+
 \item{...}{Additional arguments passed to the \link{api_client} constructor.}
 
 \item{chain}{A \link{credential_chain} instance for authentication. If NULL,
@@ -58,5 +62,8 @@ custom_chain <- credential_chain(
   AzureCLICredential$new(scope = "https://graph.microsoft.com/.default")
 )
 graph <- azr_graph_client(chain = custom_chain)
+
+# Use specific scopes instead of .default
+graph <- azr_graph_client(scopes = "User.Read Mail.Read")
 }
 }
