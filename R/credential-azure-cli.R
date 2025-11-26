@@ -362,7 +362,11 @@ az_cli_is_login <- function(timeout = 10L) {
 #' }
 #'
 #' @export
-az_cli_login <- function(use_bridge = FALSE) {
+az_cli_login <- function(
+  tenant_id = NULL,
+  use_bridge = FALSE,
+  verbose = FALSE
+) {
   if (!rlang::is_interactive()) {
     cli::cli_abort(
       c(
@@ -374,15 +378,22 @@ az_cli_login <- function(use_bridge = FALSE) {
   }
 
   az_path <- az_cli_available()
-  az_args <- c("login", "--use-device-code")
+  az_args <- c("login", "--use-device-code", "--output", "json")
+
+  if (!is.null(tenant_id)) {
+    validate_tenant_id(tenant_id)
+    az_args <- c(az_args, c("--tenant", tenant_id))
+  }
 
   cli::cli_alert_info("Starting Azure CLI login process...")
+
+  output_file <- tempfile(fileext = ".json")
 
   # Start the process in the background
   p <- processx::process$new(
     az_path,
     az_args,
-    stdout = "|",
+    stdout = output_file,
     stderr = "|"
   )
 
@@ -397,24 +408,25 @@ az_cli_login <- function(use_bridge = FALSE) {
     p$poll_io(100)
 
     # Read stdout and stderr
-    lines_out <- p$read_output_lines()
     lines_err <- p$read_error_lines()
-    all_lines <- c(lines_out, lines_err)
 
     # Collect stdout for later parsing
-    if (length(lines_out) > 0) {
-      all_stdout <- c(all_stdout, lines_out)
+    if (length(lines_err) > 0) {
+      all_stdout <- c(all_stdout, lines_err)
     }
 
     # Print output to console
-    if (length(all_lines) > 0) {
-      cat(paste(all_lines, collapse = "\n"), "\n")
+    if (length(lines_err) > 0) {
+      cli::cli_alert_warning("Error output:")
+      for (line in lines_err) {
+        cli::cli_text(line)
+      }
     }
 
     # Look for the device code
-    if (!code_found && length(all_lines) > 0) {
+    if (!code_found && length(lines_err) > 0) {
       # Combine lines to handle wrapping
-      combined_text <- paste(all_lines, collapse = " ")
+      combined_text <- paste(lines_err, collapse = " ")
 
       # Look for the code pattern (usually 9 alphanumeric characters)
       match <- regexec(
@@ -433,7 +445,9 @@ az_cli_login <- function(use_bridge = FALSE) {
           tryCatch(
             {
               launch_device_code(device_code)
-              cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
+              cli::cli_alert_info(
+                "Launch web bridge to copy code to clipboard!"
+              )
             },
             error = function(e) {
               cli::cli_alert_warning(
@@ -467,7 +481,6 @@ az_cli_login <- function(use_bridge = FALSE) {
 
   # Check exit status
   exit_status <- p$get_exit_status()
-  output_lines <- p$read_output_lines()
   error_lines <- p$read_error_lines()
 
   # Print any remaining error lines
@@ -481,16 +494,13 @@ az_cli_login <- function(use_bridge = FALSE) {
   if (exit_status == 0) {
     cli::cli_alert_success("Login Completed Successfully!")
 
-    # Parse output_lines as JSON
-    if (length(output_lines) > 0) {
-      result <- tryCatch(
-        jsonlite::fromJSON(paste(output_lines, collapse = "\n")),
-        error = function(e) {
-          NULL
-        }
-      )
-      return(invisible(result))
-    }
+    result <- tryCatch(
+      jsonlite::fromJSON(output_file),
+      error = function(e) {
+        NULL
+      }
+    )
+    return(invisible(result))
   } else {
     cli::cli_alert_danger("Process finished with error (Status: {exit_status})")
   }
@@ -638,6 +648,7 @@ az_cli_logout <- function() {
 
 launch_device_code <- function(code) {
   html_content <- system.file("code.html", package = "azr") |>
+    readLines() |>
     paste(collapse = "\n") |>
     sprintf(code)
 
