@@ -30,12 +30,10 @@ api_service <- R6::R6Class(
     #' @param config A list of configuration options. Defaults to an empty list.
     #'
     #' @return A new `api_service` object
-    initialize = function(
-      client = NULL,
-      chain = NULL,
-      endpoints = list(),
-      config = list()
-    ) {
+    initialize = function(client = NULL,
+                          chain = NULL,
+                          endpoints = list(),
+                          config = list()) {
       self$.client <- client
       private$.chain <- chain
       private$.config <- config

@@ -44,15 +44,14 @@
 #'
 #' @export
 get_token_provider <- function(
-  scope = NULL,
-  tenant_id = NULL,
-  client_id = NULL,
-  client_secret = NULL,
-  use_cache = "disk",
-  offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
-) {
+    scope = NULL,
+    tenant_id = NULL,
+    client_id = NULL,
+    client_secret = NULL,
+    use_cache = "disk",
+    offline = TRUE,
+    chain = default_credential_chain(),
+    silent = TRUE) {
   crd <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -112,15 +111,14 @@ get_token_provider <- function(
 #'
 #' @export
 get_request_authorizer <- function(
-  scope = NULL,
-  tenant_id = NULL,
-  client_id = NULL,
-  client_secret = NULL,
-  use_cache = "disk",
-  offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
-) {
+    scope = NULL,
+    tenant_id = NULL,
+    client_id = NULL,
+    client_secret = NULL,
+    use_cache = "disk",
+    offline = TRUE,
+    chain = default_credential_chain(),
+    silent = TRUE) {
   crd <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -179,15 +177,14 @@ get_request_authorizer <- function(
 #'
 #' @export
 get_token <- function(
-  scope = NULL,
-  tenant_id = NULL,
-  client_id = NULL,
-  client_secret = NULL,
-  use_cache = "disk",
-  offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
-) {
+    scope = NULL,
+    tenant_id = NULL,
+    client_id = NULL,
+    client_secret = NULL,
+    use_cache = "disk",
+    offline = TRUE,
+    chain = default_credential_chain(),
+    silent = TRUE) {
   provider <- get_token_provider(
     scope = scope,
     tenant_id = tenant_id,
@@ -250,16 +247,15 @@ get_token <- function(
 #'
 #' @export
 get_credential_provider <- function(
-  scope = NULL,
-  tenant_id = NULL,
-  client_id = NULL,
-  client_secret = NULL,
-  use_cache = "disk",
-  offline = FALSE,
-  oauth_host = NULL,
-  oauth_endpoint = NULL,
-  chain = NULL
-) {
+    scope = NULL,
+    tenant_id = NULL,
+    client_id = NULL,
+    client_secret = NULL,
+    use_cache = "disk",
+    offline = FALSE,
+    oauth_host = NULL,
+    oauth_endpoint = NULL,
+    chain = NULL) {
   if (is.null(chain) || length(chain) == 0L) {
     chain <- default_credential_chain()
   }
@@ -332,8 +328,8 @@ get_credential_provider <- function(
 default_credential_chain <- function() {
   credential_chain(
     client_secret = ClientSecretCredential,
-    azure_cli = AzureCLICredential,
     auth_code = AuthCodeCredential,
+    azure_cli = AzureCLICredential,
     device_code = DeviceCodeCredential
   )
 }

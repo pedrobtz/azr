@@ -4,48 +4,39 @@
 \alias{azr_graph_client}
 \title{Create a Microsoft Graph API Client}
 \usage{
-azr_graph_client(chain = NULL, ...)
+azr_graph_client(..., chain = NULL)
 }
 \arguments{
+\item{...}{Additional arguments passed to the \link{api_client} constructor.}
+
 \item{chain}{A \link{credential_chain} instance for authentication. If NULL,
 a default credential chain will be created using \code{\link[=get_credential_provider]{get_credential_provider()}}.}
-
-\item{...}{Additional arguments passed to the internal \link{api_graph_client} constructor.}
 }
 \value{
-An \link{api_graph_service} object configured for Microsoft Graph API with
+An \link{api_service} object configured for Microsoft Graph API with
 v1.0 and beta endpoints. The object is locked using \code{\link[=lockEnvironment]{lockEnvironment()}} to
 prevent modification after creation. Access endpoints via \verb{$v1.0} or \verb{$beta}.
 }
 \description{
 Creates a configured client for the Microsoft Graph API with authentication
 and versioned endpoints (v1.0 and beta). This function returns an
-\link{api_graph_service} object that provides access to Microsoft Graph resources
+\link{api_service} object that provides access to Microsoft Graph resources
 through versioned endpoints.
 }
 \details{
-The returned service object is built using three internal R6 classes:
-\subsection{api_graph_client}{
-
-An R6 class extending \link{api_client} with Microsoft Graph-specific defaults.
-Preconfigured with the Graph API host URL (\verb{https://graph.microsoft.com}).
-}
-
-\subsection{api_graph_resource}{
-
-An R6 class extending \link{api_resource} that provides specialized methods for
-the Microsoft Graph API. Currently implements:
+The function creates a Microsoft Graph service using these components:
+\itemize{
+\item \strong{\link{api_client}}: A general-purpose API client configured with the Graph API
+host URL (\verb{https://graph.microsoft.com}) and authentication provider.
+\item \strong{\link{api_graph_resource}}: A specialized resource class that extends \link{api_resource}
+with Microsoft Graph-specific methods. Currently implements:
 \itemize{
 \item \code{me(select = NULL)}: Fetch the current user's profile. The \code{select} parameter
 accepts a character vector of properties to return (e.g., \code{c("displayName", "mail")}).
 }
-}
-
-\subsection{api_graph_service}{
-
-An R6 class extending \link{api_service} that combines the client and resources
-into a cohesive service with versioned endpoints (v1.0 and beta). Handles
-credential provider initialization using \code{\link[=get_credential_provider]{get_credential_provider()}}.
+\item \strong{\link{api_service}}: A service container that combines the client and resources
+with versioned endpoints (v1.0 and beta). The service is locked using
+\code{\link[=lockEnvironment]{lockEnvironment()}} to prevent modification after creation.
 }
 }
 \examples{

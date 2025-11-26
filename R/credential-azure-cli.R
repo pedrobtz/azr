@@ -398,6 +398,8 @@ az_cli_login <- function(
 
   output_file <- tempfile(fileext = ".json")
 
+  rlang::check_installed("processx")
+
   # Start the process in the background
   p <- processx::process$new(
     az_path,
@@ -466,6 +468,7 @@ az_cli_login <- function(
           )
         } else {
           # Copy to clipboard
+          rlang::check_installed("clipr")
           tryCatch(
             {
               clipr::write_clip(device_code)

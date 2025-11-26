@@ -104,10 +104,9 @@ default_azure_scope <- function(resource = "azure_arm") {
 #'   client_secret = "my-secret"
 #' )
 default_azure_oauth_client <- function(
-  client_id = default_azure_client_id(),
-  client_secret = NULL,
-  name = NULL
-) {
+    client_id = default_azure_client_id(),
+    client_secret = NULL,
+    name = NULL) {
   httr2::oauth_client(
     name = name,
     id = client_id,
@@ -145,10 +144,9 @@ default_azure_oauth_client <- function(
 #' # Custom tenant
 #' default_azure_url("authorize", tenant_id = "my-tenant-id")
 default_azure_url <- function(
-  endpoint = NULL,
-  oauth_host = default_azure_host(),
-  tenant_id = default_azure_tenant_id()
-) {
+    endpoint = NULL,
+    oauth_host = default_azure_host(),
+    tenant_id = default_azure_tenant_id()) {
   validate_tenant_id(tenant_id)
 
   oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")

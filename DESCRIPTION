@@ -19,14 +19,13 @@ Imports:
     utils,
     R6,
     cli,
-    glue,
     httr2 (>= 1.2.1),
     jsonlite,
-    processx,
-    clipr,
     rlang
 Suggests:
     data.table,
     httpuv,
+    clipr,
+    processx,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

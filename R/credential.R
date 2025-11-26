@@ -102,7 +102,6 @@ Credential <- R6::R6Class(
       lockBinding(".oauth_endpoint", self)
       lockBinding(".oauth_url", self)
       lockBinding(".token_url", self)
-      lockBinding(".redirect_uri", self)
       lockBinding(".classname", self)
     },
     validate = function() {

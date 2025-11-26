@@ -42,16 +42,7 @@ response <- resource_v1$.fetch(
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{endpoint}}{The API endpoint path segment (e.g., "v1.0", "beta")}
-
 \item{\code{.client}}{The cloned api_client instance with modified base_req}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{endpoint}}{The API endpoint path segment (e.g., "v1.0", "beta")}
 }
 \if{html}{\out{</div>}}
 }

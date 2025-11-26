@@ -41,7 +41,6 @@ api_resource <- R6::R6Class(
   cloneable = FALSE,
   # > private ----
   private = list(
-    #' @field endpoint The API endpoint path segment (e.g., "v1.0", "beta")
     endpoint = NULL
   ),
   # > public ----
