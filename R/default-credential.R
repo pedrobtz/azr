@@ -325,7 +325,11 @@ get_credential_provider <- function(
   )
 
   for (cred_name in names(errors)) {
-    error_msgs <- c(error_msgs, setNames(errors[[cred_name]], "x"))
+    error_msgs <- c(
+      error_msgs,
+      " " = paste0("{.strong ", cred_name, "}:"),
+      "x" = errors[[cred_name]]
+    )
   }
 
   cli::cli_abort(error_msgs, class = "azr_credential_chain_failed")
