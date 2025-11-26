@@ -344,11 +344,17 @@ az_cli_is_login <- function(timeout = 10L) {
 #' to extract the device code, copies it to the clipboard, and opens
 #' the authentication URL in the default browser.
 #'
+#' @param tenant_id A character string specifying the Azure Active Directory
+#'   tenant ID to authenticate against. If `NULL` (default), uses the default
+#'   tenant from Azure CLI configuration.
 #' @param use_bridge A logical value indicating whether to use the device code
 #'   bridge webpage. If `TRUE`, launches an intermediate local webpage that
 #'   displays the device code and facilitates copy-pasting before redirecting
 #'   to the Microsoft device login page. If `FALSE` (default), copies the code
 #'   directly to the clipboard and opens the Microsoft login page.
+#' @param verbose A logical value indicating whether to print detailed process
+#'   output to the console, including error messages from the Azure CLI process.
+#'   If `FALSE` (default), only essential messages are displayed.
 #'
 #' @return Invisibly returns the exit status (0 for success, non-zero for failure)
 #'
@@ -359,6 +365,9 @@ az_cli_is_login <- function(timeout = 10L) {
 #'
 #' # Use the bridge webpage for easier code handling
 #' az_cli_login(use_bridge = TRUE)
+#'
+#' # Login to a specific tenant with verbose output
+#' az_cli_login(tenant_id = "your-tenant-id", verbose = TRUE)
 #' }
 #'
 #' @export
@@ -416,7 +425,7 @@ az_cli_login <- function(
     }
 
     # Print output to console
-    if (length(lines_err) > 0) {
+    if (isTRUE((verbose) && lines_err) > 0) {
       cli::cli_alert_warning("Error output:")
       for (line in lines_err) {
         cli::cli_text(line)
@@ -484,7 +493,7 @@ az_cli_login <- function(
   error_lines <- p$read_error_lines()
 
   # Print any remaining error lines
-  if (length(error_lines) > 0) {
+  if (isTRUE(verbose) && length(error_lines) > 0) {
     cli::cli_alert_warning("Error output:")
     for (line in error_lines) {
       cli::cli_text(line)
