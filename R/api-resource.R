@@ -38,7 +38,6 @@
 #' }
 api_resource <- R6::R6Class(
   classname = "api_resource",
-  cloneable = FALSE,
   # > private ----
   private = list(
     endpoint = NULL

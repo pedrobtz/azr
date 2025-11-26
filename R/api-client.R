@@ -256,7 +256,7 @@ api_client <- R6::R6Class(
     #'
     #' @return An [httr2::request()] object ready for execution
     .req_build = function(path, ..., req_data = NULL, req_method = "get") {
-      path <- rlang::englue(path, env = list(...))
+      path <- rlang::englue(path, env = as.environment(list(...)))
 
       req <- self$.base_req |>
         httr2::req_url_path_append(path) |>
