@@ -32,7 +32,8 @@
 #' }
 DeviceCodeCredential <- R6::R6Class(
   classname = "DeviceCodeCredential",
-  inherit = InteractiveCredential, ,
+  inherit = InteractiveCredential,
+  ,
   public = list(
     #' @description
     #' Create a new device code credential
@@ -48,11 +49,13 @@ DeviceCodeCredential <- R6::R6Class(
     #'   (refresh tokens). Defaults to `TRUE`.
     #'
     #' @return A new `DeviceCodeCredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          client_id = NULL,
-                          use_cache = "disk",
-                          offline = TRUE) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      use_cache = "disk",
+      offline = TRUE
+    ) {
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -142,7 +145,8 @@ DeviceCodeCredential <- R6::R6Class(
 #' }
 AuthCodeCredential <- R6::R6Class(
   classname = "AuthCodeCredential",
-  inherit = InteractiveCredential, ,
+  inherit = InteractiveCredential,
+  ,
   public = list(
     #' @description
     #' Create a new authorization code credential
@@ -160,12 +164,14 @@ AuthCodeCredential <- R6::R6Class(
     #'   with the application. Defaults to [default_redirect_uri()].
     #'
     #' @return A new `AuthCodeCredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          client_id = NULL,
-                          use_cache = "disk",
-                          offline = TRUE,
-                          redirect_uri = default_redirect_uri()) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      use_cache = "disk",
+      offline = TRUE,
+      redirect_uri = default_redirect_uri()
+    ) {
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -175,8 +181,9 @@ AuthCodeCredential <- R6::R6Class(
         oauth_endpoint = "authorize",
         name = "azr-auth-code"
       )
-
+      unlockBinding(".redirect_uri", self)
       self$.redirect_uri <- default_redirect_uri()
+      lockBinding(".redirect_uri", self)
     },
     #' @description
     #' Get an access token using authorization code flow

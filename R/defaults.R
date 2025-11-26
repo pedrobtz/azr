@@ -103,9 +103,11 @@ default_azure_scope <- function(resource = "azure_arm") {
 #'   client_id = "my-client-id",
 #'   client_secret = "my-secret"
 #' )
-default_azure_oauth_client <- function(client_id = default_azure_client_id(),
-                                       client_secret = NULL,
-                                       name = NULL) {
+default_azure_oauth_client <- function(
+  client_id = default_azure_client_id(),
+  client_secret = NULL,
+  name = NULL
+) {
   httr2::oauth_client(
     name = name,
     id = client_id,
@@ -142,9 +144,11 @@ default_azure_oauth_client <- function(client_id = default_azure_client_id(),
 #'
 #' # Custom tenant
 #' default_azure_url("authorize", tenant_id = "my-tenant-id")
-default_azure_url <- function(endpoint = NULL,
-                              oauth_host = default_azure_host(),
-                              tenant_id = default_azure_tenant_id()) {
+default_azure_url <- function(
+  endpoint = NULL,
+  oauth_host = default_azure_host(),
+  tenant_id = default_azure_tenant_id()
+) {
   validate_tenant_id(tenant_id)
 
   oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
@@ -198,7 +202,11 @@ default_azure_config_dir <- function() {
   Sys.getenv(
     "AZURE_CONFIG_DIR",
     unset = if (.Platform$OS.type == "windows") {
-      file.path(Sys.getenv("USERPROFILE"), ".azure")
+      normalizePath(
+        file.path(Sys.getenv("USERPROFILE"), ".azure"),
+        winslash = "/",
+        mustWork = FALSE
+      )
     } else {
       "~/.azure"
     }
