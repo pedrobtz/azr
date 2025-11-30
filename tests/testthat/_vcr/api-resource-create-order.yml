@@ -1,0 +1,19 @@
+http_interactions:
+- request:
+    method: POST
+    uri: https://petstore.swagger.io/v2/store/order
+    body:
+      string: '{"id":12345,"petId":1,"quantity":1,"shipDate":"2024-01-15T10:00:00.000Z","status":"placed","complete":false}'
+  response:
+    status: 200
+    headers:
+      date: Thu, 27 Nov 2025 13:17:12 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"id":12345,"petId":1,"quantity":1,"shipDate":"2024-01-15T10:00:00.000+0000","status":"placed","complete":false}'
+  recorded_at: 2025-11-27 13:17:12
+recorded_with: VCR-vcr/2.0.0

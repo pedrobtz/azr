@@ -55,13 +55,11 @@ AzureCLICredential <- R6::R6Class(
     #'   to the Microsoft device login page. Only used when `login = TRUE`. Defaults to `FALSE`.
     #'
     #' @return A new `AzureCLICredential` object
-    initialize = function(
-      scope = NULL,
-      tenant_id = NULL,
-      process_timeout = NULL,
-      login = FALSE,
-      use_bridge = FALSE
-    ) {
+    initialize = function(scope = NULL,
+                          tenant_id = NULL,
+                          process_timeout = NULL,
+                          login = FALSE,
+                          use_bridge = FALSE) {
       super$initialize(scope = scope, tenant_id = tenant_id)
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
@@ -372,10 +370,9 @@ az_cli_is_login <- function(timeout = 10L) {
 #'
 #' @export
 az_cli_login <- function(
-  tenant_id = NULL,
-  use_bridge = FALSE,
-  verbose = FALSE
-) {
+    tenant_id = NULL,
+    use_bridge = FALSE,
+    verbose = FALSE) {
   if (!rlang::is_interactive()) {
     cli::cli_abort(
       c(

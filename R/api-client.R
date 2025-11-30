@@ -116,11 +116,19 @@ api_client <- R6::R6Class(
         connecttimeout = connecttimeout,
         max_tries = max_tries
       )
-      stopifnot(
-        !is.null(self$.host_url),
-        length(self$.host_url) == 1L,
-        is.character(self$.host_url)
-      )
+      if (is.null(self$.host_url)) {
+        cli::cli_abort("Argument {.arg host_url} must not be NULL.")
+      }
+      if (length(self$.host_url) != 1L) {
+        cli::cli_abort(
+          "Argument {.arg host_url} must be a single value, not length {length(self$.host_url)}."
+        )
+      }
+      if (!is.character(self$.host_url)) {
+        cli::cli_abort(
+          "Argument {.arg host_url} must be a character string, not {.cls {class(self$.host_url)}}."
+        )
+      }
 
       # Handle credential provider if provided
       if (!is.null(provider)) {
@@ -135,7 +143,7 @@ api_client <- R6::R6Class(
 
       # Handle credentials function
       if (is.null(credentials)) {
-        credentials <- default_non_auth()
+        credentials <- default_non_auth
       }
 
       stopifnot(is.function(credentials))

@@ -1,0 +1,19 @@
+http_interactions:
+- request:
+    method: POST
+    uri: https://petstore.swagger.io/v2/pet
+    body:
+      string: '{"id":10001,"name":"TestDog","status":"available","category":{"id":1,"name":"Dogs"},"tags":[{"id":1,"name":"friendly"}]}'
+  response:
+    status: 200
+    headers:
+      date: Thu, 27 Nov 2025 13:17:10 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"id":10001,"category":{"id":1,"name":"Dogs"},"name":"TestDog","photoUrls":[],"tags":[{"id":1,"name":"friendly"}],"status":"available"}'
+  recorded_at: 2025-11-27 13:17:11
+recorded_with: VCR-vcr/2.0.0

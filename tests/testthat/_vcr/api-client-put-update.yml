@@ -1,0 +1,36 @@
+http_interactions:
+- request:
+    method: POST
+    uri: https://petstore.swagger.io/v2/pet
+    body:
+      string: '{"id":10004,"name":"OriginalName","status":"available","photoUrls":["https://example.com/photo.jpg"]}'
+  response:
+    status: 200
+    headers:
+      date: Thu, 27 Nov 2025 13:17:11 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"id":10004,"name":"OriginalName","photoUrls":["https://example.com/photo.jpg"],"tags":[],"status":"available"}'
+  recorded_at: 2025-11-27 13:17:11
+- request:
+    method: PUT
+    uri: https://petstore.swagger.io/v2/pet
+    body:
+      string: '{"id":10004,"name":"UpdatedName","status":"sold","photoUrls":["https://example.com/photo.jpg"]}'
+  response:
+    status: 200
+    headers:
+      date: Thu, 27 Nov 2025 13:17:11 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"id":10004,"name":"UpdatedName","photoUrls":["https://example.com/photo.jpg"],"tags":[],"status":"sold"}'
+  recorded_at: 2025-11-27 13:17:12
+recorded_with: VCR-vcr/2.0.0

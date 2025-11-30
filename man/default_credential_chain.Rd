@@ -16,8 +16,8 @@ The credentials are tried in order until one successfully authenticates.
 The default chain includes:
 \enumerate{
 \item Client Secret Credential - Uses client ID and secret
-\item Azure CLI Credential - Uses credentials from Azure CLI
 \item Authorization Code Credential - Interactive browser-based authentication
+\item Azure CLI Credential - Uses credentials from Azure CLI
 \item Device Code Credential - Interactive device code flow
 }
 }

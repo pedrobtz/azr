@@ -11,8 +11,7 @@ get_token_provider(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
+  chain = default_credential_chain()
 )
 }
 \arguments{
@@ -37,9 +36,6 @@ Defaults to \code{TRUE}.}
 \item{chain}{A list of credential objects, where each element must inherit
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
-
-\item{silent}{Logical. If \code{FALSE}, prints detailed diagnostic information
-during credential discovery and authentication. Defaults to \code{TRUE}.}
 }
 \value{
 A function that retrieves and returns an authentication token when

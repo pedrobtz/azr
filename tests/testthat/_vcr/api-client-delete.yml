@@ -1,0 +1,34 @@
+http_interactions:
+- request:
+    method: POST
+    uri: https://petstore.swagger.io/v2/pet
+    body:
+      string: '{"id":10005,"name":"ToBeDeleted","status":"available","photoUrls":["https://example.com/photo.jpg"]}'
+  response:
+    status: 200
+    headers:
+      date: Thu, 27 Nov 2025 13:17:12 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"id":10005,"name":"ToBeDeleted","photoUrls":["https://example.com/photo.jpg"],"tags":[],"status":"available"}'
+  recorded_at: 2025-11-27 13:17:12
+- request:
+    method: DELETE
+    uri: https://petstore.swagger.io/v2/pet/10005
+  response:
+    status: 200
+    headers:
+      date: Thu, 27 Nov 2025 13:17:12 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"code":200,"type":"unknown","message":"10005"}'
+  recorded_at: 2025-11-27 13:17:12
+recorded_with: VCR-vcr/2.0.0

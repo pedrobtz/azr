@@ -95,7 +95,7 @@ test_that("default_credential_chain contains expected credentials", {
   expect_length(chain, 4)
   expect_named(
     chain,
-    c("client_secret", "azure_cli", "auth_code", "device_code")
+    c("client_secret", "auth_code", "azure_cli", "device_code")
   )
 })
 
@@ -104,8 +104,8 @@ test_that("default_credential_chain credentials are in correct order", {
 
   names_order <- names(chain)
   expect_equal(names_order[1], "client_secret")
-  expect_equal(names_order[2], "azure_cli")
-  expect_equal(names_order[3], "auth_code")
+  expect_equal(names_order[2], "auth_code")
+  expect_equal(names_order[3], "azure_cli")
   expect_equal(names_order[4], "device_code")
 })
 

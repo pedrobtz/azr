@@ -20,8 +20,6 @@
 #' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param silent Logical. If `FALSE`, prints detailed diagnostic information
-#'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return A function that retrieves and returns an authentication token when
 #'   called.
@@ -50,10 +48,9 @@ get_token_provider <- function(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
+  chain = default_credential_chain()
 ) {
-  crd <- get_credential_provider(
+  provider <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
     client_id = client_id,
@@ -64,7 +61,7 @@ get_token_provider <- function(
   )
 
   function() {
-    crd$get_token()
+    provider$get_token()
   }
 }
 
@@ -90,8 +87,6 @@ get_token_provider <- function(
 #' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param silent Logical. If `FALSE`, prints detailed diagnostic information
-#'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return A function that authorizes HTTP requests with appropriate credentials
 #'   when called.
@@ -118,10 +113,9 @@ get_request_authorizer <- function(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
+  chain = default_credential_chain()
 ) {
-  crd <- get_credential_provider(
+  provider <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
     client_id = client_id,
@@ -132,7 +126,7 @@ get_request_authorizer <- function(
   )
 
   function(req) {
-    crd$req_auth(req)
+    provider$req_auth(req)
   }
 }
 
@@ -157,8 +151,6 @@ get_request_authorizer <- function(
 #' @param chain A list of credential objects, where each element must inherit
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds.
-#' @param silent Logical. If `FALSE`, prints detailed diagnostic information
-#'   during credential discovery and authentication. Defaults to `TRUE`.
 #'
 #' @return An [httr2::oauth_token()] object.
 #'
@@ -185,21 +177,76 @@ get_token <- function(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
+  chain = default_credential_chain()
 ) {
-  provider <- get_token_provider(
+  provider <- get_credential_provider(
     scope = scope,
     tenant_id = tenant_id,
     client_id = client_id,
     client_secret = client_secret,
     use_cache = use_cache,
     offline = offline,
-    chain = chain,
-    silent = silent
+    chain = chain
   )
 
-  provider()
+  provider$get_token()
+}
+
+
+#' Get Credential Authentication Function
+#'
+#' @description
+#' Creates a function that retrieves authentication tokens and formats them as
+#' HTTP Authorization headers. This function handles credential discovery and
+#' returns a callable method that generates Bearer token headers when invoked.
+#'
+#' @inheritParams get_token
+#'
+#' @return A function that, when called, returns a named list with an
+#'   `Authorization` element containing the Bearer token, suitable for use
+#'   with [httr2::req_headers()].
+#'
+#' @seealso [get_token()], [get_request_authorizer()], [get_token_provider()]
+#'
+#' @examples
+#' \dontrun{
+#' # Create an authentication function
+#' auth_fn <- get_credential_auth(
+#'   scope = "https://graph.microsoft.com/.default"
+#' )
+#'
+#' # Call it to get headers
+#' auth_headers <- auth_fn()
+#'
+#' # Use with httr2
+#' req <- httr2::request("https://graph.microsoft.com/v1.0/me") |>
+#'   httr2::req_headers(!!!auth_headers)
+#' }
+#'
+#' @export
+get_credential_auth <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  chain = default_credential_chain()
+) {
+  get_token <- get_token_provider(
+    scope = scope,
+    tenant_id = tenant_id,
+    client_id = client_id,
+    client_secret = client_secret,
+    use_cache = use_cache,
+    offline = offline,
+    chain = chain
+  )
+
+  function() {
+    token <- get_token()
+    list(Authorization = paste0("Bearer ", token$access_token))
+  }
 }
 
 
@@ -346,8 +393,8 @@ get_credential_provider <- function(
 #' The default chain includes:
 #' \enumerate{
 #'   \item Client Secret Credential - Uses client ID and secret
-#'   \item Azure CLI Credential - Uses credentials from Azure CLI
 #'   \item Authorization Code Credential - Interactive browser-based authentication
+#'   \item Azure CLI Credential - Uses credentials from Azure CLI
 #'   \item Device Code Credential - Interactive device code flow
 #' }
 #'
