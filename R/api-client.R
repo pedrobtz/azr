@@ -130,24 +130,26 @@ api_client <- R6::R6Class(
         )
       }
 
-      # Handle credential provider if provided
-      if (!is.null(provider)) {
+      # Handle credentials function
+      if (!is.null(credentials)) {
+        if (!is.function(credentials)) {
+          cli::cli_abort(
+            "Argument {.arg credentials} must be a function, not {.cls {class(credentials)}}."
+          )
+        }
+        self$.credentials <- credentials
+      } else if (!is.null(provider)) {
+        # Handle credential provider if provided
         if (!R6::is.R6(provider) || !inherits(provider, "Credential")) {
           cli::cli_abort(
             "Argument 'provider' must be an R6 object that inherits from 'Credential' class."
           )
         }
         self$.provider <- provider
-        credentials <- function(req) provider$req_auth(req)
+        self$.credentials <- function(req) provider$req_auth(req)
+      } else {
+        self$.credentials <- default_non_auth
       }
-
-      # Handle credentials function
-      if (is.null(credentials)) {
-        credentials <- default_non_auth
-      }
-
-      stopifnot(is.function(credentials))
-      self$.credentials <- credentials
 
       # Handle response handler function
       if (is.null(response_handler)) {
