@@ -269,7 +269,7 @@ get_credential_auth <- function(
 #'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
 #'   for in-memory caching.
 #' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to
-#'   request a 'refresh_token'. Defaults to `FALSE`.
+#'   request a 'refresh_token'. Defaults to `TRUE`.
 #' @param oauth_host Optional character string specifying the OAuth host URL.
 #' @param oauth_endpoint Optional character string specifying the OAuth endpoint.
 #' @param chain A list of credential objects, where each element must inherit
@@ -302,7 +302,7 @@ get_credential_provider <- function(
   client_id = NULL,
   client_secret = NULL,
   use_cache = "disk",
-  offline = FALSE,
+  offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL
