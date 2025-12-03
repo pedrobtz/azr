@@ -18,14 +18,16 @@ Credential <- R6::R6Class(
     .token_url = NULL,
     .redirect_uri = NULL,
     .classname = NULL,
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          client_id = NULL,
-                          client_secret = NULL,
-                          use_cache = c("disk", "memory"),
-                          offline = FALSE,
-                          oauth_endpoint = NULL,
-                          name = NULL) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      client_secret = NULL,
+      use_cache = c("disk", "memory"),
+      offline = TRUE,
+      oauth_endpoint = NULL,
+      name = NULL
+    ) {
       if (!rlang::is_interactive() && self$is_interactive()) {
         cli::cli_abort(
           "Credential {.cls {class(self)[[1]]}} requires an interactive session"

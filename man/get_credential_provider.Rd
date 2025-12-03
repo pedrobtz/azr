@@ -10,7 +10,7 @@ get_credential_provider(
   client_id = NULL,
   client_secret = NULL,
   use_cache = "disk",
-  offline = FALSE,
+  offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL
@@ -33,7 +33,7 @@ to \code{"disk"}. Options include \code{"disk"} for disk-based caching or \code{
 for in-memory caching.}
 
 \item{offline}{Logical. If \code{TRUE}, adds 'offline_access' to the scope to
-request a 'refresh_token'. Defaults to \code{FALSE}.}
+request a 'refresh_token'. Defaults to \code{TRUE}.}
 
 \item{oauth_host}{Optional character string specifying the OAuth host URL.}
 
