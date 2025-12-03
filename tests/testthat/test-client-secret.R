@@ -15,7 +15,8 @@ test_that("ClientSecretCredential initialization with custom parameters", {
     tenant_id = "test-tenant-id",
     client_id = "test-client-id",
     client_secret = "test-secret",
-    scope = "https://management.azure.com/.default"
+    scope = "https://management.azure.com/.default",
+    offline = FALSE
   )
 
   expect_equal(cred$.tenant_id, "test-tenant-id")

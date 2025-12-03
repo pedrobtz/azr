@@ -24,7 +24,7 @@ Credential <- R6::R6Class(
       client_id = NULL,
       client_secret = NULL,
       use_cache = c("disk", "memory"),
-      offline = TRUE,
+      offline = FALSE,
       oauth_endpoint = NULL,
       name = NULL
     ) {
