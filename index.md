@@ -104,11 +104,10 @@ to create a chat connection to Azure OpenAI with the
 [elmer](https://github.com/hadley/elmer) package:
 
 ``` r
-library(azr)
 library(elmer)
 
 # Create an authentication function for Azure OpenAI
-credentials <- get_credential_auth(
+credentials <- azr::get_credential_auth(
   scope = "https://cognitiveservices.azure.com/.default"
 )
 

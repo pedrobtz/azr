@@ -135,11 +135,10 @@
 </h3>
 <p>You can use <code><a href="reference/get_credential_auth.html">get_credential_auth()</a></code> to create a chat connection to Azure OpenAI with the <a href="https://github.com/hadley/elmer" class="external-link">elmer</a> package:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pedrobtz.github.io/azr/">azr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">elmer</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">elmer</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create an authentication function for Azure OpenAI</span></span>
-<span><span class="va">credentials</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_credential_auth.html">get_credential_auth</a></span><span class="op">(</span></span>
+<span><span class="va">credentials</span> <span class="op">&lt;-</span> <span class="fu">azr</span><span class="fu">::</span><span class="fu"><a href="reference/get_credential_auth.html">get_credential_auth</a></span><span class="op">(</span></span>
 <span>  scope <span class="op">=</span> <span class="st">"https://cognitiveservices.azure.com/.default"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
