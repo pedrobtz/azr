@@ -1,13 +1,14 @@
-# Get Authentication Token
+# Get Credential Authentication Function
 
-Retrieves an authentication token using the default token provider. This
-is a convenience function that combines credential discovery and token
-acquisition in a single step.
+Creates a function that retrieves authentication tokens and formats them
+as HTTP Authorization headers. This function handles credential
+discovery and returns a callable method that generates Bearer token
+headers when invoked.
 
 ## Usage
 
 ``` r
-get_token(
+get_credential_auth(
   scope = NULL,
   tenant_id = NULL,
   client_id = NULL,
@@ -56,27 +57,31 @@ get_token(
 
 ## Value
 
-An
-[`httr2::oauth_token()`](https://httr2.r-lib.org/reference/oauth_token.html)
-object.
+A function that, when called, returns a named list with an
+`Authorization` element containing the Bearer token, suitable for use
+with
+[`httr2::req_headers()`](https://httr2.r-lib.org/reference/req_headers.html).
 
 ## See also
 
-[`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md),
-[`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md)
+[`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md),
+[`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md),
+[`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md)
 
 ## Examples
 
 ``` r
-# In non-interactive sessions, this function will return an error if the
-# environment is not setup with valid credentials. And in an interactive session
-# the user will be prompted to attempt one of the interactive authentication flows.
 if (FALSE) { # \dontrun{
-token <- get_token(
-  scope = "https://graph.microsoft.com/.default",
-  tenant_id = "my-tenant-id",
-  client_id = "my-client-id",
-  client_secret = "my-secret"
+# Create an authentication function
+auth_fn <- get_credential_auth(
+  scope = "https://graph.microsoft.com/.default"
 )
+
+# Call it to get headers
+auth_headers <- auth_fn()
+
+# Use with httr2
+req <- httr2::request("https://graph.microsoft.com/v1.0/me") |>
+  httr2::req_headers(!!!auth_headers)
 } # }
 ```

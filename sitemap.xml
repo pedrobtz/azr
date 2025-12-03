@@ -11,9 +11,7 @@
 <url><loc>https://pedrobtz.github.io/azr/reference/DeviceCodeCredential.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/InteractiveCredential.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/api_client.html</loc></url>
-<url><loc>https://pedrobtz.github.io/azr/reference/api_graph_client.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/api_graph_resource.html</loc></url>
-<url><loc>https://pedrobtz.github.io/azr/reference/api_graph_service.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/api_resource.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/api_service.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/az_cli_account_show.html</loc></url>
@@ -40,6 +38,7 @@
 <url><loc>https://pedrobtz.github.io/azr/reference/default_redirect_uri.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_response_handler.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/environment_variables.html</loc></url>
+<url><loc>https://pedrobtz.github.io/azr/reference/get_credential_auth.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/get_credential_provider.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/get_request_authorizer.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/get_token.html</loc></url>

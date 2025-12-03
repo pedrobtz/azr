@@ -54,6 +54,8 @@
   : Get default OAuth redirect URI
 - [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
   : Default Response Handler
+- [`get_credential_auth()`](https://pedrobtz.github.io/azr/reference/get_credential_auth.md)
+  : Get Credential Authentication Function
 - [`get_credential_provider()`](https://pedrobtz.github.io/azr/reference/get_credential_provider.md)
   : Get Credential Provider
 - [`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md)

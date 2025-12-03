@@ -6,10 +6,10 @@ successfully authenticates. The default chain includes:
 
 1.  Client Secret Credential - Uses client ID and secret
 
-2.  Azure CLI Credential - Uses credentials from Azure CLI
-
-3.  Authorization Code Credential - Interactive browser-based
+2.  Authorization Code Credential - Interactive browser-based
     authentication
+
+3.  Azure CLI Credential - Uses credentials from Azure CLI
 
 4.  Device Code Credential - Interactive device code flow
 

@@ -14,7 +14,7 @@ get_credential_provider(
   client_id = NULL,
   client_secret = NULL,
   use_cache = "disk",
-  offline = FALSE,
+  offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL
@@ -49,7 +49,7 @@ get_credential_provider(
 - offline:
 
   Logical. If `TRUE`, adds 'offline_access' to the scope to request a
-  'refresh_token'. Defaults to `FALSE`.
+  'refresh_token'. Defaults to `TRUE`.
 
 - oauth_host:
 

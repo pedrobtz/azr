@@ -15,8 +15,7 @@ get_token_provider(
   client_secret = NULL,
   use_cache = "disk",
   offline = TRUE,
-  chain = default_credential_chain(),
-  silent = TRUE
+  chain = default_credential_chain()
 )
 ```
 
@@ -55,11 +54,6 @@ get_token_provider(
   A list of credential objects, where each element must inherit from the
   `Credential` base class. Credentials are attempted in the order
   provided until `get_token` succeeds.
-
-- silent:
-
-  Logical. If `FALSE`, prints detailed diagnostic information during
-  credential discovery and authentication. Defaults to `TRUE`.
 
 ## Value
 
