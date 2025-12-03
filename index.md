@@ -96,6 +96,33 @@ token <- get_token(
 )
 ```
 
+### Using with Azure OpenAI and elmer
+
+You can use
+[`get_credential_auth()`](https://pedrobtz.github.io/azr/reference/get_credential_auth.md)
+to create a chat connection to Azure OpenAI with the
+[elmer](https://github.com/hadley/elmer) package:
+
+``` r
+library(azr)
+library(elmer)
+
+# Create an authentication function for Azure OpenAI
+credentials <- get_credential_auth(
+  scope = "https://cognitiveservices.azure.com/.default"
+)
+
+# Create a chat interface to Azure OpenAI
+chat <- chat_azure_openai(
+  endpoint = "https://your-resource.openai.azure.com",
+  model =  "gpt-4o",
+  credentials  = credentials
+)
+
+# Use the chat
+chat$chat("What is the capital of France?")
+```
+
 ## Related work
 
 azr is inspired by Python’s
