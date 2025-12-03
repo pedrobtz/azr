@@ -1,6 +1,6 @@
 # azr
 
-# azr 0.2.0
+# azr 0.2.1
 
 ## New features
 
