@@ -1,6 +1,6 @@
 Package: azr
 Title: Credential Chain for Seamless 'OAuth 2.0' Authentication to 'Azure Services'
-Version: 0.2.1
+Version: 0.2.0
 Authors@R:
     person("Pedro", "Baltazar",, "pedrobtz@gmail.com", role = c("aut", "cre"))
 Description: Implements a credential chain for 'Azure OAuth 2.0' authentication 
@@ -14,6 +14,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 URL: https://pedrobtz.github.io/azr/, https://github.com/pedrobtz/azr
 BugReports: https://github.com/pedrobtz/azr/issues
+Depends:
+    R (>= 4.1)
 Imports:
     methods,
     utils,
