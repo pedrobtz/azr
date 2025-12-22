@@ -14,7 +14,7 @@ the app has been granted. The full scope will be \verb{https://graph.microsoft.c
 \item{...}{Additional arguments passed to the \link{api_client} constructor.}
 
 \item{chain}{A \link{credential_chain} instance for authentication. If NULL,
-a default credential chain will be created using \code{\link[=get_credential_provider]{get_credential_provider()}}.}
+a default credential chain will be created using \link{DefaultCredential}.}
 }
 \value{
 An \link{api_service} object configured for Microsoft Graph API with

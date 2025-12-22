@@ -1,3 +1,124 @@
+#' Default credential authentication
+#'
+#' @description
+#' An R6 class that provides lazy initialization of credential providers.
+#' The credential provider is created on first access using the default
+#' credential chain.
+#'
+#' @details
+#' This class wraps the credential discovery process in an R6 object with
+#' a lazily evaluated `provider` field. The provider is only created when
+#' first accessed, using the same logic as [get_token_provider()].
+#'
+#' @export
+#' @examples
+#' # Create a DefaultCredential object
+#' cred <- DefaultCredential$new(
+#'   scope = "https://graph.microsoft.com/.default",
+#'   tenant_id = "my-tenant-id"
+#' )
+#'
+#' \dontrun{
+#' # Get a token (triggers lazy initialization)
+#' token <- cred$get_token()
+#'
+#' # Authenticate a request
+#' req <- httr2::request("https://management.azure.com/subscriptions")
+#' resp <- httr2::req_perform(cred$req_auth(req))
+#'
+#' # Or access the provider directly
+#' provider <- cred$provider
+#' }
+DefaultCredential <- R6::R6Class(
+  classname = "DefaultCredential",
+  public = list(
+    .scope = NULL,
+    .tenant_id = NULL,
+    .client_id = NULL,
+    .client_secret = NULL,
+    .use_cache = NULL,
+    .offline = NULL,
+    .chain = NULL,
+
+    #' @description
+    #' Create a new DefaultCredential object
+    #'
+    #' @param scope Optional character string specifying the authentication scope.
+    #' @param tenant_id Optional character string specifying the tenant ID for
+    #'   authentication.
+    #' @param client_id Optional character string specifying the client ID for
+    #'   authentication.
+    #' @param client_secret Optional character string specifying the client secret
+    #'   for authentication.
+    #' @param use_cache Character string indicating the caching strategy. Defaults
+    #'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
+    #'   for in-memory caching.
+    #' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to request a 'refresh_token'.
+    #'   Defaults to `TRUE`.
+    #' @param chain A list of credential objects, where each element must inherit
+    #'   from the `Credential` base class. Credentials are attempted in the order
+    #'   provided until `get_token` succeeds.
+    #'
+    #' @return A new `DefaultCredential` object
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      client_secret = NULL,
+      use_cache = "disk",
+      offline = TRUE,
+      chain = default_credential_chain()
+    ) {
+      self$.scope <- scope
+      self$.tenant_id <- tenant_id
+      self$.client_id <- client_id
+      self$.client_secret <- client_secret
+      self$.use_cache <- use_cache
+      self$.offline <- offline
+      self$.chain <- chain
+    },
+
+    #' @description
+    #' Get an access token using the credential chain
+    #'
+    #' @return An [httr2::oauth_token()] object containing the access token
+    get_token = function() {
+      self$provider$get_token()
+    },
+
+    #' @description
+    #' Add authentication to an httr2 request
+    #'
+    #' @param req An [httr2::request()] object
+    #'
+    #' @return The request object with authentication configured
+    req_auth = function(req) {
+      self$provider$req_auth(req)
+    }
+  ),
+  active = list(
+    #' @field provider Lazily initialized credential provider
+    provider = function() {
+      if (is.null(private$.provider_cache)) {
+        private$.provider_cache <- get_credential_provider(
+          scope = self$.scope,
+          tenant_id = self$.tenant_id,
+          client_id = self$.client_id,
+          client_secret = self$.client_secret,
+          use_cache = self$.use_cache,
+          offline = self$.offline,
+          chain = self$.chain
+        )
+      }
+      private$.provider_cache
+    }
+  ),
+  private = list(
+    .provider_cache = NULL
+  )
+)
+
+
 #' Get Default Token Provider Function
 #'
 #' Creates a token provider function that retrieves authentication credentials

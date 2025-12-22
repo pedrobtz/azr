@@ -295,3 +295,53 @@ test_that("is_port_available detects port availability", {
   # Port should be available again
   expect_true(is_port_available(test_port, host = "0.0.0.0"))
 })
+
+test_that("DefaultCredential can be instantiated with default arguments", {
+  cred <- DefaultCredential$new()
+  expect_s3_class(cred, "DefaultCredential")
+  expect_s3_class(cred, "R6")
+})
+
+test_that("DefaultCredential stores initialization arguments", {
+  cred <- DefaultCredential$new(
+    scope = "https://graph.microsoft.com/.default",
+    tenant_id = "my-tenant",
+    client_id = "my-client",
+    client_secret = "my-secret",
+    use_cache = "memory",
+    offline = FALSE
+  )
+
+  expect_equal(cred$.scope, "https://graph.microsoft.com/.default")
+  expect_equal(cred$.tenant_id, "my-tenant")
+  expect_equal(cred$.client_id, "my-client")
+  expect_equal(cred$.client_secret, "my-secret")
+  expect_equal(cred$.use_cache, "memory")
+  expect_equal(cred$.offline, FALSE)
+})
+
+test_that("DefaultCredential has get_token and req_auth methods", {
+  cred <- DefaultCredential$new()
+
+  expect_true("get_token" %in% names(cred))
+  expect_true("req_auth" %in% names(cred))
+  expect_type(cred$get_token, "closure")
+  expect_type(cred$req_auth, "closure")
+})
+
+test_that("DefaultCredential provider field is lazily evaluated", {
+  withr::local_envvar(
+    AZURE_CLIENT_SECRET = "test-secret"
+  )
+
+  cred <- DefaultCredential$new(
+    scope = "https://management.azure.com/.default"
+  )
+
+  # Provider should be NULL initially (not yet accessed)
+  expect_null(cred$.__enclos_env__$private$.provider_cache)
+
+  # Accessing provider should trigger initialization
+  # This will fail without valid credentials, but we can test the structure
+  expect_error(provider <- cred$provider, class = "azr_credential_chain_failed")
+})

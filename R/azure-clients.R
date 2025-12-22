@@ -25,7 +25,7 @@
 #'   to the Graph API URL. Defaults to `".default"`, which requests all permissions
 #'   the app has been granted. The full scope will be `https://graph.microsoft.com/{scopes}`.
 #' @param chain A [credential_chain] instance for authentication. If NULL,
-#'   a default credential chain will be created using [get_credential_provider()].
+#'   a default credential chain will be created using [DefaultCredential].
 #' @param ... Additional arguments passed to the [api_client] constructor.
 #'
 #' @return An [api_service] object configured for Microsoft Graph API with
@@ -66,7 +66,7 @@ azr_graph_client <- function(scopes = ".default", ..., chain = NULL) {
   }
   scope <- paste0(graph_url, "/", scopes)
 
-  provider <- get_credential_provider(
+  provider <- DefaultCredential$new(
     scope = scope,
     chain = chain
   )
