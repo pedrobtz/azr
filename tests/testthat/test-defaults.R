@@ -20,12 +20,18 @@ test_that("default_azure_client_id returns client ID from environment variable",
 
 test_that("default_azure_client_id returns default when environment variable not set", {
   withr::local_envvar(AZURE_CLIENT_ID = NA)
-  expect_equal(default_azure_client_id(), "04b07795-8ddb-461a-bbee-02f9e1bf7b46")
+  expect_equal(
+    default_azure_client_id(),
+    "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
+  )
 })
 
 test_that("default_azure_client_id returns default when environment variable is empty", {
   withr::local_envvar(AZURE_CLIENT_ID = NULL)
-  expect_equal(default_azure_client_id(), "04b07795-8ddb-461a-bbee-02f9e1bf7b46")
+  expect_equal(
+    default_azure_client_id(),
+    "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
+  )
 })
 
 test_that("default_azure_client_secret returns client secret from environment variable", {
@@ -48,15 +54,24 @@ test_that("default_azure_scope returns default azure_arm scope", {
 })
 
 test_that("default_azure_scope returns azure_graph scope", {
-  expect_equal(default_azure_scope("azure_graph"), "https://graph.microsoft.com/.default")
+  expect_equal(
+    default_azure_scope("azure_graph"),
+    "https://graph.microsoft.com/.default"
+  )
 })
 
 test_that("default_azure_scope returns azure_storage scope", {
-  expect_equal(default_azure_scope("azure_storage"), "https://storage.azure.com/.default")
+  expect_equal(
+    default_azure_scope("azure_storage"),
+    "https://storage.azure.com/.default"
+  )
 })
 
 test_that("default_azure_scope returns azure_key_vault scope", {
-  expect_equal(default_azure_scope("azure_key_vault"), "https://vault.azure.net/.default")
+  expect_equal(
+    default_azure_scope("azure_key_vault"),
+    "https://vault.azure.net/.default"
+  )
 })
 
 test_that("default_azure_scope errors with invalid resource", {
@@ -71,7 +86,10 @@ test_that("default_azure_oauth_client creates oauth_client with defaults", {
   expect_equal(client$id, "04b07795-8ddb-461a-bbee-02f9e1bf7b46")
   expect_null(client$name)
   expect_null(client$secret)
-  expect_equal(client$token_url, "https://login.microsoftonline.com/common/oauth2/v2.0/token")
+  expect_equal(
+    client$token_url,
+    "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+  )
   expect_equal(client$auth, "oauth_client_req_auth_body")
 })
 
@@ -108,7 +126,10 @@ test_that("default_azure_oauth_client uses environment variables", {
   client <- default_azure_oauth_client()
 
   expect_equal(client$id, "env-client-id")
-  expect_equal(client$token_url, "https://login.microsoftonline.com/env-tenant-id/oauth2/v2.0/token")
+  expect_equal(
+    client$token_url,
+    "https://login.microsoftonline.com/env-tenant-id/oauth2/v2.0/token"
+  )
 })
 
 test_that("default_azure_host returns host from environment variable", {
@@ -158,9 +179,18 @@ test_that("default_azure_url returns all URLs as list when endpoint is NULL", {
 
   expect_type(urls, "list")
   expect_named(urls, c("authorize", "token", "devicecode"))
-  expect_equal(urls$authorize, "https://login.microsoftonline.com/common/oauth2/v2.0/authorize")
-  expect_equal(urls$token, "https://login.microsoftonline.com/common/oauth2/v2.0/token")
-  expect_equal(urls$devicecode, "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode")
+  expect_equal(
+    urls$authorize,
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+  )
+  expect_equal(
+    urls$token,
+    "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+  )
+  expect_equal(
+    urls$devicecode,
+    "https://login.microsoftonline.com/common/oauth2/v2.0/devicecode"
+  )
 })
 
 test_that("default_azure_url returns specific endpoint URL", {
@@ -182,7 +212,10 @@ test_that("default_azure_url returns specific endpoint URL", {
 test_that("default_azure_url uses custom tenant_id", {
   withr::local_envvar(AZURE_AUTHORITY_HOST = NA)
   url <- default_azure_url("token", tenant_id = "my-tenant-id")
-  expect_equal(url, "https://login.microsoftonline.com/my-tenant-id/oauth2/v2.0/token")
+  expect_equal(
+    url,
+    "https://login.microsoftonline.com/my-tenant-id/oauth2/v2.0/token"
+  )
 })
 
 test_that("default_azure_url uses custom oauth_host", {
@@ -197,7 +230,10 @@ test_that("default_azure_url uses environment variables", {
     AZURE_AUTHORITY_HOST = "login.chinacloudapi.cn"
   )
   url <- default_azure_url("token")
-  expect_equal(url, "https://login.chinacloudapi.cn/env-tenant/oauth2/v2.0/token")
+  expect_equal(
+    url,
+    "https://login.chinacloudapi.cn/env-tenant/oauth2/v2.0/token"
+  )
 })
 
 test_that("default_azure_url errors with invalid endpoint", {
@@ -229,4 +265,33 @@ test_that("default_redirect_uri uses httr2 default when not specified", {
   expect_match(uri, "^http://")
   parsed <- httr2::url_parse(uri)
   expect_false(is.null(parsed$port))
+})
+
+test_that("is_port_available detects port availability", {
+  skip_if_not_installed("httpuv")
+
+  test_port <- 12345L
+
+  # Port should be available initially
+  expect_true(is_port_available(test_port, host = "0.0.0.0"))
+
+  # Start a server to make the port unavailable
+  server <- httpuv::startServer(
+    host = "0.0.0.0",
+    port = test_port,
+    app = list(
+      call = function(req) {
+        list(status = 200L, headers = list("Content-Type" = "text/plain"), body = "test")
+      }
+    )
+  )
+
+  # Port should now be unavailable
+  expect_false(is_port_available(test_port, host = "0.0.0.0"))
+
+  # Stop the server
+  httpuv::stopServer(server)
+
+  # Port should be available again
+  expect_true(is_port_available(test_port, host = "0.0.0.0"))
 })

@@ -86,3 +86,45 @@ print.redacted <- function(x, ...) {
   cat(format(x, ...), "\n", sep = "")
   invisible(x)
 }
+
+is_port_available <- function(port, host = "127.0.0.1") {
+  # Try to connect to the port (if something is listening, connection succeeds)
+  suppressWarnings(
+    tryCatch(
+      {
+        con <- socketConnection(
+          host = host,
+          port = port,
+          server = FALSE,
+          blocking = TRUE,
+          open = "r+",
+          timeout = 1
+        )
+        close(con)
+        # If connection succeeds, port is IN USE
+        FALSE
+      },
+      error = function(e) {
+        # If connection fails, port is AVAILABLE
+        TRUE
+      }
+    )
+  )
+}
+
+random_port <- function(
+  min = 10000L,
+  max = 49151L,
+  host = "127.0.0.1",
+  n = 20
+) {
+  min <- max(1L, min)
+  max <- min(max, 65535L)
+  try_ports <- sample(x = seq.int(min, max), n)
+  for (port in try_ports) {
+    if (is_port_available(port, host)) {
+      return(port)
+    }
+  }
+  cli::cli_abort("Cannot find an available port.")
+}
