@@ -34,7 +34,7 @@ azr_graph_client(scopes = ".default", ..., chain = NULL)
   [credential_chain](https://pedrobtz.github.io/azr/reference/credential_chain.md)
   instance for authentication. If NULL, a default credential chain will
   be created using
-  [`get_credential_provider()`](https://pedrobtz.github.io/azr/reference/get_credential_provider.md).
+  [DefaultCredential](https://pedrobtz.github.io/azr/reference/DefaultCredential.md).
 
 ## Value
 

@@ -8,6 +8,8 @@
   : Azure CLI credential authentication
 - [`ClientSecretCredential`](https://pedrobtz.github.io/azr/reference/ClientSecretCredential.md)
   : Client secret credential authentication
+- [`DefaultCredential`](https://pedrobtz.github.io/azr/reference/DefaultCredential.md)
+  : Default credential authentication
 - [`DeviceCodeCredential`](https://pedrobtz.github.io/azr/reference/DeviceCodeCredential.md)
   : Device code credential authentication
 - [`api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
