@@ -91,8 +91,9 @@ Create a new API client instance
 - `provider`:
 
   An R6 credential provider object that inherits from the `Credential`
-  class. If provided, the credential's `req_auth` method will be used
-  for authentication. Takes precedence over `credentials`.
+  or `DefaultCredential` class. If provided, the credential's `req_auth`
+  method will be used for authentication. Takes precedence over
+  `credentials`.
 
 - `credentials`:
 

@@ -118,8 +118,9 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 
 <dt><code>provider</code></dt>
 <dd><p>An R6 credential provider object that inherits from the
-<code>Credential</code> class. If provided, the credential's <code>req_auth</code> method will
-be used for authentication. Takes precedence over <code>credentials</code>.</p></dd>
+<code>Credential</code> or <code>DefaultCredential</code> class. If provided, the credential's
+<code>req_auth</code> method will be used for authentication. Takes precedence over
+<code>credentials</code>.</p></dd>
 
 
 <dt><code>credentials</code></dt>
