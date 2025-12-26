@@ -114,8 +114,9 @@ Create a new API client instance
 (e.g., \code{"https://management.azure.com"}).}
 
 \item{\code{provider}}{An R6 credential provider object that inherits from the
-\code{Credential} class. If provided, the credential's \code{req_auth} method will
-be used for authentication. Takes precedence over \code{credentials}.}
+\code{Credential} or \code{DefaultCredential} class. If provided, the credential's
+\code{req_auth} method will be used for authentication. Takes precedence over
+\code{credentials}.}
 
 \item{\code{credentials}}{A function that adds authentication to requests. If
 both \code{provider} and \code{credentials} are \code{NULL}, uses \code{\link[=default_non_auth]{default_non_auth()}}.
