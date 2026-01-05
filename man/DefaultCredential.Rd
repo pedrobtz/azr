@@ -31,6 +31,26 @@ resp <- httr2::req_perform(cred$req_auth(req))
 # Or access the provider directly
 provider <- cred$provider
 }
+
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{.scope}}{Character string specifying the authentication scope.}
+
+\item{\code{.tenant_id}}{Character string specifying the tenant ID.}
+
+\item{\code{.client_id}}{Character string specifying the client ID.}
+
+\item{\code{.client_secret}}{Character string specifying the client secret.}
+
+\item{\code{.use_cache}}{Character string indicating the caching strategy.}
+
+\item{\code{.offline}}{Logical indicating whether to request offline access.}
+
+\item{\code{.chain}}{A credential chain object for authentication.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}

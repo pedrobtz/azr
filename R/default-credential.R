@@ -29,6 +29,14 @@
 #' # Or access the provider directly
 #' provider <- cred$provider
 #' }
+#'
+#' @field .scope Character string specifying the authentication scope.
+#' @field .tenant_id Character string specifying the tenant ID.
+#' @field .client_id Character string specifying the client ID.
+#' @field .client_secret Character string specifying the client secret.
+#' @field .use_cache Character string indicating the caching strategy.
+#' @field .offline Logical indicating whether to request offline access.
+#' @field .chain A credential chain object for authentication.
 DefaultCredential <- R6::R6Class(
   classname = "DefaultCredential",
   public = list(

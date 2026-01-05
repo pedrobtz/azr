@@ -1,8 +1,16 @@
 # azr (development version)
 
-# azr
-
 # azr 0.2.1
+
+## New features
+
+* Added `DefaultCredential` for simplified authentication using Azure's default credential chain.
+
+## Bug fixes and improvements
+
+* Removed dependency on httpuv package.
+
+# azr 0.2.0
 
 ## New features
 
