@@ -11,6 +11,36 @@ lazily evaluated `provider` field. The provider is only created when
 first accessed, using the same logic as
 [`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md).
 
+## Public fields
+
+- `.scope`:
+
+  Character string specifying the authentication scope.
+
+- `.tenant_id`:
+
+  Character string specifying the tenant ID.
+
+- `.client_id`:
+
+  Character string specifying the client ID.
+
+- `.client_secret`:
+
+  Character string specifying the client secret.
+
+- `.use_cache`:
+
+  Character string indicating the caching strategy.
+
+- `.offline`:
+
+  Logical indicating whether to request offline access.
+
+- `.chain`:
+
+  A credential chain object for authentication.
+
 ## Active bindings
 
 - `provider`:

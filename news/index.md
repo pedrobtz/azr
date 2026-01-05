@@ -6,6 +6,19 @@
 
 ### New features
 
+- Added `DefaultCredential` for simplified authentication using Azure’s
+  default credential chain.
+
+### Bug fixes and improvements
+
+- Removed dependency on httpuv package.
+
+## azr 0.2.0
+
+CRAN release: 2025-12-04
+
+### New features
+
 - Added `api_client` R6 class providing a base HTTP client for Azure
   APIs with automatic authentication, retry logic, and error handling.
 - Added `api_resource` and `api_services` classes for Azure Resource
