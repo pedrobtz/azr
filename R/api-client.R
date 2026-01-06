@@ -141,8 +141,11 @@ api_client <- R6::R6Class(
         self$.credentials <- credentials
       } else if (!is.null(provider)) {
         # Handle credential provider if provided
-        if (!R6::is.R6(provider) ||
-            !(inherits(provider, "Credential") || inherits(provider, "DefaultCredential"))) {
+        if (
+          !R6::is.R6(provider) ||
+            !(inherits(provider, "Credential") ||
+              inherits(provider, "DefaultCredential"))
+        ) {
           cli::cli_abort(
             "Argument 'provider' must be an R6 object that inherits from 'Credential' or 'DefaultCredential' class."
           )
@@ -181,6 +184,11 @@ api_client <- R6::R6Class(
           cli::cli_alert_danger(
             "<<< status = {.val {resp$status}} | time = {format_timing(resp$timing)} secs."
           )
+          if (httr2::resp_has_body(resp)) {
+            err_content <- httr2::resp_body_string(resp)
+            cli::cli_alert_danger("<<< body:")
+            cli::cli_verbatim(format_json_body(err_content))
+          }
           invisible()
         })
 
@@ -338,7 +346,8 @@ api_client <- R6::R6Class(
     #'   - Other: Character string
     .resp_content = function(resp, content_type = NULL) {
       if (!httr2::resp_has_body(resp)) {
-        cli::cli_abort("response has not body.")
+        cli::cli_inform("Response has no body.")
+        return(invisible(NULL))
       }
 
       if (is.null(content_type)) {

@@ -234,6 +234,25 @@ test_that("api_client handles path interpolation correctly", {
   expect_true(grepl("/pet/12345", req$url))
 })
 
+test_that("api_client handles 404 response for non-existent resource", {
+  vcr::use_cassette("api-client-404", {
+    client <- api_client$new(
+      host_url = "https://petstore.swagger.io/v2"
+    )
+
+    # Request a pet that doesn't exist
+    expect_error(
+      client$.fetch(
+        path = "/pet/{petId}",
+        petId = 99999999L,
+        req_method = "get",
+        content = "body"
+      ),
+      class = "httr2_http_404"
+    )
+  })
+})
+
 test_that("api_client DELETE method works", {
   vcr::use_cassette("api-client-delete", {
     client <- api_client$new(

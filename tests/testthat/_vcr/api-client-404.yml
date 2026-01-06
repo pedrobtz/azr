@@ -1,0 +1,17 @@
+http_interactions:
+- request:
+    method: GET
+    uri: https://petstore.swagger.io/v2/pet/99999999
+  response:
+    status: 404
+    headers:
+      date: Tue, 06 Jan 2026 10:03:22 GMT
+      content-type: application/json
+      access-control-allow-origin: '*'
+      access-control-allow-methods: GET, POST, DELETE, PUT
+      access-control-allow-headers: Content-Type, api_key, Authorization
+      server: Jetty(9.2.9.v20150224)
+    body:
+      string: '{"code":1,"type":"error","message":"Pet not found"}'
+  recorded_at: 2026-01-06 10:03:22
+recorded_with: VCR-vcr/2.1.0
