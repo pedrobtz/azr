@@ -187,7 +187,7 @@ api_client <- R6::R6Class(
           if (httr2::resp_has_body(resp)) {
             err_content <- httr2::resp_body_string(resp)
             cli::cli_alert_danger("<<< body:")
-            cli::cli_verbatim(format_json_body(err_content))
+            cli::cli_verbatim(err_content)
           }
           invisible()
         })
