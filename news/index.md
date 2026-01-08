@@ -4,6 +4,8 @@
 
 ## azr 0.2.1
 
+CRAN release: 2026-01-07
+
 ### New features
 
 - Added `DefaultCredential` for simplified authentication using Azure’s

@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/pedrobtz/azr/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/pedrobtz/azr/blob/0.2.1/DESCRIPTION)
 
 Baltazar P (2026). *azr: Credential Chain for Seamless 'OAuth 2.0'
 Authentication to 'Azure Services'*. R package version 0.2.1,
