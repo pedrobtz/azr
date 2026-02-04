@@ -282,9 +282,7 @@ api_client <- R6::R6Class(
         httr2::req_method(req_method)
 
       if (!is.null(req_data)) {
-        if (req_method == "get") {
-          req <- httr2::req_url_query(req, !!!req_data)
-        } else {
+        if (req_method == "post") {
           if (!is.character(req_data)) {
             req_data <- jsonlite::toJSON(
               drop_null(req_data),
@@ -298,6 +296,8 @@ api_client <- R6::R6Class(
             body = req_data,
             type = "application/json"
           )
+        } else {
+          req <- httr2::req_url_query(req, !!!req_data)
         }
       }
       return(req)
