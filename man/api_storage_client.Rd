@@ -38,12 +38,14 @@ hierarchical namespace capabilities and file system semantics.
 }
 }
 \if{html}{\out{
-<details open><summary>Inherited methods</summary>
+<details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href='../../azr/html/api_client.html#method-api_client-.fetch'><code>azr::api_client$.fetch()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch_req"><a href='../../azr/html/api_client.html#method-api_client-.fetch_req'><code>azr::api_client$.fetch_req()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href='../../azr/html/api_client.html#method-api_client-.get_token'><code>azr::api_client$.get_token()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".req_build"><a href='../../azr/html/api_client.html#method-api_client-.req_build'><code>azr::api_client$.req_build()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".req_perform"><a href='../../azr/html/api_client.html#method-api_client-.req_perform'><code>azr::api_client$.req_perform()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_body_content'><code>azr::api_client$.resp_body_content()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_content'><code>azr::api_client$.resp_content()</code></a></span></li>
 </ul>
 </details>
