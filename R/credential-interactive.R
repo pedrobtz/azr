@@ -262,9 +262,9 @@ InteractiveCredential <- R6::R6Class(
     #' @return An [httr2::oauth_token()] object if a cached token exists, or `NULL` otherwise
     get_cached_token = function() {
       tryCatch(
-        httr2::with_mocked_responses(
-          mock = function(req) stop("offline"),
-          code = {
+        rlang::with_interactive(
+          value = FALSE,
+          {
             self$get_token()
           }
         ),
