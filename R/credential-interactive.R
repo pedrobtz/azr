@@ -47,6 +47,8 @@ DeviceCodeCredential <- R6::R6Class(
     #'   for disk-based caching or `"memory"` for in-memory caching. Defaults to `"disk"`.
     #' @param offline A logical value indicating whether to request offline access
     #'   (refresh tokens). Defaults to `TRUE`.
+    #' @param interactive A logical value indicating whether this credential
+    #'   requires user interaction. Defaults to `getOption("azr.interactive", TRUE)`.
     #'
     #' @return A new `DeviceCodeCredential` object
     initialize = function(
@@ -54,7 +56,8 @@ DeviceCodeCredential <- R6::R6Class(
       tenant_id = NULL,
       client_id = NULL,
       use_cache = "disk",
-      offline = TRUE
+      offline = TRUE,
+      interactive = getOption("azr.interactive", TRUE)
     ) {
       super$initialize(
         scope = scope,
@@ -65,6 +68,7 @@ DeviceCodeCredential <- R6::R6Class(
         oauth_endpoint = "devicecode",
         name = "azr-device-code"
       )
+      self$interactive <- interactive
     },
     #' @description
     #' Get an access token using device code flow
@@ -162,6 +166,8 @@ AuthCodeCredential <- R6::R6Class(
     #'   (refresh tokens). Defaults to `TRUE`.
     #' @param redirect_uri A character string specifying the redirect URI registered
     #'   with the application. Defaults to [default_redirect_uri()].
+    #' @param interactive A logical value indicating whether this credential
+    #'   requires user interaction. Defaults to `getOption("azr.interactive", TRUE)`.
     #'
     #' @return A new `AuthCodeCredential` object
     initialize = function(
@@ -170,7 +176,8 @@ AuthCodeCredential <- R6::R6Class(
       client_id = NULL,
       use_cache = "disk",
       offline = TRUE,
-      redirect_uri = default_redirect_uri()
+      redirect_uri = default_redirect_uri(),
+      interactive = getOption("azr.interactive", TRUE)
     ) {
       super$initialize(
         scope = scope,
@@ -183,6 +190,7 @@ AuthCodeCredential <- R6::R6Class(
       )
       self$.redirect_uri <- default_redirect_uri()
       lockBinding(".redirect_uri", self)
+      self$interactive <- interactive
     },
     #' @description
     #' Get an access token using authorization code flow
@@ -238,12 +246,15 @@ InteractiveCredential <- R6::R6Class(
   classname = "InteractiveCredential",
   inherit = Credential,
   public = list(
+    #' @field interactive Logical indicating whether this credential requires
+    #'   user interaction. Defaults to `TRUE`.
+    interactive = TRUE,
     #' @description
-    #' Check if the credential is interactive
+    #' Check if the credential requires user interaction
     #'
-    #' @return Always returns `TRUE` for interactive credentials
+    #' @return Logical indicating whether this credential is interactive
     is_interactive = function() {
-      TRUE
+      self$interactive
     },
     #' @description
     #' Get a cached token without triggering interactive authentication
