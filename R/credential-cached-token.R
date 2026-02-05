@@ -97,7 +97,7 @@ CachedTokenCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function() {
-      self$provider$get_cached_token()
+      self$provider$get_token()
     },
 
     #' @description
@@ -123,7 +123,8 @@ CachedTokenCredential <- R6::R6Class(
             client_id = self$.client_id,
             use_cache = self$.use_cache,
             offline = self$.offline,
-            chain = self$.chain
+            chain = self$.chain,
+            interactive = FALSE
           ),
           error = function(e) {
             cli::cli_abort(

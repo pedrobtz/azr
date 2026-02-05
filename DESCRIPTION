@@ -22,7 +22,8 @@ Imports:
     cli,
     httr2 (>= 1.2.2),
     jsonlite,
-    rlang
+    rlang,
+    withr
 Suggests:
     data.table,
     httpuv,

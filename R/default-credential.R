@@ -405,6 +405,8 @@ get_credential_auth <- function(
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds. If `NULL`, uses
 #'   [default_credential_chain()].
+#' @param interactive A logical value indicating whether interactive credentials
+#'   are allowed. Defaults to `TRUE`.
 #'
 #' @return A credential object that inherits from the `Credential` class and
 #'   has successfully authenticated.
@@ -434,7 +436,8 @@ get_credential_provider <- function(
   offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  chain = NULL
+  chain = NULL,
+  interactive = TRUE
 ) {
   if (is.null(chain) || length(chain) == 0L) {
     chain <- default_credential_chain()
