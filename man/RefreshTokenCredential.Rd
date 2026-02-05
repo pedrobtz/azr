@@ -41,6 +41,13 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \section{Super class}{
 \code{azr::Credential} -> \code{RefreshTokenCredential}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{.refresh_token}}{Character string containing the refresh token.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

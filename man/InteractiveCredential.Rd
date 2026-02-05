@@ -46,10 +46,14 @@ Always returns \code{TRUE} for interactive credentials
 \if{html}{\out{<a id="method-InteractiveCredential-get_cached_token"></a>}}
 \if{latex}{\out{\hypertarget{method-InteractiveCredential-get_cached_token}{}}}
 \subsection{Method \code{get_cached_token()}}{
+Get a cached token without triggering interactive authentication
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_cached_token()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object if a cached token exists, or \code{NULL} otherwise
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-InteractiveCredential-clone"></a>}}

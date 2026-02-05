@@ -18,6 +18,8 @@
 #'   \item Scenarios where you want to avoid repeated interactive authentication
 #' }
 #'
+#' @field .refresh_token Character string containing the refresh token.
+#'
 #' @export
 #' @examples
 #' \dontrun{

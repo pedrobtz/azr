@@ -37,6 +37,23 @@ req <- httr2::request("https://graph.microsoft.com/v1.0/me")
 req <- cred$req_auth(req)
 }
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{.scope}}{Character string specifying the authentication scope.}
+
+\item{\code{.tenant_id}}{Character string specifying the tenant ID.}
+
+\item{\code{.client_id}}{Character string specifying the client ID.}
+
+\item{\code{.use_cache}}{Character string indicating the caching strategy.}
+
+\item{\code{.offline}}{Logical indicating whether offline access is requested.}
+
+\item{\code{.chain}}{List of credential classes to attempt for cached tokens.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{

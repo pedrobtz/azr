@@ -245,6 +245,10 @@ InteractiveCredential <- R6::R6Class(
     is_interactive = function() {
       TRUE
     },
+    #' @description
+    #' Get a cached token without triggering interactive authentication
+    #'
+    #' @return An [httr2::oauth_token()] object if a cached token exists, or `NULL` otherwise
     get_cached_token = function() {
       tryCatch(
         httr2::with_mocked_responses(

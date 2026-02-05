@@ -18,6 +18,13 @@
 #'     to reuse those cached tokens
 #' }
 #'
+#' @field .scope Character string specifying the authentication scope.
+#' @field .tenant_id Character string specifying the tenant ID.
+#' @field .client_id Character string specifying the client ID.
+#' @field .use_cache Character string indicating the caching strategy.
+#' @field .offline Logical indicating whether offline access is requested.
+#' @field .chain List of credential classes to attempt for cached tokens.
+#'
 #' @export
 #' @examples
 #' \dontrun{
