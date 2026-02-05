@@ -65,7 +65,8 @@ Create a new device code credential
   tenant_id = NULL,
   client_id = NULL,
   use_cache = "disk",
-  offline = TRUE
+  offline = TRUE,
+  interactive = getOption("azr.interactive", TRUE)
 )}\if{html}{\out{</div>}}
 }
 
@@ -85,6 +86,9 @@ for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \co
 
 \item{\code{offline}}{A logical value indicating whether to request offline access
 (refresh tokens). Defaults to \code{TRUE}.}
+
+\item{\code{interactive}}{A logical value indicating whether this credential
+requires user interaction. Defaults to \code{getOption("azr.interactive", TRUE)}.}
 }
 \if{html}{\out{</div>}}
 }
