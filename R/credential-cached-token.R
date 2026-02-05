@@ -117,19 +117,13 @@ CachedTokenCredential <- R6::R6Class(
       if (is.null(private$.provider_cache)) {
         # Run in fake interactive session and offline mode to only get cached tokens
         private$.provider_cache <- tryCatch(
-          httr2::with_mocked_responses(
-            mock = function(req) stop("offline"),
-            code = rlang::with_interactive(
-              value = TRUE,
-              get_credential_provider(
-                scope = self$.scope,
-                tenant_id = self$.tenant_id,
-                client_id = self$.client_id,
-                use_cache = self$.use_cache,
-                offline = self$.offline,
-                chain = self$.chain
-              )
-            )
+          get_credential_provider(
+            scope = self$.scope,
+            tenant_id = self$.tenant_id,
+            client_id = self$.client_id,
+            use_cache = self$.use_cache,
+            offline = self$.offline,
+            chain = self$.chain
           ),
           error = function(e) {
             cli::cli_abort(
