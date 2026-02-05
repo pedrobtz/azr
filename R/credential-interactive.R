@@ -32,7 +32,8 @@
 #' }
 DeviceCodeCredential <- R6::R6Class(
   classname = "DeviceCodeCredential",
-  inherit = InteractiveCredential, ,
+  inherit = InteractiveCredential,
+  ,
   public = list(
     #' @description
     #' Create a new device code credential
@@ -48,11 +49,13 @@ DeviceCodeCredential <- R6::R6Class(
     #'   (refresh tokens). Defaults to `TRUE`.
     #'
     #' @return A new `DeviceCodeCredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          client_id = NULL,
-                          use_cache = "disk",
-                          offline = TRUE) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      use_cache = "disk",
+      offline = TRUE
+    ) {
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -142,7 +145,8 @@ DeviceCodeCredential <- R6::R6Class(
 #' }
 AuthCodeCredential <- R6::R6Class(
   classname = "AuthCodeCredential",
-  inherit = InteractiveCredential, ,
+  inherit = InteractiveCredential,
+  ,
   public = list(
     #' @description
     #' Create a new authorization code credential
@@ -160,12 +164,14 @@ AuthCodeCredential <- R6::R6Class(
     #'   with the application. Defaults to [default_redirect_uri()].
     #'
     #' @return A new `AuthCodeCredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          client_id = NULL,
-                          use_cache = "disk",
-                          offline = TRUE,
-                          redirect_uri = default_redirect_uri()) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      use_cache = "disk",
+      offline = TRUE,
+      redirect_uri = default_redirect_uri()
+    ) {
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -238,6 +244,17 @@ InteractiveCredential <- R6::R6Class(
     #' @return Always returns `TRUE` for interactive credentials
     is_interactive = function() {
       TRUE
+    },
+    get_cached_token = function() {
+      tryCatch(
+        httr2::with_mocked_responses(
+          mock = function(req) stop("offline"),
+          code = {
+            self$get_token()
+          }
+        ),
+        error = function(err) NULL
+      )
     }
   )
 )

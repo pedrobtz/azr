@@ -16,6 +16,7 @@ instead.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-InteractiveCredential-is_interactive}{\code{InteractiveCredential$is_interactive()}}
+\item \href{#method-InteractiveCredential-get_cached_token}{\code{InteractiveCredential$get_cached_token()}}
 \item \href{#method-InteractiveCredential-clone}{\code{InteractiveCredential$clone()}}
 }
 }
@@ -40,6 +41,15 @@ Check if the credential is interactive
 \subsection{Returns}{
 Always returns \code{TRUE} for interactive credentials
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InteractiveCredential-get_cached_token"></a>}}
+\if{latex}{\out{\hypertarget{method-InteractiveCredential-get_cached_token}{}}}
+\subsection{Method \code{get_cached_token()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_cached_token()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-InteractiveCredential-clone"></a>}}

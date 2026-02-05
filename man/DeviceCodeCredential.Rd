@@ -49,6 +49,7 @@ req <- cred$req_auth(req)
 <ul>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="get_cached_token"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-get_cached_token'><code>azr::InteractiveCredential$get_cached_token()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>azr::InteractiveCredential$is_interactive()</code></a></span></li>
 </ul>
 </details>
