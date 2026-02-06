@@ -182,44 +182,8 @@ api_storage_client <- R6::R6Class(
         req_method = "get"
       )
 
-      # Parse the response - ADLS Gen2 returns newline-delimited JSON
-      if (is.character(response) && nzchar(response)) {
-        # Split by newlines and parse each line as JSON
-        lines <- strsplit(response, "\n", fixed = TRUE)[[1]]
-        lines <- lines[nzchar(lines)]  # Remove empty lines
-
-        if (length(lines) == 0) {
-          cli::cli_inform("No files found in path: {.path {path}}")
-          return(data.frame())
-        }
-
-        # Parse each line as JSON
-        parsed <- lapply(lines, function(line) {
-          tryCatch(
-            jsonlite::fromJSON(line, simplifyVector = FALSE),
-            error = function(e) {
-              cli::cli_warn("Failed to parse line: {line}")
-              NULL
-            }
-          )
-        })
-
-        # Remove NULL entries
-        parsed <- Filter(Negate(is.null), parsed)
-
-        if (length(parsed) == 0) {
-          return(data.frame())
-        }
-
-        # Convert to data frame
-        # Use data.table::rbindlist if available, otherwise jsonlite::rbind_pages
-        if (rlang::is_installed("data.table")) {
-          df <- data.table::rbindlist(parsed, fill = TRUE)
-        } else {
-          df <- jsonlite::rbind_pages(parsed)
-        }
-
-        return(df)
+      if (!is.null(response$paths) && is.data.frame(response$paths)) {
+        return(response$paths)
       } else {
         cli::cli_inform("No files found in path: {.path {path}}")
         return(data.frame())
