@@ -58,6 +58,7 @@ DeviceCodeCredential <- R6::R6Class(
       offline = TRUE,
       interactive = TRUE
     ) {
+      self$interactive <- interactive
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -67,7 +68,6 @@ DeviceCodeCredential <- R6::R6Class(
         oauth_endpoint = "devicecode",
         name = "azr-device-code"
       )
-      self$interactive <- interactive
     },
     #' @description
     #' Get an access token using device code flow
@@ -183,6 +183,8 @@ AuthCodeCredential <- R6::R6Class(
       redirect_uri = default_redirect_uri(),
       interactive = TRUE
     ) {
+      self$interactive <- interactive
+
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -194,7 +196,6 @@ AuthCodeCredential <- R6::R6Class(
       )
       self$.redirect_uri <- default_redirect_uri()
       lockBinding(".redirect_uri", self)
-      self$interactive <- interactive
     },
     #' @description
     #' Get an access token using authorization code flow
@@ -257,7 +258,7 @@ InteractiveCredential <- R6::R6Class(
   inherit = Credential,
   public = list(
     #' @field interactive Logical indicating whether this credential requires
-    #'   user interaction. Defaults to `TRUE`.
+    #'  user interaction.
     interactive = TRUE,
     #' @description
     #' Check if the credential requires user interaction
