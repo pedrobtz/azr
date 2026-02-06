@@ -17,6 +17,7 @@ The default chain includes:
 \enumerate{
 \item Authorization Code Credential - Cached tokens from browser-based authentication
 \item Device Code Credential - Cached tokens from device code flow
+\item Azure CLI Credential - Cached tokens from Azure CLI authentication
 }
 }
 \seealso{

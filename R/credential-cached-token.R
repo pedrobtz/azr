@@ -116,7 +116,7 @@ CachedTokenCredential <- R6::R6Class(
     provider = function() {
       if (is.null(private$.provider_cache)) {
         # Run in fake interactive session and offline mode to only get cached tokens
-        private$.provider_cache <- tryCatch(
+        private$.provider_cache <-
           get_credential_provider(
             scope = self$.scope,
             tenant_id = self$.tenant_id,
@@ -125,15 +125,7 @@ CachedTokenCredential <- R6::R6Class(
             offline = self$.offline,
             chain = self$.chain,
             interactive = FALSE
-          ),
-          error = function(e) {
-            cli::cli_abort(
-              "No cached tokens found in the credential chain!",
-              class = "azr_cached_token_not_found",
-              parent = e
-            )
-          }
-        )
+          )
       }
       private$.provider_cache
     }
@@ -152,6 +144,7 @@ CachedTokenCredential <- R6::R6Class(
 #' \enumerate{
 #'   \item Authorization Code Credential - Cached tokens from browser-based authentication
 #'   \item Device Code Credential - Cached tokens from device code flow
+#'   \item Azure CLI Credential - Cached tokens from Azure CLI authentication
 #' }
 #'
 #' @return A `credential_chain` object containing the sequence of
@@ -163,6 +156,7 @@ CachedTokenCredential <- R6::R6Class(
 cached_token_credential_chain <- function() {
   credential_chain(
     auth_code = AuthCodeCredential,
-    device_code = DeviceCodeCredential
+    device_code = DeviceCodeCredential,
+    az_cli = AzureCLICredential
   )
 }
