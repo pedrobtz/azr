@@ -33,7 +33,7 @@
 #' }
 AzureCLICredential <- R6::R6Class(
   classname = "AzureCLICredential",
-  inherit = Credential,
+  inherit = InteractiveCredential,
   public = list(
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
@@ -47,23 +47,26 @@ AzureCLICredential <- R6::R6Class(
     #'   tenant ID. Defaults to `NULL`, which uses the default tenant from Azure CLI.
     #' @param process_timeout A numeric value specifying the timeout in seconds
     #'   for the Azure CLI process. Defaults to `10`.
-    #' @param login A logical value indicating whether to check if the user is
+    #' @param interactive A logical value indicating whether to check if the user is
     #'   logged in and perform login if needed. Defaults to `FALSE`.
     #' @param use_bridge A logical value indicating whether to use the device code
     #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
     #'   that displays the device code and facilitates copy-pasting before redirecting
-    #'   to the Microsoft device login page. Only used when `login = TRUE`. Defaults to `FALSE`.
+    #'   to the Microsoft device login page. Only used when `interactive = TRUE`. Defaults to `FALSE`.
     #'
     #' @return A new `AzureCLICredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          process_timeout = NULL,
-                          login = FALSE,
-                          use_bridge = FALSE) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      process_timeout = NULL,
+      interactive = FALSE,
+      use_bridge = FALSE
+    ) {
+      self$interactive <- interactive
       super$initialize(scope = scope, tenant_id = tenant_id)
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
-      if (isTRUE(login)) {
+      if (isTRUE(self$is_interactive())) {
         # Check if user is logged in
         if (!az_cli_is_login(timeout = self$.process_timeout)) {
           cli::cli_alert_info("User is not logged in to Azure CLI")
@@ -370,9 +373,10 @@ az_cli_is_login <- function(timeout = 10L) {
 #'
 #' @export
 az_cli_login <- function(
-    tenant_id = NULL,
-    use_bridge = FALSE,
-    verbose = FALSE) {
+  tenant_id = NULL,
+  use_bridge = FALSE,
+  verbose = FALSE
+) {
   if (!rlang::is_interactive()) {
     cli::cli_abort(
       c(

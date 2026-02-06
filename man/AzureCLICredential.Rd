@@ -34,8 +34,8 @@ req <- httr2::request("https://management.azure.com/subscriptions")
 resp <- httr2::req_perform(cred$req_auth(req))
 }
 }
-\section{Super class}{
-\code{azr::Credential} -> \code{AzureCLICredential}
+\section{Super classes}{
+\code{azr::Credential} -> \code{\link[azr:InteractiveCredential]{azr::InteractiveCredential}} -> \code{AzureCLICredential}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -59,9 +59,9 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="is_interactive"><a href='../../azr/html/Credential.html#method-Credential-is_interactive'><code>azr::Credential$is_interactive()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>azr::InteractiveCredential$is_interactive()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -75,7 +75,7 @@ Create a new Azure CLI credential
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
-  login = FALSE,
+  interactive = FALSE,
   use_bridge = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -92,13 +92,13 @@ tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI
 \item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
 for the Azure CLI process. Defaults to \code{10}.}
 
-\item{\code{login}}{A logical value indicating whether to check if the user is
+\item{\code{interactive}}{A logical value indicating whether to check if the user is
 logged in and perform login if needed. Defaults to \code{FALSE}.}
 
 \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
-to the Microsoft device login page. Only used when \code{login = TRUE}. Defaults to \code{FALSE}.}
+to the Microsoft device login page. Only used when \code{interactive = TRUE}. Defaults to \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

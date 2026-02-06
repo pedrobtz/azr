@@ -1,4 +1,3 @@
-# DeviceCodeCredential ----
 #' Device code credential authentication
 #'
 #' @description
@@ -48,7 +47,7 @@ DeviceCodeCredential <- R6::R6Class(
     #' @param offline A logical value indicating whether to request offline access
     #'   (refresh tokens). Defaults to `TRUE`.
     #' @param interactive A logical value indicating whether this credential
-    #'   requires user interaction. Defaults to `getOption("azr.interactive", TRUE)`.
+    #'   requires user interaction. Defaults to `TRUE`.
     #'
     #' @return A new `DeviceCodeCredential` object
     initialize = function(
@@ -57,7 +56,7 @@ DeviceCodeCredential <- R6::R6Class(
       client_id = NULL,
       use_cache = "disk",
       offline = TRUE,
-      interactive = getOption("azr.interactive", TRUE)
+      interactive = TRUE
     ) {
       super$initialize(
         scope = scope,
@@ -78,9 +77,15 @@ DeviceCodeCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(reauth = FALSE) {
+      flow_fun <- if (self$is_interactive()) {
+        httr2::oauth_flow_device
+      } else {
+        \(...) cli::cli_abort("non-interactive session")
+      }
+
       httr2::oauth_token_cached(
         client = self$.oauth_client,
-        flow = httr2::oauth_flow_device,
+        flow = flow_fun,
         cache_disk = self$.use_cache == "disk",
         cache_key = self$.cache_key,
         flow_params = list(
@@ -110,7 +115,6 @@ DeviceCodeCredential <- R6::R6Class(
 )
 
 
-# AuthCodeCredential ----
 #' Authorization code credential authentication
 #'
 #' @description
@@ -167,7 +171,7 @@ AuthCodeCredential <- R6::R6Class(
     #' @param redirect_uri A character string specifying the redirect URI registered
     #'   with the application. Defaults to [default_redirect_uri()].
     #' @param interactive A logical value indicating whether this credential
-    #'   requires user interaction. Defaults to `getOption("azr.interactive", TRUE)`.
+    #'   requires user interaction. Defaults to `TRUE`.
     #'
     #' @return A new `AuthCodeCredential` object
     initialize = function(
@@ -177,7 +181,7 @@ AuthCodeCredential <- R6::R6Class(
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
-      interactive = getOption("azr.interactive", TRUE)
+      interactive = TRUE
     ) {
       super$initialize(
         scope = scope,
@@ -200,9 +204,15 @@ AuthCodeCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(reauth = FALSE) {
+      flow_fun <- if (self$is_interactive()) {
+        httr2::oauth_flow_auth_code
+      } else {
+        \(...) cli::cli_abort("non-interactive session")
+      }
+
       httr2::oauth_token_cached(
         client = self$.oauth_client,
-        flow = httr2::oauth_flow_auth_code,
+        flow = flow_fun,
         cache_disk = self$.use_cache == "disk",
         cache_key = self$.cache_key,
         flow_params = list(
@@ -233,7 +243,7 @@ AuthCodeCredential <- R6::R6Class(
   )
 )
 
-# InteractiveCredential ----
+
 #' Interactive credential base class
 #'
 #' @description
@@ -255,21 +265,6 @@ InteractiveCredential <- R6::R6Class(
     #' @return Logical indicating whether this credential is interactive
     is_interactive = function() {
       self$interactive
-    },
-    #' @description
-    #' Get a cached token without triggering interactive authentication
-    #'
-    #' @return An [httr2::oauth_token()] object if a cached token exists, or `NULL` otherwise
-    get_cached_token = function() {
-      tryCatch(
-        rlang::with_interactive(
-          value = FALSE,
-          {
-            self$get_token()
-          }
-        ),
-        error = function(err) NULL
-      )
     }
   )
 )

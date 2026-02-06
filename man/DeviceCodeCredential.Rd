@@ -49,7 +49,6 @@ req <- cred$req_auth(req)
 <ul>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="get_cached_token"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-get_cached_token'><code>azr::InteractiveCredential$get_cached_token()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>azr::InteractiveCredential$is_interactive()</code></a></span></li>
 </ul>
 </details>
@@ -66,7 +65,7 @@ Create a new device code credential
   client_id = NULL,
   use_cache = "disk",
   offline = TRUE,
-  interactive = getOption("azr.interactive", TRUE)
+  interactive = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -88,7 +87,7 @@ for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \co
 (refresh tokens). Defaults to \code{TRUE}.}
 
 \item{\code{interactive}}{A logical value indicating whether this credential
-requires user interaction. Defaults to \code{getOption("azr.interactive", TRUE)}.}
+requires user interaction. Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }

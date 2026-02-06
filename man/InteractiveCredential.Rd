@@ -24,7 +24,6 @@ user interaction. Defaults to \code{TRUE}.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-InteractiveCredential-is_interactive}{\code{InteractiveCredential$is_interactive()}}
-\item \href{#method-InteractiveCredential-get_cached_token}{\code{InteractiveCredential$get_cached_token()}}
 \item \href{#method-InteractiveCredential-clone}{\code{InteractiveCredential$clone()}}
 }
 }
@@ -48,19 +47,6 @@ Check if the credential requires user interaction
 
 \subsection{Returns}{
 Logical indicating whether this credential is interactive
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-InteractiveCredential-get_cached_token"></a>}}
-\if{latex}{\out{\hypertarget{method-InteractiveCredential-get_cached_token}{}}}
-\subsection{Method \code{get_cached_token()}}{
-Get a cached token without triggering interactive authentication
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_cached_token()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object if a cached token exists, or \code{NULL} otherwise
 }
 }
 \if{html}{\out{<hr>}}
