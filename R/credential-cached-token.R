@@ -21,8 +21,6 @@
 #' @field .scope Character string specifying the authentication scope.
 #' @field .tenant_id Character string specifying the tenant ID.
 #' @field .client_id Character string specifying the client ID.
-#' @field .use_cache Character string indicating the caching strategy.
-#' @field .offline Logical indicating whether offline access is requested.
 #' @field .chain List of credential classes to attempt for cached tokens.
 #'
 #' @export
@@ -43,12 +41,11 @@
 #' }
 CachedTokenCredential <- R6::R6Class(
   classname = "CachedTokenCredential",
+  inherit = Credential,
   public = list(
     .scope = NULL,
     .tenant_id = NULL,
     .client_id = NULL,
-    .use_cache = NULL,
-    .offline = NULL,
     .chain = NULL,
 
     #' @description
@@ -59,11 +56,6 @@ CachedTokenCredential <- R6::R6Class(
     #'   authentication.
     #' @param client_id Optional character string specifying the client ID for
     #'   authentication.
-    #' @param use_cache Character string indicating the caching strategy. Defaults
-    #'   to `"disk"`. Options include `"disk"` for disk-based caching or `"memory"`
-    #'   for in-memory caching.
-    #' @param offline Logical. If `TRUE`, adds 'offline_access' to the scope to
-    #'   request a 'refresh_token'. Defaults to `TRUE`.
     #' @param chain A list of credential classes to attempt for cached tokens.
     #'   Defaults to AuthCodeCredential and DeviceCodeCredential.
     #'
@@ -72,24 +64,12 @@ CachedTokenCredential <- R6::R6Class(
       scope = NULL,
       tenant_id = NULL,
       client_id = NULL,
-      use_cache = "disk",
-      offline = TRUE,
       chain = cached_token_credential_chain()
     ) {
       self$.scope <- scope
       self$.tenant_id <- tenant_id
       self$.client_id <- client_id
-      self$.use_cache <- use_cache
-      self$.offline <- offline
       self$.chain <- chain
-    },
-
-    #' @description
-    #' Check if the credential is interactive
-    #'
-    #' @return Always returns `FALSE` since this credential only uses cached tokens
-    is_interactive = function() {
-      FALSE
     },
 
     #' @description
@@ -121,8 +101,6 @@ CachedTokenCredential <- R6::R6Class(
             scope = self$.scope,
             tenant_id = self$.tenant_id,
             client_id = self$.client_id,
-            use_cache = self$.use_cache,
-            offline = self$.offline,
             chain = self$.chain,
             interactive = FALSE
           )

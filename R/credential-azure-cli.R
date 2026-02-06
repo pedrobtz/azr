@@ -751,26 +751,35 @@ az_cli_get_cached_token <- function(
   # Filter by scope/resource
   if (!is.null(scope)) {
     resource <- get_scope_resource(scope)
-    tokens <- Filter(function(tok) {
-      target <- tok$target %||% ""
-      # Match if scope appears in target or resource matches
-      grepl(scope, target, fixed = TRUE) ||
-        (!is.null(resource) && grepl(resource, target, fixed = TRUE))
-    }, tokens)
+    tokens <- Filter(
+      function(tok) {
+        target <- tok$target %||% ""
+        # Match if scope appears in target or resource matches
+        grepl(scope, target, fixed = TRUE) ||
+          (!is.null(resource) && grepl(resource, target, fixed = TRUE))
+      },
+      tokens
+    )
   }
 
   # Filter by tenant_id (realm field in MSAL cache)
   if (!is.null(tenant_id)) {
-    tokens <- Filter(function(tok) {
-      identical(tok$realm, tenant_id)
-    }, tokens)
+    tokens <- Filter(
+      function(tok) {
+        identical(tok$realm, tenant_id)
+      },
+      tokens
+    )
   }
 
   # Filter by client_id
   if (!is.null(client_id)) {
-    tokens <- Filter(function(tok) {
-      identical(tok$client_id, client_id)
-    }, tokens)
+    tokens <- Filter(
+      function(tok) {
+        identical(tok$client_id, client_id)
+      },
+      tokens
+    )
   }
 
   if (length(tokens) == 0L) {
@@ -784,9 +793,13 @@ az_cli_get_cached_token <- function(
   }
 
   # Select the token with the latest expiry
-  expires <- vapply(tokens, function(tok) {
-    as.numeric(tok$expires_on %||% "0")
-  }, numeric(1))
+  expires <- vapply(
+    tokens,
+    function(tok) {
+      as.numeric(tok$expires_on %||% "0")
+    },
+    numeric(1)
+  )
 
   best <- tokens[[which.max(expires)]]
 
@@ -802,8 +815,10 @@ az_cli_get_cached_token <- function(
   if (!is.null(refresh_tokens) && length(refresh_tokens) > 0L) {
     # Match refresh token by home_account_id and client_id
     for (rt in refresh_tokens) {
-      if (identical(rt$home_account_id, best$home_account_id) &&
-        identical(rt$client_id, best$client_id)) {
+      if (
+        identical(rt$home_account_id, best$home_account_id) &&
+          identical(rt$client_id, best$client_id)
+      ) {
         refresh_token <- rt$secret
         break
       }
