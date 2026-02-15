@@ -204,9 +204,9 @@ api_client <- R6::R6Class(
     #' Make an HTTP request to the API
     #'
     #' @param path A character string specifying the API endpoint path. Supports
-    #'   [glue::glue()] syntax for variable interpolation using named arguments
+    #'   [rlang::englue()] syntax for variable interpolation using named arguments
     #'   passed via `...`.
-    #' @param ... Named arguments used for path interpolation with [glue::glue()].
+    #' @param ... Named arguments used for path interpolation with [rlang::englue()].
     #' @param req_data Request data. For GET requests, this is used as query
     #'   parameters. For other methods, this is sent as JSON in the request body.
     #'   Can be a list or character string (JSON).
@@ -320,9 +320,9 @@ api_client <- R6::R6Class(
     #' Build an HTTP request object
     #'
     #' @param path A character string specifying the API endpoint path. Supports
-    #'   [glue::glue()] syntax for variable interpolation using named arguments
+    #'   [rlang::englue()] syntax for variable interpolation using named arguments
     #'   passed via `...`.
-    #' @param ... Named arguments used for path interpolation with [glue::glue()].
+    #' @param ... Named arguments used for path interpolation with [rlang::englue()].
     #' @param req_data Request data. For GET requests, this is used as query
     #'   parameters. For other methods, this is sent as JSON in the request body.
     #'   Can be a list or character string (JSON).

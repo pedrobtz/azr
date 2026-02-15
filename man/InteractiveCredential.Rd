@@ -16,7 +16,7 @@ instead.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{interactive}}{Logical indicating whether this credential requires
-user interaction. Defaults to \code{TRUE}.}
+user interaction.}
 }
 \if{html}{\out{</div>}}
 }

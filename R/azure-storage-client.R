@@ -59,7 +59,7 @@ azr_storage_client <- function(
   }
 
   # Construct the Azure Storage Data Lake Gen2 URL
-  storage_url <- glue::glue("https://{storageaccount}.dfs.core.windows.net")
+  storage_url <- rlang::englue("https://{{storageaccount}}.dfs.core.windows.net")
 
   # Construct the full scope URL for Azure Storage
   if (length(scopes) > 1) {

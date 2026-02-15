@@ -14,7 +14,8 @@ get_credential_provider(
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL,
-  interactive = TRUE
+  interactive = TRUE,
+  verbose = getOption("azr.verbose", FALSE)
 )
 }
 \arguments{
@@ -47,6 +48,9 @@ provided until \code{get_token} succeeds. If \code{NULL}, uses
 
 \item{interactive}{A logical value indicating whether interactive credentials
 are allowed. Defaults to \code{TRUE}.}
+
+\item{verbose}{A logical value indicating whether to print verbose messages
+during credential discovery. Defaults to \code{getOption("azr.verbose", FALSE)}.}
 }
 \value{
 A credential object that inherits from the \code{Credential} class and

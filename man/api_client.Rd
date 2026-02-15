@@ -166,10 +166,10 @@ Make an HTTP request to the API
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{path}}{A character string specifying the API endpoint path. Supports
-\code{\link[glue:glue]{glue::glue()}} syntax for variable interpolation using named arguments
+\code{\link[rlang:englue]{rlang::englue()}} syntax for variable interpolation using named arguments
 passed via \code{...}.}
 
-\item{\code{...}}{Named arguments used for path interpolation with \code{\link[glue:glue]{glue::glue()}}.}
+\item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
 
 \item{\code{req_data}}{Request data. For GET requests, this is used as query
 parameters. For other methods, this is sent as JSON in the request body.
@@ -300,10 +300,10 @@ Build an HTTP request object
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{path}}{A character string specifying the API endpoint path. Supports
-\code{\link[glue:glue]{glue::glue()}} syntax for variable interpolation using named arguments
+\code{\link[rlang:englue]{rlang::englue()}} syntax for variable interpolation using named arguments
 passed via \code{...}.}
 
-\item{\code{...}}{Named arguments used for path interpolation with \code{\link[glue:glue]{glue::glue()}}.}
+\item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
 
 \item{\code{req_data}}{Request data. For GET requests, this is used as query
 parameters. For other methods, this is sent as JSON in the request body.

@@ -37,6 +37,9 @@ req <- httr2::request("https://graph.microsoft.com/v1.0/me")
 req <- cred$req_auth(req)
 }
 }
+\section{Super class}{
+\code{azr::Credential} -> \code{CachedTokenCredential}
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -45,10 +48,6 @@ req <- cred$req_auth(req)
 \item{\code{.tenant_id}}{Character string specifying the tenant ID.}
 
 \item{\code{.client_id}}{Character string specifying the client ID.}
-
-\item{\code{.use_cache}}{Character string indicating the caching strategy.}
-
-\item{\code{.offline}}{Logical indicating whether offline access is requested.}
 
 \item{\code{.chain}}{List of credential classes to attempt for cached tokens.}
 }
@@ -65,12 +64,20 @@ req <- cred$req_auth(req)
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CachedTokenCredential-new}{\code{CachedTokenCredential$new()}}
-\item \href{#method-CachedTokenCredential-is_interactive}{\code{CachedTokenCredential$is_interactive()}}
 \item \href{#method-CachedTokenCredential-get_token}{\code{CachedTokenCredential$get_token()}}
 \item \href{#method-CachedTokenCredential-req_auth}{\code{CachedTokenCredential$req_auth()}}
 \item \href{#method-CachedTokenCredential-clone}{\code{CachedTokenCredential$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="is_interactive"><a href='../../azr/html/Credential.html#method-Credential-is_interactive'><code>azr::Credential$is_interactive()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CachedTokenCredential-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CachedTokenCredential-new}{}}}
@@ -81,8 +88,6 @@ Create a new CachedTokenCredential object
   scope = NULL,
   tenant_id = NULL,
   client_id = NULL,
-  use_cache = "disk",
-  offline = TRUE,
   chain = cached_token_credential_chain()
 )}\if{html}{\out{</div>}}
 }
@@ -98,13 +103,6 @@ authentication.}
 \item{\code{client_id}}{Optional character string specifying the client ID for
 authentication.}
 
-\item{\code{use_cache}}{Character string indicating the caching strategy. Defaults
-to \code{"disk"}. Options include \code{"disk"} for disk-based caching or \code{"memory"}
-for in-memory caching.}
-
-\item{\code{offline}}{Logical. If \code{TRUE}, adds 'offline_access' to the scope to
-request a 'refresh_token'. Defaults to \code{TRUE}.}
-
 \item{\code{chain}}{A list of credential classes to attempt for cached tokens.
 Defaults to AuthCodeCredential and DeviceCodeCredential.}
 }
@@ -112,19 +110,6 @@ Defaults to AuthCodeCredential and DeviceCodeCredential.}
 }
 \subsection{Returns}{
 A new \code{CachedTokenCredential} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CachedTokenCredential-is_interactive"></a>}}
-\if{latex}{\out{\hypertarget{method-CachedTokenCredential-is_interactive}{}}}
-\subsection{Method \code{is_interactive()}}{
-Check if the credential is interactive
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CachedTokenCredential$is_interactive()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-Always returns \code{FALSE} since this credential only uses cached tokens
 }
 }
 \if{html}{\out{<hr>}}
