@@ -67,7 +67,7 @@ api_storage_client <- R6::R6Class(
 
       # Construct the Azure Storage Data Lake Gen2 URL
       host_url <- rlang::englue(
-        "https://{{storageaccount}}.dfs.core.windows.net"
+        "https://{storageaccount}.dfs.core.windows.net"
       )
 
       # Construct the full scope URL for Azure Storage
@@ -163,27 +163,19 @@ api_storage_client <- R6::R6Class(
     #' @param path A character string specifying the directory path to list.
     #'   Use empty string or NULL for the root directory. Defaults to `""`.
     #' @param recursive A logical value indicating whether to list files recursively.
-    #'   Ignored when `max_depth` is set. Defaults to `FALSE`.
-    #' @param max_depth An integer specifying the maximum directory depth to traverse.
-    #'   `1` returns only immediate children (equivalent to `recursive = FALSE`).
-    #'   Each additional level issues separate API calls per subdirectory rather than
-    #'   fetching all paths at once. `NULL` (default) honours `recursive` as-is.
+    #'   Defaults to `FALSE`.
     #' @param ... Additional query parameters to pass to the API.
     #'
     #' @return A data.frame (or data.table if available) containing file and directory
     #'   information with columns such as name, contentLength, lastModified, etc.
-    list_files = function(path = "", recursive = FALSE, max_depth = NULL, ...) {
+    list_files = function(path = "", recursive = FALSE, ...) {
       if (is.null(path)) {
         path <- ""
       }
 
       query_params <- list(
         resource = "filesystem",
-        recursive = if (is.null(max_depth)) {
-          tolower(as.character(recursive))
-        } else {
-          "false"
-        },
+        recursive = tolower(as.character(recursive)),
         ...
       )
 
@@ -197,25 +189,12 @@ api_storage_client <- R6::R6Class(
         method = "get"
       )
 
-      if (is.null(response$paths) || !is.data.frame(response$paths)) {
+      if (!is.null(response$paths) && is.data.frame(response$paths)) {
+        return(response$paths)
+      } else {
         cli::cli_inform("No files found in path: {.path {path}}")
         return(data.frame())
       }
-
-      result <- response$paths
-
-      if (!is.null(max_depth) && max_depth > 1L) {
-        dirs <- result$name[result$isDirectory %in% c(TRUE, "true")]
-        deeper <- lapply(dirs, function(dir) {
-          self$list_files(path = dir, max_depth = max_depth - 1L, ...)
-        })
-        deeper <- Filter(function(x) nrow(x) > 0L, deeper)
-        if (length(deeper) > 0L) {
-          result <- do.call(rbind, c(list(result), deeper))
-        }
-      }
-
-      result
     }
   )
 )

@@ -156,12 +156,7 @@ named group entry in the \code{x-ms-acl} response header.
 \subsection{Method \code{list_files()}}{
 List files and directories in a path
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$list_files(
-  path = "",
-  recursive = FALSE,
-  max_depth = NULL,
-  ...
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$list_files(path = "", recursive = FALSE, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -171,12 +166,7 @@ List files and directories in a path
 Use empty string or NULL for the root directory. Defaults to \code{""}.}
 
 \item{\code{recursive}}{A logical value indicating whether to list files recursively.
-Ignored when \code{max_depth} is set. Defaults to \code{FALSE}.}
-
-\item{\code{max_depth}}{An integer specifying the maximum directory depth to traverse.
-\code{1} returns only immediate children (equivalent to \code{recursive = FALSE}).
-Each additional level issues separate API calls per subdirectory rather than
-fetching all paths at once. \code{NULL} (default) honours \code{recursive} as-is.}
+Defaults to \code{FALSE}.}
 
 \item{\code{...}}{Additional query parameters to pass to the API.}
 }
