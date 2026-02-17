@@ -57,7 +57,8 @@ client <- api_client$new(
 response <- client$.fetch(
   path = "/subscriptions/{subscription_id}/resourceGroups",
   subscription_id = "my-subscription-id",
-  req_method = "get"
+  query = list(`api-version` = "2021-04-01"),
+  method = "get"
 )
 }
 }
@@ -85,8 +86,8 @@ response <- client$.fetch(
 \item \href{#method-api_client-.fetch}{\code{api_client$.fetch()}}
 \item \href{#method-api_client-.fetch_req}{\code{api_client$.fetch_req()}}
 \item \href{#method-api_client-.resp_content}{\code{api_client$.resp_content()}}
-\item \href{#method-api_client-.req_build}{\code{api_client$.req_build()}}
-\item \href{#method-api_client-.req_perform}{\code{api_client$.req_perform()}}
+\item \href{#method-api_client-.build_request}{\code{api_client$.build_request()}}
+\item \href{#method-api_client-.send_request}{\code{api_client$.send_request()}}
 \item \href{#method-api_client-.resp_body_content}{\code{api_client$.resp_body_content()}}
 \item \href{#method-api_client-.get_token}{\code{api_client$.get_token()}}
 \item \href{#method-api_client-clone}{\code{api_client$clone()}}
@@ -154,8 +155,10 @@ Make an HTTP request to the API
 \if{html}{\out{<div class="r">}}\preformatted{api_client$.fetch(
   path,
   ...,
-  req_data = NULL,
-  req_method = "get",
+  query = NULL,
+  body = NULL,
+  headers = NULL,
+  method = "get",
   verbosity = 0L,
   content = c("body", "headers", "response", "request"),
   content_type = NULL
@@ -171,11 +174,15 @@ passed via \code{...}.}
 
 \item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
 
-\item{\code{req_data}}{Request data. For GET requests, this is used as query
-parameters. For other methods, this is sent as JSON in the request body.
+\item{\code{query}}{A named list of query parameters to append to the URL.}
+
+\item{\code{body}}{Request body data. Sent as JSON in the request body.
 Can be a list or character string (JSON).}
 
-\item{\code{req_method}}{A character string specifying the HTTP method. One of
+\item{\code{headers}}{A named list of additional HTTP headers to include in the
+request.}
+
+\item{\code{method}}{A character string specifying the HTTP method. One of
 \code{"get"}, \code{"post"}, \code{"put"}, \code{"patch"}, or \code{"delete"}. Defaults to \code{"get"}.}
 
 \item{\code{verbosity}}{An integer specifying the verbosity level for request
@@ -288,12 +295,19 @@ Depends on the \code{content} parameter:
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_client-.req_build"></a>}}
-\if{latex}{\out{\hypertarget{method-api_client-.req_build}{}}}
-\subsection{Method \code{.req_build()}}{
+\if{html}{\out{<a id="method-api_client-.build_request"></a>}}
+\if{latex}{\out{\hypertarget{method-api_client-.build_request}{}}}
+\subsection{Method \code{.build_request()}}{
 Build an HTTP request object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.req_build(path, ..., req_data = NULL, req_method = "get")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_client$.build_request(
+  path,
+  ...,
+  query = NULL,
+  body = NULL,
+  headers = NULL,
+  method = "get"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -305,11 +319,15 @@ passed via \code{...}.}
 
 \item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
 
-\item{\code{req_data}}{Request data. For GET requests, this is used as query
-parameters. For other methods, this is sent as JSON in the request body.
+\item{\code{query}}{A named list of query parameters to append to the URL.}
+
+\item{\code{body}}{Request body data. Sent as JSON in the request body.
 Can be a list or character string (JSON).}
 
-\item{\code{req_method}}{A character string specifying the HTTP method. One of
+\item{\code{headers}}{A named list of additional HTTP headers to include in the
+request.}
+
+\item{\code{method}}{A character string specifying the HTTP method. One of
 \code{"get"}, \code{"post"}, \code{"put"}, \code{"patch"}, or \code{"delete"}. Defaults to \code{"get"}.}
 }
 \if{html}{\out{</div>}}
@@ -319,12 +337,12 @@ An \code{\link[httr2:request]{httr2::request()}} object ready for execution
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_client-.req_perform"></a>}}
-\if{latex}{\out{\hypertarget{method-api_client-.req_perform}{}}}
-\subsection{Method \code{.req_perform()}}{
+\if{html}{\out{<a id="method-api_client-.send_request"></a>}}
+\if{latex}{\out{\hypertarget{method-api_client-.send_request}{}}}
+\subsection{Method \code{.send_request()}}{
 Perform an HTTP request and log the results
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.req_perform(req, verbosity)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_client$.send_request(req, verbosity)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

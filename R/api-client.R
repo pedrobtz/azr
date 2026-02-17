@@ -53,7 +53,8 @@
 #' response <- client$.fetch(
 #'   path = "/subscriptions/{subscription_id}/resourceGroups",
 #'   subscription_id = "my-subscription-id",
-#'   req_method = "get"
+#'   query = list(`api-version` = "2021-04-01"),
+#'   method = "get"
 #' )
 #' }
 api_client <- R6::R6Class(
@@ -207,10 +208,12 @@ api_client <- R6::R6Class(
     #'   [rlang::englue()] syntax for variable interpolation using named arguments
     #'   passed via `...`.
     #' @param ... Named arguments used for path interpolation with [rlang::englue()].
-    #' @param req_data Request data. For GET requests, this is used as query
-    #'   parameters. For other methods, this is sent as JSON in the request body.
+    #' @param query A named list of query parameters to append to the URL.
+    #' @param body Request body data. Sent as JSON in the request body.
     #'   Can be a list or character string (JSON).
-    #' @param req_method A character string specifying the HTTP method. One of
+    #' @param headers A named list of additional HTTP headers to include in the
+    #'   request.
+    #' @param method A character string specifying the HTTP method. One of
     #'   `"get"`, `"post"`, `"put"`, `"patch"`, or `"delete"`. Defaults to `"get"`.
     #' @param verbosity An integer specifying the verbosity level for request
     #'   debugging (passed to [httr2::req_perform()]). Defaults to `0`.
@@ -231,26 +234,30 @@ api_client <- R6::R6Class(
     .fetch = function(
       path,
       ...,
-      req_data = NULL,
-      req_method = "get",
+      query = NULL,
+      body = NULL,
+      headers = NULL,
+      method = "get",
       verbosity = 0L,
       content = c("body", "headers", "response", "request"),
       content_type = NULL
     ) {
       content <- match.arg(content)
 
-      req <- self$.req_build(
+      req <- self$.build_request(
         path,
         ...,
-        req_data = req_data,
-        req_method = req_method
+        query = query,
+        body = body,
+        headers = headers,
+        method = method
       )
 
       if (content == "request") {
         return(req)
       }
 
-      resp <- self$.req_perform(req, verbosity = verbosity)
+      resp <- self$.send_request(req, verbosity = verbosity)
 
       self$.resp_content(resp, content = content, content_type = content_type)
     },
@@ -288,7 +295,7 @@ api_client <- R6::R6Class(
         return(req)
       }
 
-      resp <- self$.req_perform(req, verbosity = verbosity)
+      resp <- self$.send_request(req, verbosity = verbosity)
 
       self$.resp_content(resp, content = content, content_type = content_type)
     },
@@ -323,39 +330,46 @@ api_client <- R6::R6Class(
     #'   [rlang::englue()] syntax for variable interpolation using named arguments
     #'   passed via `...`.
     #' @param ... Named arguments used for path interpolation with [rlang::englue()].
-    #' @param req_data Request data. For GET requests, this is used as query
-    #'   parameters. For other methods, this is sent as JSON in the request body.
+    #' @param query A named list of query parameters to append to the URL.
+    #' @param body Request body data. Sent as JSON in the request body.
     #'   Can be a list or character string (JSON).
-    #' @param req_method A character string specifying the HTTP method. One of
+    #' @param headers A named list of additional HTTP headers to include in the
+    #'   request.
+    #' @param method A character string specifying the HTTP method. One of
     #'   `"get"`, `"post"`, `"put"`, `"patch"`, or `"delete"`. Defaults to `"get"`.
     #'
     #' @return An [httr2::request()] object ready for execution
-    .req_build = function(path, ..., req_data = NULL, req_method = "get") {
+    .build_request = function(path, ..., query = NULL, body = NULL, headers = NULL, method = "get") {
       path <- rlang::englue(path, env = as.environment(list(...)))
 
       req <- self$.base_req |>
         httr2::req_url_path_append(path) |>
-        httr2::req_method(req_method)
+        httr2::req_method(method)
 
-      if (!is.null(req_data)) {
-        if (req_method == "post") {
-          if (!is.character(req_data)) {
-            req_data <- jsonlite::toJSON(
-              drop_null(req_data),
-              null = "null",
-              auto_unbox = TRUE
-            )
-          }
-          stopifnot(length(req_data) == 1L)
-          req <- httr2::req_body_raw(
-            req,
-            body = req_data,
-            type = "application/json"
-          )
-        } else {
-          req <- httr2::req_url_query(req, !!!req_data)
-        }
+      if (!is.null(query)) {
+        req <- httr2::req_url_query(req, !!!query)
       }
+
+      if (!is.null(body)) {
+        if (!is.character(body)) {
+          body <- jsonlite::toJSON(
+            drop_null(body),
+            null = "null",
+            auto_unbox = TRUE
+          )
+        }
+        stopifnot(length(body) == 1L)
+        req <- httr2::req_body_raw(
+          req,
+          body = body,
+          type = "application/json"
+        )
+      }
+
+      if (!is.null(headers)) {
+        req <- httr2::req_headers(req, !!!headers)
+      }
+
       return(req)
     },
     #' @description
@@ -366,7 +380,7 @@ api_client <- R6::R6Class(
     #'   debugging (passed to [httr2::req_perform()]). Defaults to `0`.
     #'
     #' @return An [httr2::response()] object containing the API response
-    .req_perform = function(req, verbosity) {
+    .send_request = function(req, verbosity) {
       cli::cli_alert_info(">>> {.strong {req$method}} {.url {req$url}}")
 
       if (!is.null(req$body) && req$body$content_type == "application/json") {

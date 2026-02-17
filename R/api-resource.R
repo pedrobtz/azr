@@ -33,7 +33,7 @@
 #' # Make requests - the endpoint is automatically prepended
 #' response <- resource_v1$.fetch(
 #'   path = "/me",
-#'   req_method = "get"
+#'   method = "get"
 #' )
 #' }
 api_resource <- R6::R6Class(

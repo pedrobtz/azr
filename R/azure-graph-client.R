@@ -122,7 +122,7 @@ api_graph_resource <- R6::R6Class(
         query <- NULL
       }
 
-      self$.client$.fetch("me", req_data = query)
+      self$.client$.fetch("me", query = query)
     }
   )
 )

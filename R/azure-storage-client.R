@@ -180,8 +180,8 @@ api_storage_client <- R6::R6Class(
       # Make the request
       response <- self$.fetch(
         path = api_path,
-        req_data = query_params,
-        req_method = "get"
+        query = query_params,
+        method = "get"
       )
 
       if (!is.null(response$paths) && is.data.frame(response$paths)) {
