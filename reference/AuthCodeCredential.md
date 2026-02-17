@@ -51,7 +51,8 @@ Create a new authorization code credential
       client_id = NULL,
       use_cache = "disk",
       offline = TRUE,
-      redirect_uri = default_redirect_uri()
+      redirect_uri = default_redirect_uri(),
+      interactive = TRUE
     )
 
 #### Arguments
@@ -86,6 +87,11 @@ Create a new authorization code credential
   A character string specifying the redirect URI registered with the
   application. Defaults to
   [`default_redirect_uri()`](https://pedrobtz.github.io/azr/reference/default_redirect_uri.md).
+
+- `interactive`:
+
+  A logical value indicating whether this credential requires user
+  interaction. Defaults to `TRUE`.
 
 #### Returns
 

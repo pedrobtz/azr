@@ -1,6 +1,18 @@
 # Changelog
 
-## azr (development version)
+## azr 0.3.0
+
+- Added `azr_storage_client` interface to the Azure Storage API.
+- Added `CachedTokenCredential` for non-interactive sessions that reuse
+  previously cached tokens from `AuthCodeCredential` or
+  `DeviceCodeCredential` without triggering a new authentication flow.
+- Refactored `api_client$.fetch()`: `req_data` is now split into
+  separate `query` and `body` arguments, `req_method` is renamed to
+  `method`, a `headers` argument was added, and path interpolation now
+  uses
+  [`rlang::englue()`](https://rlang.r-lib.org/reference/englue.html)
+  instead of
+  [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html).
 
 ## azr 0.2.1
 

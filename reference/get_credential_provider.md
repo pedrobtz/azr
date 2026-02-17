@@ -17,7 +17,9 @@ get_credential_provider(
   offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  chain = NULL
+  chain = NULL,
+  interactive = TRUE,
+  verbose = getOption("azr.verbose", FALSE)
 )
 ```
 
@@ -65,6 +67,16 @@ get_credential_provider(
   `Credential` base class. Credentials are attempted in the order
   provided until `get_token` succeeds. If `NULL`, uses
   [`default_credential_chain()`](https://pedrobtz.github.io/azr/reference/default_credential_chain.md).
+
+- interactive:
+
+  A logical value indicating whether interactive credentials are
+  allowed. Defaults to `TRUE`.
+
+- verbose:
+
+  A logical value indicating whether to print verbose messages during
+  credential discovery. Defaults to `getOption("azr.verbose", FALSE)`.
 
 ## Value
 

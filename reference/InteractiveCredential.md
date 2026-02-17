@@ -11,6 +11,12 @@ instead.
 
 `azr::Credential` -\> `InteractiveCredential`
 
+## Public fields
+
+- `interactive`:
+
+  Logical indicating whether this credential requires user interaction.
+
 ## Methods
 
 ### Public methods
@@ -29,7 +35,7 @@ Inherited methods
 
 ### Method `is_interactive()`
 
-Check if the credential is interactive
+Check if the credential requires user interaction
 
 #### Usage
 
@@ -37,7 +43,7 @@ Check if the credential is interactive
 
 #### Returns
 
-Always returns `TRUE` for interactive credentials
+Logical indicating whether this credential is interactive
 
 ------------------------------------------------------------------------
 

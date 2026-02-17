@@ -10,9 +10,11 @@ The credential uses the `az account get-access-token` command to
 retrieve access tokens. It will use the currently active Azure CLI
 account and subscription unless a specific tenant is specified.
 
-## Super class
+## Super classes
 
-`azr::Credential` -\> `AzureCLICredential`
+`azr::Credential` -\>
+[`azr::InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
+-\> `AzureCLICredential`
 
 ## Public fields
 
@@ -40,9 +42,9 @@ account and subscription unless a specific tenant is specified.
 
 Inherited methods
 
-- [`azr::Credential$is_interactive()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-is_interactive)
 - [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
 - [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
+- [`azr::InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
 
 ------------------------------------------------------------------------
 
@@ -56,7 +58,7 @@ Create a new Azure CLI credential
       scope = NULL,
       tenant_id = NULL,
       process_timeout = NULL,
-      login = FALSE,
+      interactive = FALSE,
       use_bridge = FALSE
     )
 
@@ -77,7 +79,7 @@ Create a new Azure CLI credential
   A numeric value specifying the timeout in seconds for the Azure CLI
   process. Defaults to `10`.
 
-- `login`:
+- `interactive`:
 
   A logical value indicating whether to check if the user is logged in
   and perform login if needed. Defaults to `FALSE`.
@@ -88,7 +90,7 @@ Create a new Azure CLI credential
   webpage during login. If `TRUE`, launches an intermediate local
   webpage that displays the device code and facilitates copy-pasting
   before redirecting to the Microsoft device login page. Only used when
-  `login = TRUE`. Defaults to `FALSE`.
+  `interactive = TRUE`. Defaults to `FALSE`.
 
 #### Returns
 

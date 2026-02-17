@@ -159,20 +159,28 @@ By contributing to this project, you agree to abide by its terms.
   : Authorization code credential authentication
 - [`AzureCLICredential`](https://pedrobtz.github.io/azr/reference/AzureCLICredential.md)
   : Azure CLI credential authentication
+- [`CachedTokenCredential`](https://pedrobtz.github.io/azr/reference/CachedTokenCredential.md)
+  : Cached token credential authentication
 - [`ClientSecretCredential`](https://pedrobtz.github.io/azr/reference/ClientSecretCredential.md)
   : Client secret credential authentication
 - [`DefaultCredential`](https://pedrobtz.github.io/azr/reference/DefaultCredential.md)
   : Default credential authentication
 - [`DeviceCodeCredential`](https://pedrobtz.github.io/azr/reference/DeviceCodeCredential.md)
   : Device code credential authentication
+- [`RefreshTokenCredential`](https://pedrobtz.github.io/azr/reference/RefreshTokenCredential.md)
+  : Refresh token credential authentication
 - [`api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
   : Azure API Client
 - [`api_resource`](https://pedrobtz.github.io/azr/reference/api_resource.md)
   : Azure API Resource
 - [`api_service`](https://pedrobtz.github.io/azr/reference/api_service.md)
   : API Service Base Class
+- [`api_storage_client`](https://pedrobtz.github.io/azr/reference/api_storage_client.md)
+  : Azure Storage API Class
 - [`az_cli_account_show()`](https://pedrobtz.github.io/azr/reference/az_cli_account_show.md)
   : Show Azure CLI Account Information
+- [`az_cli_get_cached_token()`](https://pedrobtz.github.io/azr/reference/az_cli_get_cached_token.md)
+  : Get Cached Token from MSAL Token Cache
 - [`az_cli_get_token()`](https://pedrobtz.github.io/azr/reference/az_cli_get_token.md)
   : Get Access Token from Azure CLI
 - [`az_cli_is_login()`](https://pedrobtz.github.io/azr/reference/az_cli_is_login.md)
@@ -183,6 +191,10 @@ By contributing to this project, you agree to abide by its terms.
   : Azure CLI Logout
 - [`azr_graph_client()`](https://pedrobtz.github.io/azr/reference/azr_graph_client.md)
   : Create a Microsoft Graph API Client
+- [`azr_storage_client()`](https://pedrobtz.github.io/azr/reference/azr_storage_client.md)
+  : Create an Azure Storage Client
+- [`cached_token_credential_chain()`](https://pedrobtz.github.io/azr/reference/cached_token_credential_chain.md)
+  : Create Cached Token Credential Chain
 - [`credential_chain()`](https://pedrobtz.github.io/azr/reference/credential_chain.md)
   : Create Custom Credential Chain
 - [`default_azure_client_id()`](https://pedrobtz.github.io/azr/reference/default_azure_client_id.md)
@@ -207,6 +219,8 @@ By contributing to this project, you agree to abide by its terms.
   : Default No Authentication
 - [`default_redirect_uri()`](https://pedrobtz.github.io/azr/reference/default_redirect_uri.md)
   : Get default OAuth redirect URI
+- [`default_refresh_token()`](https://pedrobtz.github.io/azr/reference/default_refresh_token.md)
+  : Get default Azure refresh token
 - [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
   : Default Response Handler
 - [`get_credential_auth()`](https://pedrobtz.github.io/azr/reference/get_credential_auth.md)

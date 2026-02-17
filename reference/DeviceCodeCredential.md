@@ -49,7 +49,8 @@ Create a new device code credential
       tenant_id = NULL,
       client_id = NULL,
       use_cache = "disk",
-      offline = TRUE
+      offline = TRUE,
+      interactive = TRUE
     )
 
 #### Arguments
@@ -78,6 +79,11 @@ Create a new device code credential
 
   A logical value indicating whether to request offline access (refresh
   tokens). Defaults to `TRUE`.
+
+- `interactive`:
+
+  A logical value indicating whether this credential requires user
+  interaction. Defaults to `TRUE`.
 
 #### Returns
 

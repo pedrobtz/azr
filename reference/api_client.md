@@ -53,11 +53,13 @@ service-specific clients. It provides:
 
 - [`api_client$.fetch()`](#method-api_client-.fetch)
 
-- [`api_client$.req_build()`](#method-api_client-.req_build)
-
-- [`api_client$.req_perform()`](#method-api_client-.req_perform)
-
 - [`api_client$.resp_content()`](#method-api_client-.resp_content)
+
+- [`api_client$.build_request()`](#method-api_client-.build_request)
+
+- [`api_client$.send_request()`](#method-api_client-.send_request)
+
+- [`api_client$.resp_body_content()`](#method-api_client-.resp_body_content)
 
 - [`api_client$.get_token()`](#method-api_client-.get_token)
 
@@ -141,8 +143,10 @@ Make an HTTP request to the API
     api_client$.fetch(
       path,
       ...,
-      req_data = NULL,
-      req_method = "get",
+      query = NULL,
+      body = NULL,
+      headers = NULL,
+      method = "get",
       verbosity = 0L,
       content = c("body", "headers", "response", "request"),
       content_type = NULL
@@ -153,22 +157,29 @@ Make an HTTP request to the API
 - `path`:
 
   A character string specifying the API endpoint path. Supports
-  [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html)
+  [`rlang::englue()`](https://rlang.r-lib.org/reference/englue.html)
   syntax for variable interpolation using named arguments passed via
   `...`.
 
 - `...`:
 
   Named arguments used for path interpolation with
-  [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html).
+  [`rlang::englue()`](https://rlang.r-lib.org/reference/englue.html).
 
-- `req_data`:
+- `query`:
 
-  Request data. For GET requests, this is used as query parameters. For
-  other methods, this is sent as JSON in the request body. Can be a list
-  or character string (JSON).
+  A named list of query parameters to append to the URL.
 
-- `req_method`:
+- `body`:
+
+  Request body data. Sent as JSON in the request body. Can be a list or
+  character string (JSON).
+
+- `headers`:
+
+  A named list of additional HTTP headers to include in the request.
+
+- `method`:
 
   A character string specifying the HTTP method. One of `"get"`,
   `"post"`, `"put"`, `"patch"`, or `"delete"`. Defaults to `"get"`.
@@ -216,35 +227,95 @@ Depends on the `content` parameter:
 
 ------------------------------------------------------------------------
 
-### Method `.req_build()`
+### Method `.resp_content()`
+
+Extract content from a response object
+
+#### Usage
+
+    api_client$.resp_content(resp, content, content_type = NULL)
+
+#### Arguments
+
+- `resp`:
+
+  An
+  [`httr2::response()`](https://httr2.r-lib.org/reference/response.html)
+  object
+
+- `content`:
+
+  A character string specifying what to return. One of:
+
+  - `"body"`: Return the parsed response body
+
+  - `"headers"`: Return response headers
+
+  - `"response"`: Return the full httr2 response object
+
+- `content_type`:
+
+  A character string specifying how to parse the response body. Only
+  used when `content = "body"`. If `NULL`, uses the response's
+  Content-Type header.
+
+#### Returns
+
+Depends on the `content` parameter:
+
+- `"body"`: Parsed response body (list, data.frame, or character)
+
+- `"headers"`: List of response headers
+
+- `"response"`: Full
+  [`httr2::response()`](https://httr2.r-lib.org/reference/response.html)
+  object
+
+------------------------------------------------------------------------
+
+### Method `.build_request()`
 
 Build an HTTP request object
 
 #### Usage
 
-    api_client$.req_build(path, ..., req_data = NULL, req_method = "get")
+    api_client$.build_request(
+      path,
+      ...,
+      query = NULL,
+      body = NULL,
+      headers = NULL,
+      method = "get"
+    )
 
 #### Arguments
 
 - `path`:
 
   A character string specifying the API endpoint path. Supports
-  [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html)
+  [`rlang::englue()`](https://rlang.r-lib.org/reference/englue.html)
   syntax for variable interpolation using named arguments passed via
   `...`.
 
 - `...`:
 
   Named arguments used for path interpolation with
-  [`glue::glue()`](https://glue.tidyverse.org/reference/glue.html).
+  [`rlang::englue()`](https://rlang.r-lib.org/reference/englue.html).
 
-- `req_data`:
+- `query`:
 
-  Request data. For GET requests, this is used as query parameters. For
-  other methods, this is sent as JSON in the request body. Can be a list
-  or character string (JSON).
+  A named list of query parameters to append to the URL.
 
-- `req_method`:
+- `body`:
+
+  Request body data. Sent as JSON in the request body. Can be a list or
+  character string (JSON).
+
+- `headers`:
+
+  A named list of additional HTTP headers to include in the request.
+
+- `method`:
 
   A character string specifying the HTTP method. One of `"get"`,
   `"post"`, `"put"`, `"patch"`, or `"delete"`. Defaults to `"get"`.
@@ -256,13 +327,13 @@ object ready for execution
 
 ------------------------------------------------------------------------
 
-### Method `.req_perform()`
+### Method `.send_request()`
 
 Perform an HTTP request and log the results
 
 #### Usage
 
-    api_client$.req_perform(req, verbosity)
+    api_client$.send_request(req, verbosity)
 
 #### Arguments
 
@@ -287,13 +358,13 @@ object containing the API response
 
 ------------------------------------------------------------------------
 
-### Method `.resp_content()`
+### Method `.resp_body_content()`
 
 Extract and parse response content
 
 #### Usage
 
-    api_client$.resp_content(resp, content_type = NULL)
+    api_client$.resp_body_content(resp, content_type = NULL)
 
 #### Arguments
 
@@ -394,7 +465,8 @@ client <- api_client$new(
 response <- client$.fetch(
   path = "/subscriptions/{subscription_id}/resourceGroups",
   subscription_id = "my-subscription-id",
-  req_method = "get"
+  query = list(`api-version` = "2021-04-01"),
+  method = "get"
 )
 } # }
 ```

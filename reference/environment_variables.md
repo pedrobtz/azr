@@ -10,4 +10,4 @@ environment_variables
 
 ## Format
 
-An object of class `list` of length 9.
+An object of class `list` of length 10.

@@ -20,7 +20,7 @@ content
 
 The function recursively processes list responses and converts any
 data.frame objects to data.table objects using
-[`data.table::as.data.table()`](https://rdatatable.gitlab.io/data.table/reference/as.data.table.html),
+[`data.table::as.data.table()`](https://rdrr.io/pkg/data.table/man/as.data.table.html),
 but only if the data.table package is installed. If data.table is not
 available, data frames are returned unchanged. Non-data.frame elements
 are always returned unchanged.
