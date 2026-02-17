@@ -45,13 +45,27 @@ api_storage_client <- R6::R6Class(
     #' @param ... Additional arguments passed to the parent [api_client] constructor.
     #'
     #' @return A new `api_storage_client` object
-    initialize = function(storageaccount, filesystem, scopes = ".default", chain = NULL, ...) {
+    initialize = function(
+      storageaccount,
+      filesystem,
+      scopes = ".default",
+      chain = NULL,
+      ...
+    ) {
+      storageaccount,
+      filesystem,
+      scopes = ".default",
+      chain = NULL,
+      ...
+    ) {
       if (missing(storageaccount) || is.null(storageaccount)) {
         cli::cli_abort("{.arg storageaccount} must not be {.val NULL}.")
       }
       if (missing(filesystem) || is.null(filesystem)) {
         cli::cli_abort("{.arg filesystem} must not be {.val NULL}.")
-      }
+      host_url <- rlang::englue(
+        "https://{{storageaccount}}.dfs.core.windows.net"
+      )
       if (!is.character(filesystem) || length(filesystem) != 1L) {
         cli::cli_abort("{.arg filesystem} must be a single character string.")
       }
@@ -112,15 +126,23 @@ api_storage_client <- R6::R6Class(
     #' @param max_depth An integer specifying the maximum directory depth to traverse.
     #'   `1` returns only immediate children (equivalent to `recursive = FALSE`).
     #'   Each additional level issues separate API calls per subdirectory rather than
-    #'   fetching all paths at once. `NULL` (default) honours `recursive` as-is.
+      if (is.null(path)) {
+        path <- ""
+      }
     #' @param ... Additional query parameters to pass to the API.
     #'
     #' @return A data.frame (or data.table if available) containing file and directory
-    #'   information with columns such as name, contentLength, lastModified, etc.
+        recursive = if (is.null(max_depth)) {
+          tolower(as.character(recursive))
+        } else {
+          "false"
+        },
     list_files = function(path = "", recursive = FALSE, max_depth = NULL, ...) {
       if (is.null(path)) path <- ""
 
-      query_params <- list(
+      if (nzchar(path)) {
+        query_params$directory <- path
+      }
         resource = "filesystem",
         recursive = if (is.null(max_depth)) tolower(as.character(recursive)) else "false",
         ...
