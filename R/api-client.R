@@ -301,7 +301,14 @@ api_client <- R6::R6Class(
     #'   `"get"`, `"post"`, `"put"`, `"patch"`, or `"delete"`. Defaults to `"get"`.
     #'
     #' @return An [httr2::request()] object ready for execution
-    .build_request = function(path, ..., query = NULL, body = NULL, headers = NULL, method = "get") {
+    .build_request = function(
+      path,
+      ...,
+      query = NULL,
+      body = NULL,
+      headers = NULL,
+      method = "get"
+    ) {
       path <- rlang::englue(path, env = as.environment(list(...)))
 
       req <- self$.base_req |>
