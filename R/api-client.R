@@ -262,44 +262,6 @@ api_client <- R6::R6Class(
       self$.resp_content(resp, content = content, content_type = content_type)
     },
     #' @description
-    #' Make an HTTP request using a request transformation function
-    #'
-    #' @param req A function that takes an [httr2::request()] object and returns
-    #'   a modified request. The function will be applied to `.base_req`.
-    #' @param verbosity An integer specifying the verbosity level for request
-    #'   debugging (passed to [httr2::req_perform()]). Defaults to `0`.
-    #' @param content A character string specifying what to return. One of:
-    #'   - `"body"` (default): Return the parsed response body
-    #'   - `"headers"`: Return response headers
-    #'   - `"response"`: Return the full httr2 response object
-    #'   - `"request"`: Return the prepared request object without executing it
-    #' @param content_type A character string specifying how to parse the response
-    #'   body. If `NULL`, uses the response's Content-Type header.
-    #'
-    #' @return Depends on the `content` parameter:
-    #'   - `"body"`: Parsed response body (list, data.frame, or character)
-    #'   - `"headers"`: List of response headers
-    #'   - `"response"`: Full [httr2::response()] object
-    #'   - `"request"`: [httr2::request()] object
-    .fetch_req = function(
-      req,
-      verbosity = 0L,
-      content = c("body", "headers", "response", "request"),
-      content_type = NULL
-    ) {
-      content <- match.arg(content)
-
-      req <- req(self$.base_req)
-
-      if (content == "request") {
-        return(req)
-      }
-
-      resp <- self$.send_request(req, verbosity = verbosity)
-
-      self$.resp_content(resp, content = content, content_type = content_type)
-    },
-    #' @description
     #' Extract content from a response object
     #'
     #' @param resp An [httr2::response()] object

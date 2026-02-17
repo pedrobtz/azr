@@ -44,6 +44,7 @@ files <- storage$list_files(path = "data", recursive = TRUE)
 \itemize{
 \item \href{#method-api_storage_client-new}{\code{api_storage_client$new()}}
 \item \href{#method-api_storage_client-download_file}{\code{api_storage_client$download_file()}}
+\item \href{#method-api_storage_client-get_access_control}{\code{api_storage_client$get_access_control()}}
 \item \href{#method-api_storage_client-list_files}{\code{api_storage_client$list_files()}}
 \item \href{#method-api_storage_client-clone}{\code{api_storage_client$clone()}}
 }
@@ -53,7 +54,6 @@ files <- storage$list_files(path = "data", recursive = TRUE)
 <ul>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href='../../azr/html/api_client.html#method-api_client-.build_request'><code>azr::api_client$.build_request()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href='../../azr/html/api_client.html#method-api_client-.fetch'><code>azr::api_client$.fetch()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch_req"><a href='../../azr/html/api_client.html#method-api_client-.fetch_req'><code>azr::api_client$.fetch_req()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href='../../azr/html/api_client.html#method-api_client-.get_token'><code>azr::api_client$.get_token()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_body_content'><code>azr::api_client$.resp_body_content()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_content'><code>azr::api_client$.resp_content()</code></a></span></li>
@@ -72,6 +72,7 @@ Create a new Azure Storage API client instance
   filesystem,
   scopes = ".default",
   chain = NULL,
+  tenant_id = NULL,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -88,6 +89,9 @@ Create a new Azure Storage API client instance
 
 \item{\code{chain}}{A \link{credential_chain} instance for authentication. If NULL,
 a default credential chain will be created using \link{DefaultCredential}.}
+
+\item{\code{tenant_id}}{A character string specifying the Azure tenant ID. Passed to
+\link{DefaultCredential} when \code{chain} is \code{NULL}.}
 
 \item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
 }
@@ -118,6 +122,32 @@ Defaults to a temporary file via \code{\link[=tempfile]{tempfile()}}.}
 }
 \subsection{Returns}{
 The local path the file was written to (invisibly).
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-api_storage_client-get_access_control"></a>}}
+\if{latex}{\out{\hypertarget{method-api_storage_client-get_access_control}{}}}
+\subsection{Method \code{get_access_control()}}{
+Get the access control list (ACL) for a file or directory
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$get_access_control(dataset, upn = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dataset}}{A character string specifying the file or directory path within
+the filesystem.}
+
+\item{\code{upn}}{A logical value. If \code{TRUE}, user principal names (UPN) are
+returned in the \code{x-ms-owner}, \code{x-ms-group}, and \code{x-ms-acl} response
+headers instead of object IDs. Defaults to \code{FALSE}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data.frame with columns \code{group_id} and \code{permission}, one row per
+named group entry in the \code{x-ms-acl} response header.
 }
 }
 \if{html}{\out{<hr>}}

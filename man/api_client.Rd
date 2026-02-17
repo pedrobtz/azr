@@ -84,7 +84,6 @@ response <- client$.fetch(
 \itemize{
 \item \href{#method-api_client-new}{\code{api_client$new()}}
 \item \href{#method-api_client-.fetch}{\code{api_client$.fetch()}}
-\item \href{#method-api_client-.fetch_req}{\code{api_client$.fetch_req()}}
 \item \href{#method-api_client-.resp_content}{\code{api_client$.resp_content()}}
 \item \href{#method-api_client-.build_request}{\code{api_client$.build_request()}}
 \item \href{#method-api_client-.send_request}{\code{api_client$.send_request()}}
@@ -199,52 +198,6 @@ debugging (passed to \code{\link[httr2:req_perform]{httr2::req_perform()}}). Def
 \item{\code{content_type}}{A character string specifying how to parse the response
 body. If \code{NULL}, uses the response's Content-Type header. Common values:
 \code{"application/json"}, \code{"application/xml"}, \code{"text/html"}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Depends on the \code{content} parameter:
-\itemize{
-\item \code{"body"}: Parsed response body (list, data.frame, or character)
-\item \code{"headers"}: List of response headers
-\item \code{"response"}: Full \code{\link[httr2:response]{httr2::response()}} object
-\item \code{"request"}: \code{\link[httr2:request]{httr2::request()}} object
-}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_client-.fetch_req"></a>}}
-\if{latex}{\out{\hypertarget{method-api_client-.fetch_req}{}}}
-\subsection{Method \code{.fetch_req()}}{
-Make an HTTP request using a request transformation function
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.fetch_req(
-  req,
-  verbosity = 0L,
-  content = c("body", "headers", "response", "request"),
-  content_type = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{A function that takes an \code{\link[httr2:request]{httr2::request()}} object and returns
-a modified request. The function will be applied to \code{.base_req}.}
-
-\item{\code{verbosity}}{An integer specifying the verbosity level for request
-debugging (passed to \code{\link[httr2:req_perform]{httr2::req_perform()}}). Defaults to \code{0}.}
-
-\item{\code{content}}{A character string specifying what to return. One of:
-\itemize{
-\item \code{"body"} (default): Return the parsed response body
-\item \code{"headers"}: Return response headers
-\item \code{"response"}: Return the full httr2 response object
-\item \code{"request"}: Return the prepared request object without executing it
-}}
-
-\item{\code{content_type}}{A character string specifying how to parse the response
-body. If \code{NULL}, uses the response's Content-Type header.}
 }
 \if{html}{\out{</div>}}
 }
