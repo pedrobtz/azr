@@ -13,7 +13,9 @@ get_credential_provider(
   offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  chain = NULL
+  chain = NULL,
+  interactive = TRUE,
+  verbose = getOption("azr.verbose", FALSE)
 )
 }
 \arguments{
@@ -43,6 +45,12 @@ request a 'refresh_token'. Defaults to \code{TRUE}.}
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds. If \code{NULL}, uses
 \code{\link[=default_credential_chain]{default_credential_chain()}}.}
+
+\item{interactive}{A logical value indicating whether interactive credentials
+are allowed. Defaults to \code{TRUE}.}
+
+\item{verbose}{A logical value indicating whether to print verbose messages
+during credential discovery. Defaults to \code{getOption("azr.verbose", FALSE)}.}
 }
 \value{
 A credential object that inherits from the \code{Credential} class and

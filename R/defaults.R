@@ -61,6 +61,31 @@ default_azure_client_secret <- function() {
 }
 
 
+#' Get default Azure refresh token
+#'
+#' @description
+#' Retrieves the Azure refresh token from the `AZURE_REFRESH_TOKEN` environment
+#' variable, or returns `NULL` if not set.
+#'
+#' @return A character string with the refresh token, or `NULL` if not set
+#'
+#' @export
+#' @examples
+#' default_refresh_token()
+default_refresh_token <- function() {
+  res <- Sys.getenv(
+    environment_variables$azure_refresh_token,
+    unset = NA_character_
+  )
+
+  if (is.na(res)) {
+    NULL
+  } else {
+    res
+  }
+}
+
+
 #' Get default Azure OAuth scope
 #'
 #' @description

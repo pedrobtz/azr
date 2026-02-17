@@ -29,8 +29,8 @@ test_that("api_client can POST a new pet", {
 
     response <- client$.fetch(
       path = "/pet",
-      req_data = pet_data,
-      req_method = "post",
+      body = pet_data,
+      method = "post",
       content = "body"
     )
 
@@ -58,8 +58,8 @@ test_that("api_client can GET a pet by ID", {
     # POST the pet
     post_response <- client$.fetch(
       path = "/pet",
-      req_data = pet_data,
-      req_method = "post",
+      body = pet_data,
+      method = "post",
       content = "body"
     )
 
@@ -67,7 +67,7 @@ test_that("api_client can GET a pet by ID", {
     get_response <- client$.fetch(
       path = "/pet/{petId}",
       petId = post_response$id,
-      req_method = "get",
+      method = "get",
       content = "body"
     )
 
@@ -95,16 +95,16 @@ test_that("api_client can GET pets by status", {
 
     client$.fetch(
       path = "/pet",
-      req_data = pet_data,
-      req_method = "post",
+      body = pet_data,
+      method = "post",
       content = "body"
     )
 
     # GET pets with 'pending' status using query parameters
     response <- client$.fetch(
       path = "/pet/findByStatus",
-      req_data = list(status = "pending"),
-      req_method = "get",
+      query = list(status = "pending"),
+      method = "get",
       content = "body"
     )
 
@@ -136,8 +136,8 @@ test_that("api_client can PUT to update a pet", {
 
     post_response <- client$.fetch(
       path = "/pet",
-      req_data = pet_data,
-      req_method = "post",
+      body = pet_data,
+      method = "post",
       content = "body"
     )
 
@@ -151,8 +151,8 @@ test_that("api_client can PUT to update a pet", {
 
     update_response <- client$.fetch(
       path = "/pet",
-      req_data = updated_data,
-      req_method = "put",
+      body = updated_data,
+      method = "put",
       content = "body"
     )
 
@@ -171,8 +171,8 @@ test_that("api_client returns response headers when requested", {
 
     headers <- client$.fetch(
       path = "/pet/findByStatus",
-      req_data = list(status = "available"),
-      req_method = "get",
+      query = list(status = "available"),
+      method = "get",
       content = "headers"
     )
 
@@ -190,8 +190,8 @@ test_that("api_client returns full response object when requested", {
 
     response <- client$.fetch(
       path = "/pet/findByStatus",
-      req_data = list(status = "available"),
-      req_method = "get",
+      query = list(status = "available"),
+      method = "get",
       content = "response"
     )
 
@@ -209,7 +209,7 @@ test_that("api_client can build request without performing it", {
   req <- client$.fetch(
     path = "/pet/{petId}",
     petId = 123,
-    req_method = "get",
+    method = "get",
     content = "request"
   )
 
@@ -227,7 +227,7 @@ test_that("api_client handles path interpolation correctly", {
   req <- client$.fetch(
     path = "/pet/{petId}",
     petId = pet_id,
-    req_method = "get",
+    method = "get",
     content = "request"
   )
 
@@ -245,7 +245,7 @@ test_that("api_client handles 404 response for non-existent resource", {
       client$.fetch(
         path = "/pet/{petId}",
         petId = 99999999L,
-        req_method = "get",
+        method = "get",
         content = "body"
       ),
       class = "httr2_http_404"
@@ -270,15 +270,15 @@ test_that("api_client DELETE method works", {
 
     post_response <- client$.fetch(
       path = "/pet",
-      req_data = pet_data,
-      req_method = "post"
+      body = pet_data,
+      method = "post"
     )
 
     # Delete the pet
     delete_response <- client$.fetch(
       path = "/pet/{petId}",
       petId = post_response$id,
-      req_method = "delete",
+      method = "delete",
       content = "response"
     )
 

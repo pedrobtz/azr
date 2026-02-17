@@ -281,7 +281,11 @@ test_that("is_port_available detects port availability", {
     port = test_port,
     app = list(
       call = function(req) {
-        list(status = 200L, headers = list("Content-Type" = "text/plain"), body = "test")
+        list(
+          status = 200L,
+          headers = list("Content-Type" = "text/plain"),
+          body = "test"
+        )
       }
     )
   )

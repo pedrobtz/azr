@@ -70,7 +70,8 @@ Create a new authorization code credential
   client_id = NULL,
   use_cache = "disk",
   offline = TRUE,
-  redirect_uri = default_redirect_uri()
+  redirect_uri = default_redirect_uri(),
+  interactive = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -93,6 +94,9 @@ for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \co
 
 \item{\code{redirect_uri}}{A character string specifying the redirect URI registered
 with the application. Defaults to \code{\link[=default_redirect_uri]{default_redirect_uri()}}.}
+
+\item{\code{interactive}}{A logical value indicating whether this credential
+requires user interaction. Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }

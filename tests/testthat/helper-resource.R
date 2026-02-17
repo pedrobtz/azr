@@ -14,7 +14,7 @@ api_store_resource <- R6::R6Class(
       self$.client$.fetch(
         path = "/order/{orderId}",
         orderId = order_id,
-        req_method = "get",
+        method = "get",
         content = "body"
       )
     },
@@ -23,8 +23,8 @@ api_store_resource <- R6::R6Class(
     create_order = function(order_data) {
       self$.client$.fetch(
         path = "/order",
-        req_data = order_data,
-        req_method = "post",
+        body = order_data,
+        method = "post",
         content = "body"
       )
     }

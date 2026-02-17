@@ -35,7 +35,7 @@ resource_beta <- api_resource$new(
 # Make requests - the endpoint is automatically prepended
 response <- resource_v1$.fetch(
   path = "/me",
-  req_method = "get"
+  method = "get"
 )
 }
 }

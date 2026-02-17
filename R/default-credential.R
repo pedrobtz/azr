@@ -405,6 +405,10 @@ get_credential_auth <- function(
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds. If `NULL`, uses
 #'   [default_credential_chain()].
+#' @param interactive A logical value indicating whether interactive credentials
+#'   are allowed. Defaults to `TRUE`.
+#' @param verbose A logical value indicating whether to print verbose messages
+#'   during credential discovery. Defaults to `getOption("azr.verbose", FALSE)`.
 #'
 #' @return A credential object that inherits from the `Credential` class and
 #'   has successfully authenticated.
@@ -434,7 +438,9 @@ get_credential_provider <- function(
   offline = TRUE,
   oauth_host = NULL,
   oauth_endpoint = NULL,
-  chain = NULL
+  chain = NULL,
+  interactive = TRUE,
+  verbose = getOption("azr.verbose", FALSE)
 ) {
   if (is.null(chain) || length(chain) == 0L) {
     chain <- default_credential_chain()
@@ -452,9 +458,21 @@ get_credential_provider <- function(
     crd_expr <- chain[[i]]
     crd_name <- names(chain)[i] %||% paste0("credential_", i)
 
+    if (verbose) {
+      cli::cli_inform(c(
+        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
+      ))
+    }
+
     crd <- try(rlang::eval_tidy(crd_expr), silent = TRUE)
 
     if (R6::is.R6Class(crd)) {
+      if (verbose) {
+        cli::cli_inform(c(
+          " " = "Instantiating R6 class {.cls {crd$classname}}."
+        ))
+      }
+
       obj <- try(
         new_instance(crd, env = rlang::current_env()),
         silent = TRUE
@@ -462,23 +480,54 @@ get_credential_provider <- function(
 
       if (inherits(obj, "try-error")) {
         errors[[crd_name]] <- conditionMessage(attr(obj, "condition"))
+        if (verbose) {
+          cli::cli_inform(c(
+            "x" = "Failed to instantiate {.strong {crd_name}}: {errors[[crd_name]]}"
+          ))
+        }
         next
       }
 
       if (!inherits(obj, "Credential")) {
         errors[[crd_name]] <- "Object does not inherit from Credential class"
+        if (verbose) {
+          cli::cli_inform(c(
+            "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
+          ))
+        }
         next
       }
     } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
+      if (verbose) {
+        cli::cli_inform(c(
+          " " = "Using existing R6 instance of class {.cls {class(crd)[1]}}."
+        ))
+      }
       obj <- crd
     } else {
       errors[[crd_name]] <- "Invalid credential type"
+      if (verbose) {
+        cli::cli_inform(c(
+          "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
+        ))
+      }
       next
     }
 
     if (obj$is_interactive() && !rlang::is_interactive()) {
       errors[[crd_name]] <- "Credential requires interactive session"
+      if (verbose) {
+        cli::cli_inform(c(
+          "x" = "Skipping {.strong {crd_name}}: {errors[[crd_name]]}"
+        ))
+      }
       next
+    }
+
+    if (verbose) {
+      cli::cli_inform(c(
+        " " = "Attempting to get token from {.strong {crd_name}}..."
+      ))
     }
 
     token <- tryCatch(
@@ -494,7 +543,18 @@ get_credential_provider <- function(
     )
 
     if (inherits(token, "httr2_token")) {
+      if (verbose) {
+        cli::cli_inform(c(
+          "v" = "Successfully authenticated with {.strong {crd_name}}."
+        ))
+      }
       return(obj)
+    }
+
+    if (verbose) {
+      cli::cli_inform(c(
+        "x" = "{.strong {crd_name}} failed: {errors[[crd_name]]}"
+      ))
     }
   }
 

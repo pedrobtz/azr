@@ -12,6 +12,14 @@ instead.
 \section{Super class}{
 \code{azr::Credential} -> \code{InteractiveCredential}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{interactive}}{Logical indicating whether this credential requires
+user interaction.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -32,13 +40,13 @@ instead.
 \if{html}{\out{<a id="method-InteractiveCredential-is_interactive"></a>}}
 \if{latex}{\out{\hypertarget{method-InteractiveCredential-is_interactive}{}}}
 \subsection{Method \code{is_interactive()}}{
-Check if the credential is interactive
+Check if the credential requires user interaction
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$is_interactive()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-Always returns \code{TRUE} for interactive credentials
+Logical indicating whether this credential is interactive
 }
 }
 \if{html}{\out{<hr>}}

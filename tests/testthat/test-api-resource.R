@@ -167,7 +167,7 @@ test_that("api_resource endpoint is correctly appended to requests", {
   # Build a request without executing it
   req <- store_resource$.client$.fetch(
     path = "/order/1",
-    req_method = "get",
+    method = "get",
     content = "request"
   )
 

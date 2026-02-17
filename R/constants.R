@@ -47,6 +47,7 @@ environment_variables <- list(
   azure_client_secret = "AZURE_CLIENT_SECRET",
   azure_tenant_id = "AZURE_TENANT_ID",
   azure_authority_host = "AZURE_AUTHORITY_HOST",
+  azure_refresh_token = "AZURE_REFRESH_TOKEN",
   client_secret_vars = c(
     "AZURE_CLIENT_ID",
     "AZURE_CLIENT_SECRET",

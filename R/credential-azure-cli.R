@@ -33,7 +33,7 @@
 #' }
 AzureCLICredential <- R6::R6Class(
   classname = "AzureCLICredential",
-  inherit = Credential,
+  inherit = InteractiveCredential,
   public = list(
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
@@ -47,23 +47,26 @@ AzureCLICredential <- R6::R6Class(
     #'   tenant ID. Defaults to `NULL`, which uses the default tenant from Azure CLI.
     #' @param process_timeout A numeric value specifying the timeout in seconds
     #'   for the Azure CLI process. Defaults to `10`.
-    #' @param login A logical value indicating whether to check if the user is
+    #' @param interactive A logical value indicating whether to check if the user is
     #'   logged in and perform login if needed. Defaults to `FALSE`.
     #' @param use_bridge A logical value indicating whether to use the device code
     #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
     #'   that displays the device code and facilitates copy-pasting before redirecting
-    #'   to the Microsoft device login page. Only used when `login = TRUE`. Defaults to `FALSE`.
+    #'   to the Microsoft device login page. Only used when `interactive = TRUE`. Defaults to `FALSE`.
     #'
     #' @return A new `AzureCLICredential` object
-    initialize = function(scope = NULL,
-                          tenant_id = NULL,
-                          process_timeout = NULL,
-                          login = FALSE,
-                          use_bridge = FALSE) {
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      process_timeout = NULL,
+      interactive = FALSE,
+      use_bridge = FALSE
+    ) {
+      self$interactive <- interactive
       super$initialize(scope = scope, tenant_id = tenant_id)
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
-      if (isTRUE(login)) {
+      if (isTRUE(self$is_interactive())) {
         # Check if user is logged in
         if (!az_cli_is_login(timeout = self$.process_timeout)) {
           cli::cli_alert_info("User is not logged in to Azure CLI")
@@ -370,9 +373,10 @@ az_cli_is_login <- function(timeout = 10L) {
 #'
 #' @export
 az_cli_login <- function(
-    tenant_id = NULL,
-    use_bridge = FALSE,
-    verbose = FALSE) {
+  tenant_id = NULL,
+  use_bridge = FALSE,
+  verbose = FALSE
+) {
   if (!rlang::is_interactive()) {
     cli::cli_abort(
       c(
@@ -654,6 +658,181 @@ az_cli_logout <- function() {
 
   invisible(NULL)
 }
+
+#' Get Cached Token from MSAL Token Cache
+#'
+#' @description
+#' Reads the MSAL token cache file (`msal_token_cache.json`) from the Azure
+#' configuration directory and returns a matching access token as an
+#' [httr2::oauth_token()] object.
+#'
+#' @details
+#' The MSAL token cache is a JSON file maintained by the Azure CLI that stores
+#' access tokens and refresh tokens. This function reads cached access tokens
+#' directly from the file without invoking the Azure CLI, which can be useful
+#' in environments where the CLI is slow or unavailable but tokens have been
+#' previously cached.
+#'
+#' When multiple tokens are found, the function selects the token that expires
+#' latest. If `scope` is provided, only tokens matching that scope/resource are
+#' returned.
+#'
+#' @param scope A character string specifying the OAuth2 scope to filter tokens.
+#'   If `NULL` (default), returns the latest-expiring token regardless of scope.
+#' @param tenant_id A character string specifying the tenant ID to filter tokens.
+#'   If `NULL` (default), matches any tenant.
+#' @param client_id A character string specifying the client ID to filter tokens.
+#'   If `NULL` (default), matches any client.
+#' @param config_dir A character string specifying the Azure configuration
+#'   directory. Defaults to [default_azure_config_dir()].
+#'
+#' @return An [httr2::oauth_token()] object containing:
+#'   - `access_token`: The OAuth2 access token string
+#'   - `token_type`: The type of token (typically "Bearer")
+#'   - `.expires_at`: POSIXct timestamp when the token expires
+#'
+#' @examples
+#' \dontrun{
+#' # Get any cached token
+#' token <- az_cli_get_cached_token()
+#'
+#' # Get a cached token for a specific scope
+#' token <- az_cli_get_cached_token(
+#'   scope = "https://management.azure.com/.default"
+#' )
+#'
+#' # Access the token string
+#' token$access_token
+#' }
+#'
+#' @export
+az_cli_get_cached_token <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  config_dir = default_azure_config_dir()
+) {
+  cache_file <- file.path(config_dir, "msal_token_cache.json")
+
+  if (!file.exists(cache_file)) {
+    cli::cli_abort(
+      c(
+        "MSAL token cache file not found at {.path {cache_file}}",
+        "i" = "Ensure you have logged in with {.code az login}"
+      ),
+      class = "azr_cli_cache_not_found"
+    )
+  }
+
+  cache <- tryCatch(
+    jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Failed to parse MSAL token cache: {e$message}",
+          "i" = "The cache file may be corrupted: {.path {cache_file}}"
+        ),
+        class = "azr_cli_cache_parse_error"
+      )
+    }
+  )
+
+  tokens <- cache$AccessToken
+  if (is.null(tokens) || length(tokens) == 0L) {
+    cli::cli_abort(
+      c(
+        "No access tokens found in MSAL token cache",
+        "i" = "Ensure you have logged in with {.code az login}"
+      ),
+      class = "azr_cli_cache_empty"
+    )
+  }
+
+  # Filter by scope/resource
+  if (!is.null(scope)) {
+    resource <- get_scope_resource(scope)
+    tokens <- Filter(
+      function(tok) {
+        target <- tok$target %||% ""
+        # Match if scope appears in target or resource matches
+        grepl(scope, target, fixed = TRUE) ||
+          (!is.null(resource) && grepl(resource, target, fixed = TRUE))
+      },
+      tokens
+    )
+  }
+
+  # Filter by tenant_id (realm field in MSAL cache)
+  if (!is.null(tenant_id)) {
+    tokens <- Filter(
+      function(tok) {
+        identical(tok$realm, tenant_id)
+      },
+      tokens
+    )
+  }
+
+  # Filter by client_id
+  if (!is.null(client_id)) {
+    tokens <- Filter(
+      function(tok) {
+        identical(tok$client_id, client_id)
+      },
+      tokens
+    )
+  }
+
+  if (length(tokens) == 0L) {
+    cli::cli_abort(
+      c(
+        "No matching access token found in MSAL token cache",
+        "i" = "Try logging in with {.code az login} to refresh your tokens"
+      ),
+      class = "azr_cli_cache_no_match"
+    )
+  }
+
+  # Select the token with the latest expiry
+  expires <- vapply(
+    tokens,
+    function(tok) {
+      as.numeric(tok$expires_on %||% "0")
+    },
+    numeric(1)
+  )
+
+  best <- tokens[[which.max(expires)]]
+
+  expires_at <- as.POSIXct(
+    as.numeric(best$expires_on),
+    origin = "1970-01-01",
+    tz = "UTC"
+  )
+
+  # Look for a matching refresh token
+  refresh_token <- NULL
+  refresh_tokens <- cache$RefreshToken
+  if (!is.null(refresh_tokens) && length(refresh_tokens) > 0L) {
+    # Match refresh token by home_account_id and client_id
+    for (rt in refresh_tokens) {
+      if (
+        identical(rt$home_account_id, best$home_account_id) &&
+          identical(rt$client_id, best$client_id)
+      ) {
+        refresh_token <- rt$secret
+        break
+      }
+    }
+  }
+
+  httr2::oauth_token(
+    access_token = best$secret,
+    token_type = best$token_type %||% "Bearer",
+    refresh_token = refresh_token,
+    .expires_at = expires_at
+  )
+}
+
 
 launch_device_code <- function(code) {
   html_content <- system.file("code.html", package = "azr") |>
