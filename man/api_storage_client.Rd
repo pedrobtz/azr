@@ -8,17 +8,27 @@ An R6 class that extends \link{api_client} to provide specialized methods
 for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.
 }
 \details{
-This class extends the base \link{api_client} with Azure Storage-specific functionality:
-\itemize{
-\item Automatic filesystem (container) path handling
-\item Methods for listing files and directories
-\item Support for recursive directory listing
+The base URL is constructed as:
+\verb{https://\{storageaccount\}.dfs.core.windows.net}
 }
+\examples{
+\dontrun{
+# Create a storage client
+storage <- api_storage_client$new(
+  storageaccount = "mystorageaccount",
+  filesystem = "mycontainer"
+)
 
-The class uses the Azure Data Lake Storage Gen2 REST API which provides
-hierarchical namespace capabilities and file system semantics.
+# List files in the root directory
+files <- storage$list_files()
+
+# List files in a specific path
+files <- storage$list_files(path = "data/folder1")
+
+# List files recursively
+files <- storage$list_files(path = "data", recursive = TRUE)
 }
-\keyword{internal}
+}
 \section{Super class}{
 \code{\link[azr:api_client]{azr::api_client}} -> \code{api_storage_client}
 }
@@ -33,6 +43,7 @@ hierarchical namespace capabilities and file system semantics.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-api_storage_client-new}{\code{api_storage_client$new()}}
+\item \href{#method-api_storage_client-download_file}{\code{api_storage_client$download_file()}}
 \item \href{#method-api_storage_client-list_files}{\code{api_storage_client$list_files()}}
 \item \href{#method-api_storage_client-clone}{\code{api_storage_client$clone()}}
 }
@@ -56,18 +67,27 @@ hierarchical namespace capabilities and file system semantics.
 \subsection{Method \code{new()}}{
 Create a new Azure Storage API client instance
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$new(host_url, filesystem, provider = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$new(
+  storageaccount,
+  filesystem,
+  scopes = ".default",
+  chain = NULL,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{host_url}}{A character string specifying the base URL for the Azure Storage account
-(e.g., \code{"https://mystorageaccount.dfs.core.windows.net"}).}
+\item{\code{storageaccount}}{A character string specifying the Azure Storage account name.}
 
 \item{\code{filesystem}}{A character string specifying the filesystem (container) name.}
 
-\item{\code{provider}}{An R6 credential provider object for authentication.}
+\item{\code{scopes}}{A character string specifying the OAuth2 scope suffix. Defaults to
+\code{".default"}, which requests all permissions the app has been granted.}
+
+\item{\code{chain}}{A \link{credential_chain} instance for authentication. If NULL,
+a default credential chain will be created using \link{DefaultCredential}.}
 
 \item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
 }
@@ -78,12 +98,40 @@ A new \code{api_storage_client} object
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-api_storage_client-download_file"></a>}}
+\if{latex}{\out{\hypertarget{method-api_storage_client-download_file}{}}}
+\subsection{Method \code{download_file()}}{
+Download a file from the filesystem
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$download_file(path, dest = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{path}}{A character string specifying the file path within the filesystem.}
+
+\item{\code{dest}}{A character string specifying the local destination path.
+Defaults to a temporary file via \code{\link[=tempfile]{tempfile()}}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The local path the file was written to (invisibly).
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_storage_client-list_files"></a>}}
 \if{latex}{\out{\hypertarget{method-api_storage_client-list_files}{}}}
 \subsection{Method \code{list_files()}}{
 List files and directories in a path
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$list_files(path = "", recursive = FALSE, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$list_files(
+  path = "",
+  recursive = FALSE,
+  max_depth = NULL,
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -93,7 +141,12 @@ List files and directories in a path
 Use empty string or NULL for the root directory. Defaults to \code{""}.}
 
 \item{\code{recursive}}{A logical value indicating whether to list files recursively.
-Defaults to \code{FALSE}.}
+Ignored when \code{max_depth} is set. Defaults to \code{FALSE}.}
+
+\item{\code{max_depth}}{An integer specifying the maximum directory depth to traverse.
+\code{1} returns only immediate children (equivalent to \code{recursive = FALSE}).
+Each additional level issues separate API calls per subdirectory rather than
+fetching all paths at once. \code{NULL} (default) honours \code{recursive} as-is.}
 
 \item{\code{...}}{Additional query parameters to pass to the API.}
 }

@@ -41,7 +41,6 @@
 #' }
 CachedTokenCredential <- R6::R6Class(
   classname = "CachedTokenCredential",
-  inherit = Credential,
   public = list(
     .scope = NULL,
     .tenant_id = NULL,
@@ -87,8 +86,7 @@ CachedTokenCredential <- R6::R6Class(
     #'
     #' @return The request object with authentication configured
     req_auth = function(req) {
-      token <- self$get_token()
-      httr2::req_auth_bearer_token(req, token$access_token)
+      self$provider$req_auth(req)
     }
   ),
   active = list(
