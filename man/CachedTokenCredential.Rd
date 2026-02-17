@@ -37,9 +37,6 @@ req <- httr2::request("https://graph.microsoft.com/v1.0/me")
 req <- cred$req_auth(req)
 }
 }
-\section{Super class}{
-\code{azr::Credential} -> \code{CachedTokenCredential}
-}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -69,15 +66,6 @@ req <- cred$req_auth(req)
 \item \href{#method-CachedTokenCredential-clone}{\code{CachedTokenCredential$clone()}}
 }
 }
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="is_interactive"><a href='../../azr/html/Credential.html#method-Credential-is_interactive'><code>azr::Credential$is_interactive()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
-</ul>
-</details>
-}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CachedTokenCredential-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CachedTokenCredential-new}{}}}
