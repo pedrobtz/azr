@@ -29,11 +29,11 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/pedrobtz/azr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/pedrobtz/azr/blob/0.3.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.0" id="azr-030">azr 0.3.0<a class="anchor" aria-label="anchor" href="#azr-030"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="azr-030">azr 0.3.0<a class="anchor" aria-label="anchor" href="#azr-030"></a></h2><p class="text-muted">CRAN release: 2026-02-17</p>
 <ul><li>Added <code>azr_storage_client</code> interface to the Azure Storage API.</li>
 <li>Added <code>CachedTokenCredential</code> for non-interactive sessions that reuse previously cached tokens from <code>AuthCodeCredential</code> or <code>DeviceCodeCredential</code> without triggering a new authentication flow.</li>
 <li>Refactored <code>api_client$.fetch()</code>: <code>req_data</code> is now split into separate <code>query</code> and <code>body</code> arguments, <code>req_method</code> is renamed to <code>method</code>, a <code>headers</code> argument was added, and path interpolation now uses <code><a href="https://rlang.r-lib.org/reference/englue.html" class="external-link">rlang::englue()</a></code> instead of <code><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue::glue()</a></code>.</li>

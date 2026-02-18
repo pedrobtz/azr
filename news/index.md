@@ -2,6 +2,8 @@
 
 ## azr 0.3.0
 
+CRAN release: 2026-02-17
+
 - Added `azr_storage_client` interface to the Azure Storage API.
 - Added `CachedTokenCredential` for non-interactive sessions that reuse
   previously cached tokens from `AuthCodeCredential` or
