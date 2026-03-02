@@ -15,6 +15,7 @@ get_credential_provider(
   oauth_endpoint = NULL,
   chain = NULL,
   interactive = TRUE,
+  login = TRUE,
   verbose = getOption("azr.verbose", FALSE)
 )
 }
@@ -48,6 +49,10 @@ provided until \code{get_token} succeeds. If \code{NULL}, uses
 
 \item{interactive}{A logical value indicating whether interactive credentials
 are allowed. Defaults to \code{TRUE}.}
+
+\item{login}{A logical value indicating whether credentials should attempt a
+silent login using a cached \code{\link[=az_login]{az_login()}} session before prompting
+interactively. Defaults to \code{TRUE}.}
 
 \item{verbose}{A logical value indicating whether to print verbose messages
 during credential discovery. Defaults to \code{getOption("azr.verbose", FALSE)}.}

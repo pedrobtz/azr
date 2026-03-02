@@ -221,7 +221,7 @@ InteractiveCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(reauth = FALSE) {
-      if (!reauth) {
+      if (self$.login && !reauth) {
         token <- private$get_token_silent()
         if (!is.null(token)) {
           return(token)
@@ -265,7 +265,7 @@ InteractiveCredential <- R6::R6Class(
       login_provider <- az_login(
         tenant_id = self$.tenant_id,
         client_id = self$.client_id,
-        login = self$.login
+        interactive = self$interactive
       )
 
       if (is.null(login_provider)) {
@@ -320,12 +320,13 @@ InteractiveCredential <- R6::R6Class(
 #'   tenant ID. Defaults to `NULL`, which uses the common tenant.
 #' @param client_id A character string specifying the application (client) ID.
 #'   Defaults to `NULL`, which uses the default Azure CLI client ID.
-#' @param login A logical value. If `TRUE` (default), performs an interactive
-#'   login when no valid cached credential is found. If `FALSE`, only returns
-#'   a cached credential or `NULL` if none is available.
+#' @param interactive A logical value. If `TRUE`, performs an interactive login
+#'   when no valid cached credential is found. If `FALSE`, only returns a cached
+#'   credential or `NULL` if none is available. Defaults to
+#'   [rlang::is_interactive()].
 #'
 #' @return Invisibly returns the authenticated credential provider object, or
-#'   `NULL` if `login = FALSE` and no valid cached credential exists.
+#'   `NULL` if `interactive = FALSE` and no valid cached credential exists.
 #'
 #' @export
 #' @examples
@@ -340,13 +341,13 @@ InteractiveCredential <- R6::R6Class(
 #' az_login(tenant_id = "your-tenant-id")
 #'
 #' # Only retrieve a cached credential, do not prompt for login
-#' az_login(login = FALSE)
+#' az_login(interactive = FALSE)
 #' }
 az_login <- function(
   scope = NULL,
   tenant_id = NULL,
   client_id = NULL,
-  login = TRUE
+  interactive = rlang::is_interactive()
 ) {
   key <- rlang::hash(list(scope, tenant_id, client_id))
 
@@ -359,10 +360,6 @@ az_login <- function(
     rm(list = key, envir = .login_cache)
   }
 
-  if (!isTRUE(login)) {
-    return(invisible(NULL))
-  }
-
   chain <- credential_chain(
     auth_code = AuthCodeCredential,
     device_code = DeviceCodeCredential
@@ -373,6 +370,8 @@ az_login <- function(
     tenant_id = tenant_id,
     client_id = client_id,
     offline = TRUE,
+    interactive = interactive,
+    login = FALSE,
     chain = chain
   )
 

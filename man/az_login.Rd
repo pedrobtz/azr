@@ -4,7 +4,12 @@
 \alias{az_login}
 \title{Log in to Azure using interactive authentication}
 \usage{
-az_login(scope = NULL, tenant_id = NULL, client_id = NULL, login = TRUE)
+az_login(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  interactive = rlang::is_interactive()
+)
 }
 \arguments{
 \item{scope}{A character string specifying the OAuth2 scope. Defaults to
@@ -17,13 +22,14 @@ tenant ID. Defaults to \code{NULL}, which uses the common tenant.}
 \item{client_id}{A character string specifying the application (client) ID.
 Defaults to \code{NULL}, which uses the default Azure CLI client ID.}
 
-\item{login}{A logical value. If \code{TRUE} (default), performs an interactive
-login when no valid cached credential is found. If \code{FALSE}, only returns
-a cached credential or \code{NULL} if none is available.}
+\item{interactive}{A logical value. If \code{TRUE}, performs an interactive login
+when no valid cached credential is found. If \code{FALSE}, only returns a cached
+credential or \code{NULL} if none is available. Defaults to
+\code{\link[rlang:is_interactive]{rlang::is_interactive()}}.}
 }
 \value{
 Invisibly returns the authenticated credential provider object, or
-\code{NULL} if \code{login = FALSE} and no valid cached credential exists.
+\code{NULL} if \code{interactive = FALSE} and no valid cached credential exists.
 }
 \description{
 Attempts to acquire an access token for the default Azure scope by trying
@@ -42,6 +48,6 @@ az_login(scope = "https://graph.microsoft.com/.default")
 az_login(tenant_id = "your-tenant-id")
 
 # Only retrieve a cached credential, do not prompt for login
-az_login(login = FALSE)
+az_login(interactive = FALSE)
 }
 }

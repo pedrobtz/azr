@@ -407,6 +407,9 @@ get_credential_auth <- function(
 #'   [default_credential_chain()].
 #' @param interactive A logical value indicating whether interactive credentials
 #'   are allowed. Defaults to `TRUE`.
+#' @param login A logical value indicating whether credentials should attempt a
+#'   silent login using a cached [az_login()] session before prompting
+#'   interactively. Defaults to `TRUE`.
 #' @param verbose A logical value indicating whether to print verbose messages
 #'   during credential discovery. Defaults to `getOption("azr.verbose", FALSE)`.
 #'
@@ -440,6 +443,7 @@ get_credential_provider <- function(
   oauth_endpoint = NULL,
   chain = NULL,
   interactive = TRUE,
+  login = TRUE,
   verbose = getOption("azr.verbose", FALSE)
 ) {
   if (is.null(chain) || length(chain) == 0L) {
