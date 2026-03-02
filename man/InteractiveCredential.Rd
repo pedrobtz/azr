@@ -17,6 +17,9 @@ instead.
 \describe{
 \item{\code{interactive}}{Logical indicating whether this credential requires
 user interaction.}
+
+\item{\code{.login}}{Logical indicating whether to perform an interactive login
+when no valid cached credential is found.}
 }
 \if{html}{\out{</div>}}
 }
@@ -24,6 +27,8 @@ user interaction.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-InteractiveCredential-is_interactive}{\code{InteractiveCredential$is_interactive()}}
+\item \href{#method-InteractiveCredential-get_token}{\code{InteractiveCredential$get_token()}}
+\item \href{#method-InteractiveCredential-req_auth}{\code{InteractiveCredential$req_auth()}}
 \item \href{#method-InteractiveCredential-clone}{\code{InteractiveCredential$clone()}}
 }
 }
@@ -47,6 +52,48 @@ Check if the credential requires user interaction
 
 \subsection{Returns}{
 Logical indicating whether this credential is interactive
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InteractiveCredential-get_token"></a>}}
+\if{latex}{\out{\hypertarget{method-InteractiveCredential-get_token}{}}}
+\subsection{Method \code{get_token()}}{
+Get an access token using the flow configured by the subclass
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_token(reauth = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{reauth}}{A logical value indicating whether to force reauthentication.
+Defaults to \code{FALSE}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InteractiveCredential-req_auth"></a>}}
+\if{latex}{\out{\hypertarget{method-InteractiveCredential-req_auth}{}}}
+\subsection{Method \code{req_auth()}}{
+Add OAuth authentication to an httr2 request using the flow configured
+by the subclass
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$req_auth(req)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The request object with OAuth authentication configured
 }
 }
 \if{html}{\out{<hr>}}
