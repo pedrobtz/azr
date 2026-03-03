@@ -73,6 +73,30 @@ az_is_logged_in <- function(
 }
 
 
+get_login_chain <- function(scope, tenant_id, client_id) {
+  credential_chain(
+    auth_code = AuthCodeCredential$new(
+      scope = scope,
+      tenant_id = tenant_id,
+      client_id = client_id,
+      interactive = TRUE
+    ),
+    device_code = DeviceCodeCredential$new(
+      scope = scope,
+      tenant_id = tenant_id,
+      client_id = client_id,
+      interactive = TRUE
+    ),
+    azure_cli = AzureCLICredential$new(
+      scope = scope,
+      tenant_id = tenant_id,
+      interactive = TRUE,
+      use_bridge = TRUE
+    )
+  )
+}
+
+
 #' Log in to Azure using interactive authentication
 #'
 #' @description
@@ -113,11 +137,18 @@ az_login <- function(
   tenant_id = NULL,
   client_id = NULL,
   interactive = rlang::is_interactive(),
-  scope = default_azure_scope()
+  scope = default_azure_scope(),
+  chain = get_login_chain(
+    scope = scope,
+    tenant_id = tenant_id,
+    client_id = client_id
+  ),
+  use_cache = TRUE,
+  verbose = getOption("azr.verbose", TRUE)
 ) {
-  key <- rlang::hash(list(scope, tenant_id, client_id))
+  key <- rlang::hash(list(scope, tenant_id, client_id, chain))
 
-  if (exists(key, envir = .login_cache, inherits = FALSE)) {
+  if (use_cache && exists(key, envir = .login_cache, inherits = FALSE)) {
     cached <- get(key, envir = .login_cache, inherits = FALSE)
     token <- tryCatch(cached$get_token(), error = function(e) NULL)
     if (!is.null(token)) {
@@ -126,26 +157,14 @@ az_login <- function(
     az_logout(tenant_id = tenant_id, client_id = client_id, scope = scope)
   }
 
-  chain <- credential_chain(
-    auth_code = AuthCodeCredential$new(
-      scope = scope,
-      tenant_id = tenant_id,
-      client_id = client_id,
-      interactive = TRUE
-    ),
-    device_code = DeviceCodeCredential$new(
-      scope = scope,
-      tenant_id = tenant_id,
-      client_id = client_id,
-      interactive = TRUE
-    ),
-    azure_cli = AzureCLICredential$new(
-      scope = scope,
-      tenant_id = tenant_id,
-      interactive = TRUE,
-      use_bridge = TRUE
-    )
-  )
+  if (verbose) {
+    cli::cli_inform(c(
+      "i" = "Logging in to Azure",
+      " " = "Tenant: {.val {tenant_id %||% 'common'}}",
+      " " = "Client: {.val {client_id %||% 'default'}}",
+      " " = "Scope:  {.val {scope}}"
+    ))
+  }
 
   provider <- get_credential_provider(chain = chain)
 
@@ -153,6 +172,8 @@ az_login <- function(
   if (!inherits(token, "httr2_token")) {
     cli::cli_abort("Failed to login.")
   }
-  assign(key, provider, envir = .login_cache)
+  if (use_cache) {
+    assign(key, provider, envir = .login_cache)
+  }
   invisible(provider)
 }
