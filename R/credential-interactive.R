@@ -57,7 +57,7 @@ InteractiveCredential <- R6::R6Class(
       private$.req_auth_fun <- req_auth_fun
       self$login <- login
 
-      private$.login_scope <- c(default_azure_scope(), "offline")
+      private$.login_scope <- c(default_azure_scope(), "offline_access")
 
       super$initialize(
         scope = scope,

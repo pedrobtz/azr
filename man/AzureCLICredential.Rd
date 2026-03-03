@@ -34,12 +34,15 @@ req <- httr2::request("https://management.azure.com/subscriptions")
 resp <- httr2::req_perform(cred$req_auth(req))
 }
 }
-\section{Super classes}{
-\code{azr::Credential} -> \code{\link[azr:InteractiveCredential]{azr::InteractiveCredential}} -> \code{AzureCLICredential}
+\section{Super class}{
+\code{azr::Credential} -> \code{AzureCLICredential}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{interactive}}{Logical indicating whether to check login status and
+perform login if needed}
+
 \item{\code{.process_timeout}}{Timeout in seconds for Azure CLI command execution}
 }
 \if{html}{\out{</div>}}
@@ -52,6 +55,7 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \item \href{#method-AzureCLICredential-req_auth}{\code{AzureCLICredential$req_auth()}}
 \item \href{#method-AzureCLICredential-account_show}{\code{AzureCLICredential$account_show()}}
 \item \href{#method-AzureCLICredential-login}{\code{AzureCLICredential$login()}}
+\item \href{#method-AzureCLICredential-is_interactive}{\code{AzureCLICredential$is_interactive()}}
 \item \href{#method-AzureCLICredential-logout}{\code{AzureCLICredential$logout()}}
 \item \href{#method-AzureCLICredential-clone}{\code{AzureCLICredential$clone()}}
 }
@@ -61,7 +65,6 @@ resp <- httr2::req_perform(cred$req_auth(req))
 <ul>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>azr::InteractiveCredential$is_interactive()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -183,6 +186,19 @@ Perform Azure CLI login using device code flow
 
 \subsection{Returns}{
 Invisibly returns the exit status (0 for success, non-zero for failure)
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-AzureCLICredential-is_interactive"></a>}}
+\if{latex}{\out{\hypertarget{method-AzureCLICredential-is_interactive}{}}}
+\subsection{Method \code{is_interactive()}}{
+Check if the credential requires user interaction
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$is_interactive()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical indicating whether this credential is interactive
 }
 }
 \if{html}{\out{<hr>}}

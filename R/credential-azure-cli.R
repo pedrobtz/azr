@@ -33,8 +33,11 @@
 #' }
 AzureCLICredential <- R6::R6Class(
   classname = "AzureCLICredential",
-  inherit = InteractiveCredential,
+  inherit = Credential,
   public = list(
+    #' @field interactive Logical indicating whether to check login status and
+    #'   perform login if needed
+    interactive = FALSE,
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
 
@@ -63,7 +66,10 @@ AzureCLICredential <- R6::R6Class(
       use_bridge = FALSE
     ) {
       self$interactive <- interactive
-      super$initialize(scope = scope, tenant_id = tenant_id)
+      super$initialize(
+        scope = scope,
+        tenant_id = tenant_id
+      )
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
       if (isTRUE(self$is_interactive())) {
@@ -144,6 +150,13 @@ AzureCLICredential <- R6::R6Class(
     #' @return Invisibly returns the exit status (0 for success, non-zero for failure)
     login = function() {
       az_cli_login()
+    },
+    #' @description
+    #' Check if the credential requires user interaction
+    #'
+    #' @return Logical indicating whether this credential is interactive
+    is_interactive = function() {
+      self$interactive
     },
     #' @description
     #' Log out from Azure CLI
@@ -282,7 +295,9 @@ az_cli_get_token <- function(scope, tenant_id = NULL, timeout = 10L) {
     token_type = token$tokenType,
     .expires_at = expires_at
   )
-  if (!is.null(refresh_token)) token_args$refresh_token <- refresh_token
+  if (!is.null(refresh_token)) {
+    token_args$refresh_token <- refresh_token
+  }
 
   do.call(httr2::oauth_token, token_args)
 }
