@@ -65,7 +65,8 @@ Create a new device code credential
   client_id = NULL,
   use_cache = "disk",
   offline = TRUE,
-  interactive = TRUE
+  interactive = TRUE,
+  login = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -88,6 +89,9 @@ for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \co
 
 \item{\code{interactive}}{A logical value indicating whether this credential
 requires user interaction. Defaults to \code{TRUE}.}
+
+\item{\code{login}}{A logical value indicating whether to use the login flow
+(acquire tokens via refresh token exchange). Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }

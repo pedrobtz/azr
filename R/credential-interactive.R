@@ -9,10 +9,70 @@
 InteractiveCredential <- R6::R6Class(
   classname = "InteractiveCredential",
   inherit = Credential,
+  # public ----
   public = list(
+    #' @field login Logical indicating whether to use the login flow (acquire
+    #'  tokens via refresh token exchange).
+    login = TRUE,
     #' @field interactive Logical indicating whether this credential requires
     #'  user interaction.
     interactive = TRUE,
+    #' @description
+    #' Shared initializer for interactive credentials
+    #'
+    #' @param scope A character string specifying the OAuth2 scope.
+    #' @param tenant_id Azure AD tenant ID.
+    #' @param client_id Application (client) ID.
+    #' @param use_cache Cache type: `"disk"` or `"memory"`.
+    #' @param offline Whether to request offline access (refresh tokens).
+    #' @param interactive Whether this credential requires user interaction.
+    #' @param login Whether to use the login flow (acquire tokens via refresh token
+    #'   exchange). Set to `FALSE` to use the access token flow directly.
+    #' @param flow_fun The httr2 OAuth flow function (e.g. [httr2::oauth_flow_device]).
+    #' @param req_auth_fun The httr2 request auth function (e.g. [httr2::req_oauth_device]).
+    #' @param oauth_endpoint The OAuth endpoint name passed to the parent credential.
+    #' @param name The credential name passed to the parent credential.
+    #' @param extra_flow_params A named list of additional parameters merged into
+    #'   `private$.flow_params` after `scope` and `auth_url`.
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      use_cache = "disk",
+      offline = TRUE,
+      interactive = TRUE,
+      login = TRUE,
+      flow_fun,
+      req_auth_fun,
+      oauth_endpoint,
+      name,
+      extra_flow_params = list()
+    ) {
+      self$interactive <- interactive
+      private$.flow <- if (self$interactive) {
+        flow_fun
+      } else {
+        \(...) cli::cli_abort("non-interactive session")
+      }
+      private$.req_auth_fun <- req_auth_fun
+      self$login <- login
+
+      private$.login_scope <- c(default_azure_scope(), "offline")
+
+      super$initialize(
+        scope = scope,
+        tenant_id = tenant_id,
+        client_id = client_id,
+        use_cache = use_cache,
+        offline = offline,
+        oauth_endpoint = oauth_endpoint,
+        name = name
+      )
+      private$.flow_params <- c(
+        list(scope = self$.scope_str, auth_url = self$.oauth_url),
+        extra_flow_params
+      )
+    },
     #' @description
     #' Check if the credential requires user interaction
     #'
@@ -36,28 +96,18 @@ InteractiveCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(scope = NULL, reauth = FALSE) {
-      if (!reauth) {
-        token <- tryCatch(
-          private$do_get_token(
-            scope = scope,
-            reauth = FALSE,
-            interactive = FALSE
-          ),
-          error = function(e) NULL
-        )
+      if (isTRUE(self$login) || !is.null(scope)) {
+        token <- private$do_flow_refresh_token(scope = scope)
+
         if (inherits(token, "httr2_token")) {
           return(token)
+        } else {
+          cli::cli_abort("Failed to acquire token via login refresh flow.")
         }
-
-        token <- tryCatch(
-          private$get_token_silent(scope = scope),
-          error = function(e) NULL
-        )
-        if (inherits(token, "httr2_token")) return(token)
       }
 
-      private$do_get_token(
-        scope = scope,
+      private$do_flow_access_token(
+        scope = NULL,
         reauth = reauth,
         interactive = self$interactive
       )
@@ -70,26 +120,25 @@ InteractiveCredential <- R6::R6Class(
     #'
     #' @return The request object with OAuth authentication configured
     req_auth = function(req) {
-      rlang::inject(private$.req_auth_fun(
-        req = req,
-        client = self$.oauth_client,
-        cache_disk = self$.use_cache == "disk",
-        cache_key = self$.cache_key,
-        !!!private$.flow_params
-      ))
+      token <- self$get_token()
+      httr2::req_auth_bearer_token(req, token$access_token)
     }
   ),
+  # private ----
   private = list(
     .flow = NULL,
     .flow_params = NULL,
     .req_auth_fun = NULL,
-    do_get_token = function(
+    .login_scope = NULL,
+    # runs access token flow
+    do_flow_access_token = function(
       scope = NULL,
       reauth = FALSE,
       interactive = TRUE
     ) {
       flow_params <- private$.flow_params
       cache_key <- self$.cache_key
+
       if (!is.null(scope)) {
         flow_params$scope <- collapse_scope(scope)
         cache_key$scope <- collapse_scope(scope)
@@ -111,14 +160,14 @@ InteractiveCredential <- R6::R6Class(
     # Get an access token for `scope` using the refresh token from this
     # credential's own cached token. Returns an httr2_token or NULL if not
     # possible.
-    get_token_silent = function(scope = NULL) {
+    do_flow_refresh_token = function(scope = NULL) {
       scope <- collapse_scope(scope %||% self$.scope)
-      own_token <- tryCatch(
-        private$do_get_token(interactive = FALSE),
+      login_token <- tryCatch(
+        private$do_flow_access_token(scope = private$.login_scope),
         error = function(e) NULL
       )
 
-      if (is.null(own_token) || is.null(own_token$refresh_token)) {
+      if (is.null(login_token) || is.null(login_token$refresh_token)) {
         return(NULL)
       }
 
@@ -126,7 +175,7 @@ InteractiveCredential <- R6::R6Class(
         tryCatch(
           httr2::oauth_flow_refresh(
             client = self$.oauth_client,
-            refresh_token = own_token$refresh_token,
+            refresh_token = login_token$refresh_token,
             scope = scope
           ),
           error = function(e) NULL
@@ -197,6 +246,8 @@ DeviceCodeCredential <- R6::R6Class(
     #'   (refresh tokens). Defaults to `TRUE`.
     #' @param interactive A logical value indicating whether this credential
     #'   requires user interaction. Defaults to `TRUE`.
+    #' @param login A logical value indicating whether to use the login flow
+    #'   (acquire tokens via refresh token exchange). Defaults to `TRUE`.
     #'
     #' @return A new `DeviceCodeCredential` object
     initialize = function(
@@ -205,28 +256,21 @@ DeviceCodeCredential <- R6::R6Class(
       client_id = NULL,
       use_cache = "disk",
       offline = TRUE,
-      interactive = TRUE
+      interactive = TRUE,
+      login = TRUE
     ) {
-      self$interactive <- interactive
-      private$.flow <- if (self$interactive) {
-        httr2::oauth_flow_device
-      } else {
-        \(...) cli::cli_abort("non-interactive session")
-      }
-      private$.req_auth_fun <- httr2::req_oauth_device
-
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
         client_id = client_id,
         use_cache = use_cache,
         offline = offline,
+        interactive = interactive,
+        login = login,
+        flow_fun = httr2::oauth_flow_device,
+        req_auth_fun = httr2::req_oauth_device,
         oauth_endpoint = "devicecode",
         name = "azr-device-code"
-      )
-      private$.flow_params <- list(
-        scope = self$.scope_str,
-        auth_url = self$.oauth_url
       )
     }
   )
@@ -289,6 +333,8 @@ AuthCodeCredential <- R6::R6Class(
     #'   with the application. Defaults to [default_redirect_uri()].
     #' @param interactive A logical value indicating whether this credential
     #'   requires user interaction. Defaults to `TRUE`.
+    #' @param login A logical value indicating whether to use the login flow
+    #'   (acquire tokens via refresh token exchange). Defaults to `TRUE`.
     #'
     #' @return A new `AuthCodeCredential` object
     initialize = function(
@@ -298,32 +344,25 @@ AuthCodeCredential <- R6::R6Class(
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
-      interactive = TRUE
+      interactive = TRUE,
+      login = TRUE
     ) {
-      self$interactive <- interactive
-      private$.flow <- if (self$interactive) {
-        httr2::oauth_flow_auth_code
-      } else {
-        \(...) cli::cli_abort("non-interactive session")
-      }
-      private$.req_auth_fun <- httr2::req_oauth_auth_code
-
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
         client_id = client_id,
         use_cache = use_cache,
         offline = offline,
+        interactive = interactive,
+        login = login,
+        flow_fun = httr2::oauth_flow_auth_code,
+        req_auth_fun = httr2::req_oauth_auth_code,
         oauth_endpoint = "authorize",
-        name = "azr-auth-code"
+        name = "azr-auth-code",
+        extra_flow_params = list(redirect_uri = redirect_uri)
       )
       self$.redirect_uri <- redirect_uri
       lockBinding(".redirect_uri", self)
-      private$.flow_params <- list(
-        scope = self$.scope_str,
-        auth_url = self$.oauth_url,
-        redirect_uri = self$.redirect_uri
-      )
     }
   )
 )
