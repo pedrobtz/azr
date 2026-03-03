@@ -28,16 +28,3 @@ The function returns details about the current Azure subscription including:
 \item Cloud environment details
 }
 }
-\examples{
-\dontrun{
-# Get current account information
-account_info <- az_cli_account_show()
-
-# Access subscription ID
-subscription_id <- account_info$id
-
-# Access tenant ID
-tenant_id <- account_info$tenantId
-}
-
-}

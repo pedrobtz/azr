@@ -34,21 +34,3 @@ This function executes the Azure CLI command and parses the JSON response to
 create an httr2 OAuth token object. The token includes the access token,
 token type, and expiration time.
 }
-\examples{
-\dontrun{
-# Get a token for Azure Resource Manager
-token <- az_cli_get_token(
-  scope = "https://management.azure.com/.default"
-)
-
-# Get a token for a specific tenant
-token <- az_cli_get_token(
-  scope = "https://graph.microsoft.com/.default",
-  tenant_id = "your-tenant-id"
-)
-
-# Access the token string
-access_token <- token$access_token
-}
-
-}

@@ -34,16 +34,3 @@ This function runs \verb{az login --use-device-code}, monitors the output
 to extract the device code, copies it to the clipboard, and opens
 the authentication URL in the default browser.
 }
-\examples{
-\dontrun{
-# Perform Azure CLI login with device code flow
-az_cli_login()
-
-# Use the bridge webpage for easier code handling
-az_cli_login(use_bridge = TRUE)
-
-# Login to a specific tenant with verbose output
-az_cli_login(tenant_id = "your-tenant-id", verbose = TRUE)
-}
-
-}

@@ -17,14 +17,3 @@ A logical value: \code{TRUE} if the user is logged in, \code{FALSE} otherwise
 Checks whether the user is currently logged in to Azure CLI by attempting
 to retrieve account information.
 }
-\examples{
-\dontrun{
-# Check if logged in
-if (az_cli_is_login()) {
-  message("User is logged in")
-} else {
-  message("User is not logged in")
-}
-}
-
-}

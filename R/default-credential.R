@@ -583,8 +583,8 @@ get_credential_provider <- function(
 #' \enumerate{
 #'   \item Client Secret Credential - Uses client ID and secret
 #'   \item Authorization Code Credential - Interactive browser-based authentication
-#'   \item Azure CLI Credential - Uses credentials from Azure CLI
 #'   \item Device Code Credential - Interactive device code flow
+#'   \item Azure CLI Credential - Uses credentials from Azure CLI
 #' }
 #'
 #' @return A `credential_chain` object containing the default sequence of
@@ -597,8 +597,8 @@ default_credential_chain <- function() {
   credential_chain(
     client_secret = ClientSecretCredential,
     auth_code = AuthCodeCredential,
-    azure_cli = AzureCLICredential,
-    device_code = DeviceCodeCredential
+    device_code = DeviceCodeCredential,
+    azure_cli = AzureCLICredential
   )
 }
 

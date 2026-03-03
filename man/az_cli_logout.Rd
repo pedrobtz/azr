@@ -17,10 +17,3 @@ information. This function runs \verb{az logout}.
 After logging out, you will need to run \code{\link[=az_cli_login]{az_cli_login()}} again to
 authenticate and use Azure CLI credentials.
 }
-\examples{
-\dontrun{
-# Log out from Azure CLI
-az_cli_logout()
-}
-
-}
