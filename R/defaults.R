@@ -238,6 +238,10 @@ default_azure_config_dir <- function() {
   )
 }
 
+default_msal_token_cache <- function() {
+  file.path(default_azure_config_dir(), "msal_token_cache.json")
+}
+
 
 #' Get default OAuth redirect URI
 #'

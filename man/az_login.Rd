@@ -8,7 +8,10 @@ az_login(
   tenant_id = NULL,
   client_id = NULL,
   interactive = rlang::is_interactive(),
-  scope = default_azure_scope()
+  scope = default_azure_scope(),
+  chain = get_login_chain(scope = scope, tenant_id = tenant_id, client_id = client_id),
+  use_cache = TRUE,
+  verbose = getOption("azr.verbose", TRUE)
 )
 }
 \arguments{

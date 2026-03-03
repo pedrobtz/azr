@@ -272,11 +272,19 @@ az_cli_get_token <- function(scope, tenant_id = NULL, timeout = 10L) {
 
   expires_at <- as.POSIXct(token$expiresOn)
 
-  httr2::oauth_token(
+  refresh_token <- tryCatch(
+    find_cache_refresh_token(access_token = token$accessToken),
+    error = function(e) NULL
+  )
+
+  token_args <- list(
     access_token = token$accessToken,
     token_type = token$tokenType,
     .expires_at = expires_at
   )
+  if (!is.null(refresh_token)) token_args$refresh_token <- refresh_token
+
+  do.call(httr2::oauth_token, token_args)
 }
 
 
@@ -659,6 +667,55 @@ az_cli_logout <- function() {
   invisible(NULL)
 }
 
+# Reads the MSAL token cache JSON and returns the refresh token secret that
+# matches the given credentials.  If `access_token` is provided its value is
+# matched against the `secret` field of every `AccessToken` entry to resolve
+# `home_account_id` and `client_id`; otherwise both must be supplied directly.
+find_cache_refresh_token <- function(
+  cache_file = default_msal_token_cache(),
+  home_account_id = NULL,
+  client_id = NULL,
+  access_token = NULL
+) {
+  cache <- tryCatch(
+    jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Failed to parse MSAL token cache: {e$message}",
+          "i" = "The cache file may be corrupted: {.path {cache_file}}"
+        ),
+        class = "azr_cli_cache_parse_error"
+      )
+    }
+  )
+
+  if (!is.null(access_token)) {
+    for (tok in cache$AccessToken %||% list()) {
+      if (identical(tok$secret, access_token)) {
+        home_account_id <- tok$home_account_id
+        client_id <- tok$client_id
+        break
+      }
+    }
+  }
+
+  if (is.null(home_account_id) || is.null(client_id)) {
+    return(NULL)
+  }
+
+  for (rt in cache$RefreshToken %||% list()) {
+    if (
+      identical(rt$home_account_id, home_account_id) &&
+        identical(rt$client_id, client_id)
+    ) {
+      return(rt$secret)
+    }
+  }
+
+  NULL
+}
+
 #' Get Cached Token from MSAL Token Cache
 #'
 #' @description
@@ -810,20 +867,10 @@ az_cli_get_cached_token <- function(
   )
 
   # Look for a matching refresh token
-  refresh_token <- NULL
-  refresh_tokens <- cache$RefreshToken
-  if (!is.null(refresh_tokens) && length(refresh_tokens) > 0L) {
-    # Match refresh token by home_account_id and client_id
-    for (rt in refresh_tokens) {
-      if (
-        identical(rt$home_account_id, best$home_account_id) &&
-          identical(rt$client_id, best$client_id)
-      ) {
-        refresh_token <- rt$secret
-        break
-      }
-    }
-  }
+  refresh_token <- find_cache_refresh_token(
+    cache_file,
+    access_token = best$secret
+  )
 
   httr2::oauth_token(
     access_token = best$secret,

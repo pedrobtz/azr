@@ -154,7 +154,12 @@ az_login <- function(
     if (!is.null(token)) {
       return(invisible(cached))
     }
-    az_logout(tenant_id = tenant_id, client_id = client_id, scope = scope)
+    az_logout(
+      tenant_id = tenant_id,
+      client_id = client_id,
+      scope = scope,
+      chain = chain
+    )
   }
 
   if (verbose) {
