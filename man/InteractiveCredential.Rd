@@ -17,9 +17,6 @@ instead.
 \describe{
 \item{\code{interactive}}{Logical indicating whether this credential requires
 user interaction.}
-
-\item{\code{.login}}{Logical indicating whether to perform an interactive login
-when no valid cached credential is found.}
 }
 \if{html}{\out{</div>}}
 }
@@ -58,16 +55,25 @@ Logical indicating whether this credential is interactive
 \if{html}{\out{<a id="method-InteractiveCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-InteractiveCredential-get_token}{}}}
 \subsection{Method \code{get_token()}}{
-Get an access token using the flow configured by the subclass
+Get an access token using the flow configured by the subclass.
+Attempts token acquisition in three steps: (1) return a valid cached
+token without any interaction; (2) silently refresh using an existing
+refresh token; (3) fall back to the configured interactive flow.
+When \code{reauth = TRUE} all three steps are skipped and the interactive
+flow is used directly.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_token(reauth = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_token(scope = NULL, reauth = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{reauth}}{A logical value indicating whether to force reauthentication.
-Defaults to \code{FALSE}.}
+\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+\code{NULL}, which uses the scope configured on the credential.}
+
+\item{\code{reauth}}{A logical value indicating whether to force
+reauthentication, bypassing the cache and silent refresh. Defaults to
+\code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

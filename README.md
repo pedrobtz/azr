@@ -31,6 +31,29 @@ During interactive development, azr allows browser-based login flows, while in b
 
 ## Usage
 
+For interactive development, start by logging in with `az_login()`. This opens a browser (or falls back to device code) and caches the session so subsequent calls are silent:
+
+``` r
+library(azr)
+
+# Log in interactively — opens a browser or prompts for a device code
+az <- az_login()
+
+# Get a token for Azure Storage
+storage_token <- az$get_token(scope = "https://storage.azure.com/.default")
+
+# Get a token for Microsoft Graph
+graph_token <- az$get_token(scope = "https://graph.microsoft.com/.default")
+
+# Check login status
+az_is_logged_in()
+
+# Log out and clear the cached session
+az_logout()
+```
+
+Once logged in, `az$get_token()` silently reuses the cached refresh token to acquire tokens for any scope without prompting again.
+
 The simplest way to authenticate is using `get_token()`, which automatically tries different authentication methods until one succeeds:
 
 ``` r

@@ -71,8 +71,7 @@ Create a new authorization code credential
   use_cache = "disk",
   offline = TRUE,
   redirect_uri = default_redirect_uri(),
-  interactive = TRUE,
-  login = TRUE
+  interactive = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -98,9 +97,6 @@ with the application. Defaults to \code{\link[=default_redirect_uri]{default_red
 
 \item{\code{interactive}}{A logical value indicating whether this credential
 requires user interaction. Defaults to \code{TRUE}.}
-
-\item{\code{login}}{A logical value indicating whether to perform an interactive
-login when no valid cached credential is found. Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }

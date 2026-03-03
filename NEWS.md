@@ -1,5 +1,11 @@
 # azr
 
+# (development)
+
+* Added `az_login()`, `az_logout()`, and `az_is_logged_in()` for interactive Azure authentication with an in-memory session cache.
+* Interactive credentials (`AuthCodeCredential`, `DeviceCodeCredential`) now attempt silent token acquisition via refresh token before prompting the user interactively.
+
+
 # azr 0.3.0
 
 * Added `azr_storage_client` interface to the Azure Storage API.
