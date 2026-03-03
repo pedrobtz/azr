@@ -89,8 +89,10 @@ InteractiveCredential <- R6::R6Class(
       interactive = TRUE
     ) {
       flow_params <- private$.flow_params
+      cache_key <- self$.cache_key
       if (!is.null(scope)) {
         flow_params$scope <- collapse_scope(scope)
+        cache_key$scope <- collapse_scope(scope)
       }
       flow <- if (interactive) {
         private$.flow
@@ -101,7 +103,7 @@ InteractiveCredential <- R6::R6Class(
         client = self$.oauth_client,
         flow = flow,
         cache_disk = self$.use_cache == "disk",
-        cache_key = self$.cache_key,
+        cache_key = cache_key,
         flow_params = flow_params,
         reauth = reauth
       )
