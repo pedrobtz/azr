@@ -51,11 +51,11 @@ Credential <- R6::R6Class(
       self$.tenant_id <- tenant_id %||% default_azure_tenant_id()
       self$.use_cache <- rlang::arg_match(use_cache)
 
-      self$.cache_key <- c(
-        self$.client_id,
-        self$.tenant_id,
-        self$.scope,
-        self$.classname
+      self$.cache_key <- list(
+        client_id = self$.client_id,
+        tenant_id = self$.tenant_id,
+        scope = self$.scope,
+        classname = self$.classname
       )
       self$.id <- rlang::hash(self$.cache_key)
 

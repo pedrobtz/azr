@@ -33,8 +33,11 @@
 #' }
 AzureCLICredential <- R6::R6Class(
   classname = "AzureCLICredential",
-  inherit = InteractiveCredential,
+  inherit = Credential,
   public = list(
+    #' @field interactive Logical indicating whether to check login status and
+    #'   perform login if needed
+    interactive = FALSE,
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
 
@@ -63,7 +66,10 @@ AzureCLICredential <- R6::R6Class(
       use_bridge = FALSE
     ) {
       self$interactive <- interactive
-      super$initialize(scope = scope, tenant_id = tenant_id)
+      super$initialize(
+        scope = scope,
+        tenant_id = tenant_id
+      )
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
       if (isTRUE(self$is_interactive())) {
@@ -146,6 +152,13 @@ AzureCLICredential <- R6::R6Class(
       az_cli_login()
     },
     #' @description
+    #' Check if the credential requires user interaction
+    #'
+    #' @return Logical indicating whether this credential is interactive
+    is_interactive = function() {
+      self$interactive
+    },
+    #' @description
     #' Log out from Azure CLI
     #'
     #' @return Invisibly returns `NULL`
@@ -179,23 +192,6 @@ AzureCLICredential <- R6::R6Class(
 #'   - `access_token`: The OAuth2 access token string
 #'   - `token_type`: The type of token (typically "Bearer")
 #'   - `.expires_at`: POSIXct timestamp when the token expires
-#'
-#' @examples
-#' \dontrun{
-#' # Get a token for Azure Resource Manager
-#' token <- az_cli_get_token(
-#'   scope = "https://management.azure.com/.default"
-#' )
-#'
-#' # Get a token for a specific tenant
-#' token <- az_cli_get_token(
-#'   scope = "https://graph.microsoft.com/.default",
-#'   tenant_id = "your-tenant-id"
-#' )
-#'
-#' # Access the token string
-#' access_token <- token$access_token
-#' }
 #'
 #' @export
 az_cli_get_token <- function(scope, tenant_id = NULL, timeout = 10L) {
@@ -272,11 +268,24 @@ az_cli_get_token <- function(scope, tenant_id = NULL, timeout = 10L) {
 
   expires_at <- as.POSIXct(token$expiresOn)
 
-  httr2::oauth_token(
+  token_info <- tryCatch(
+    find_msal_token(access_token = token$accessToken),
+    error = function(e) NULL
+  )
+
+  token_args <- list(
     access_token = token$accessToken,
     token_type = token$tokenType,
-    .expires_at = expires_at
+    expires_at = expires_at
   )
+  if (!is.null(token_info[["refresh_token"]])) {
+    token_args$refresh_token <- token_info[["refresh_token"]]
+  }
+  if (!is.null(token_info[["scope"]])) {
+    token_args$scope <- token_info[["scope"]]
+  }
+
+  do.call(httr2::oauth_token, token_args)
 }
 
 
@@ -308,16 +317,6 @@ az_cli_available <- function() {
 #'   Azure CLI command. Defaults to `10`.
 #'
 #' @return A logical value: `TRUE` if the user is logged in, `FALSE` otherwise
-#'
-#' @examples
-#' \dontrun{
-#' # Check if logged in
-#' if (az_cli_is_login()) {
-#'   message("User is logged in")
-#' } else {
-#'   message("User is not logged in")
-#' }
-#' }
 #'
 #' @export
 az_cli_is_login <- function(timeout = 10L) {
@@ -358,18 +357,6 @@ az_cli_is_login <- function(timeout = 10L) {
 #'   If `FALSE` (default), only essential messages are displayed.
 #'
 #' @return Invisibly returns the exit status (0 for success, non-zero for failure)
-#'
-#' @examples
-#' \dontrun{
-#' # Perform Azure CLI login with device code flow
-#' az_cli_login()
-#'
-#' # Use the bridge webpage for easier code handling
-#' az_cli_login(use_bridge = TRUE)
-#'
-#' # Login to a specific tenant with verbose output
-#' az_cli_login(tenant_id = "your-tenant-id", verbose = TRUE)
-#' }
 #'
 #' @export
 az_cli_login <- function(
@@ -542,18 +529,6 @@ az_cli_login <- function(
 #'
 #' @return A list containing the account information from Azure CLI
 #'
-#' @examples
-#' \dontrun{
-#' # Get current account information
-#' account_info <- az_cli_account_show()
-#'
-#' # Access subscription ID
-#' subscription_id <- account_info$id
-#'
-#' # Access tenant ID
-#' tenant_id <- account_info$tenantId
-#' }
-#'
 #' @export
 az_cli_account_show <- function(timeout = 10L) {
   az_path <- az_cli_available()
@@ -621,12 +596,6 @@ az_cli_account_show <- function(timeout = 10L) {
 #'
 #' @return Invisibly returns `NULL`
 #'
-#' @examples
-#' \dontrun{
-#' # Log out from Azure CLI
-#' az_cli_logout()
-#' }
-#'
 #' @export
 az_cli_logout <- function() {
   az_path <- az_cli_available()
@@ -657,6 +626,66 @@ az_cli_logout <- function() {
   }
 
   invisible(NULL)
+}
+
+# Reads and parses the MSAL token cache JSON file. Aborts with a descriptive
+# error if the file cannot be parsed.
+read_msal_cache <- function(cache_file) {
+  tryCatch(
+    jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
+    error = function(e) {
+      cli::cli_abort(
+        c(
+          "Failed to parse MSAL token cache: {e$message}",
+          "i" = "The cache file may be corrupted: {.path {cache_file}}"
+        ),
+        class = "azr_cli_cache_parse_error"
+      )
+    }
+  )
+}
+
+# Reads the MSAL token cache JSON and returns a list with `refresh_token` and
+# `scope` matching the given credentials. If `access_token` is provided its
+# value is matched against the `secret` field of every `AccessToken` entry to
+# resolve `home_account_id`, `client_id`, and `scope`; otherwise both
+# `home_account_id` and `client_id` must be supplied directly.
+find_msal_token <- function(
+  cache_file = default_msal_token_cache(),
+  home_account_id = NULL,
+  client_id = NULL,
+  access_token = NULL
+) {
+  cache <- read_msal_cache(cache_file)
+
+  scope <- NULL
+  if (!is.null(access_token)) {
+    for (tok in cache$AccessToken %||% list()) {
+      if (identical(tok$secret, access_token)) {
+        home_account_id <- tok$home_account_id
+        client_id <- tok$client_id
+        scope <- tok$target
+        break
+      }
+    }
+  }
+
+  if (is.null(home_account_id) || is.null(client_id)) {
+    return(NULL)
+  }
+
+  refresh_token <- NULL
+  for (rt in cache$RefreshToken %||% list()) {
+    if (
+      identical(rt$home_account_id, home_account_id) &&
+        identical(rt$client_id, client_id)
+    ) {
+      refresh_token <- rt$secret
+      break
+    }
+  }
+
+  list(refresh_token = refresh_token, scope = scope)
 }
 
 #' Get Cached Token from MSAL Token Cache
@@ -691,20 +720,6 @@ az_cli_logout <- function() {
 #'   - `token_type`: The type of token (typically "Bearer")
 #'   - `.expires_at`: POSIXct timestamp when the token expires
 #'
-#' @examples
-#' \dontrun{
-#' # Get any cached token
-#' token <- az_cli_get_cached_token()
-#'
-#' # Get a cached token for a specific scope
-#' token <- az_cli_get_cached_token(
-#'   scope = "https://management.azure.com/.default"
-#' )
-#'
-#' # Access the token string
-#' token$access_token
-#' }
-#'
 #' @export
 az_cli_get_cached_token <- function(
   scope = NULL,
@@ -724,18 +739,7 @@ az_cli_get_cached_token <- function(
     )
   }
 
-  cache <- tryCatch(
-    jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
-    error = function(e) {
-      cli::cli_abort(
-        c(
-          "Failed to parse MSAL token cache: {e$message}",
-          "i" = "The cache file may be corrupted: {.path {cache_file}}"
-        ),
-        class = "azr_cli_cache_parse_error"
-      )
-    }
-  )
+  cache <- read_msal_cache(cache_file)
 
   tokens <- cache$AccessToken
   if (is.null(tokens) || length(tokens) == 0L) {
@@ -809,26 +813,15 @@ az_cli_get_cached_token <- function(
     tz = "UTC"
   )
 
-  # Look for a matching refresh token
-  refresh_token <- NULL
-  refresh_tokens <- cache$RefreshToken
-  if (!is.null(refresh_tokens) && length(refresh_tokens) > 0L) {
-    # Match refresh token by home_account_id and client_id
-    for (rt in refresh_tokens) {
-      if (
-        identical(rt$home_account_id, best$home_account_id) &&
-          identical(rt$client_id, best$client_id)
-      ) {
-        refresh_token <- rt$secret
-        break
-      }
-    }
-  }
+  token_info <- find_msal_token(
+    cache_file,
+    access_token = best$secret
+  )
 
   httr2::oauth_token(
     access_token = best$secret,
     token_type = best$token_type %||% "Bearer",
-    refresh_token = refresh_token,
+    refresh_token = token_info[["refresh_token"]],
     .expires_at = expires_at
   )
 }

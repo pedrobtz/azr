@@ -48,18 +48,3 @@ When multiple tokens are found, the function selects the token that expires
 latest. If \code{scope} is provided, only tokens matching that scope/resource are
 returned.
 }
-\examples{
-\dontrun{
-# Get any cached token
-token <- az_cli_get_cached_token()
-
-# Get a cached token for a specific scope
-token <- az_cli_get_cached_token(
-  scope = "https://management.azure.com/.default"
-)
-
-# Access the token string
-token$access_token
-}
-
-}

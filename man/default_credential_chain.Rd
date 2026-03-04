@@ -17,8 +17,8 @@ The default chain includes:
 \enumerate{
 \item Client Secret Credential - Uses client ID and secret
 \item Authorization Code Credential - Interactive browser-based authentication
-\item Azure CLI Credential - Uses credentials from Azure CLI
 \item Device Code Credential - Interactive device code flow
+\item Azure CLI Credential - Uses credentials from Azure CLI
 }
 }
 \seealso{

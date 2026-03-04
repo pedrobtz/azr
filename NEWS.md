@@ -1,5 +1,9 @@
 # azr
 
+# azr 0.3.1
+
+* Interactive credentials (`AuthCodeCredential`, `DeviceCodeCredential`) now attempt silent token acquisition via refresh token before prompting the user interactively.
+
 # azr 0.3.0
 
 * Added `azr_storage_client` interface to the Azure Storage API.

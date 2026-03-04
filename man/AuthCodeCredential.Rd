@@ -44,8 +44,6 @@ req <- cred$req_auth(req)
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-AuthCodeCredential-new}{\code{AuthCodeCredential$new()}}
-\item \href{#method-AuthCodeCredential-get_token}{\code{AuthCodeCredential$get_token()}}
-\item \href{#method-AuthCodeCredential-req_auth}{\code{AuthCodeCredential$req_auth()}}
 \item \href{#method-AuthCodeCredential-clone}{\code{AuthCodeCredential$clone()}}
 }
 }
@@ -54,7 +52,9 @@ req <- cred$req_auth(req)
 <ul>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="get_token"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-get_token'><code>azr::InteractiveCredential$get_token()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>azr::InteractiveCredential$is_interactive()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="req_auth"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-req_auth'><code>azr::InteractiveCredential$req_auth()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -71,7 +71,8 @@ Create a new authorization code credential
   use_cache = "disk",
   offline = TRUE,
   redirect_uri = default_redirect_uri(),
-  interactive = TRUE
+  interactive = TRUE,
+  use_refresh_token = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -97,52 +98,14 @@ with the application. Defaults to \code{\link[=default_redirect_uri]{default_red
 
 \item{\code{interactive}}{A logical value indicating whether this credential
 requires user interaction. Defaults to \code{TRUE}.}
+
+\item{\code{use_refresh_token}}{A logical value indicating whether to use the login flow
+(acquire tokens via refresh token exchange). Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 A new \code{AuthCodeCredential} object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AuthCodeCredential-get_token"></a>}}
-\if{latex}{\out{\hypertarget{method-AuthCodeCredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token using authorization code flow
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AuthCodeCredential$get_token(reauth = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{reauth}}{A logical value indicating whether to force reauthentication.
-Defaults to \code{FALSE}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AuthCodeCredential-req_auth"></a>}}
-\if{latex}{\out{\hypertarget{method-AuthCodeCredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add OAuth authorization code authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AuthCodeCredential$req_auth(req)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with OAuth authorization code authentication configured
 }
 }
 \if{html}{\out{<hr>}}

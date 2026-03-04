@@ -15,6 +15,9 @@ instead.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
+\item{\code{use_refresh_token}}{Logical indicating whether to use the login flow (acquire
+tokens via refresh token exchange).}
+
 \item{\code{interactive}}{Logical indicating whether this credential requires
 user interaction.}
 }
@@ -23,19 +26,75 @@ user interaction.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-InteractiveCredential-new}{\code{InteractiveCredential$new()}}
 \item \href{#method-InteractiveCredential-is_interactive}{\code{InteractiveCredential$is_interactive()}}
+\item \href{#method-InteractiveCredential-get_token}{\code{InteractiveCredential$get_token()}}
+\item \href{#method-InteractiveCredential-req_auth}{\code{InteractiveCredential$req_auth()}}
 \item \href{#method-InteractiveCredential-clone}{\code{InteractiveCredential$clone()}}
 }
 }
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="initialize"><a href='../../azr/html/Credential.html#method-Credential-initialize'><code>azr::Credential$initialize()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
 </ul>
 </details>
 }}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InteractiveCredential-new"></a>}}
+\if{latex}{\out{\hypertarget{method-InteractiveCredential-new}{}}}
+\subsection{Method \code{new()}}{
+Shared initializer for interactive credentials
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$new(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  interactive = TRUE,
+  use_refresh_token = TRUE,
+  flow_fun,
+  req_auth_fun,
+  oauth_endpoint,
+  name,
+  extra_flow_params = list()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scope}}{A character string specifying the OAuth2 scope.}
+
+\item{\code{tenant_id}}{Azure AD tenant ID.}
+
+\item{\code{client_id}}{Application (client) ID.}
+
+\item{\code{use_cache}}{Cache type: \code{"disk"} or \code{"memory"}.}
+
+\item{\code{offline}}{Whether to request offline access (refresh tokens).}
+
+\item{\code{interactive}}{Whether this credential requires user interaction.}
+
+\item{\code{use_refresh_token}}{Whether to use the login flow (acquire tokens via refresh token
+exchange). Set to \code{FALSE} to use the access token flow directly.}
+
+\item{\code{flow_fun}}{The httr2 OAuth flow function (e.g. \link[httr2:req_oauth_device]{httr2::oauth_flow_device}).}
+
+\item{\code{req_auth_fun}}{The httr2 request auth function (e.g. \link[httr2:req_oauth_device]{httr2::req_oauth_device}).}
+
+\item{\code{oauth_endpoint}}{The OAuth endpoint name passed to the parent credential.}
+
+\item{\code{name}}{The credential name passed to the parent credential.}
+
+\item{\code{extra_flow_params}}{A named list of additional parameters merged into
+\code{private$.flow_params} after \code{scope} and \code{auth_url}.}
+}
+\if{html}{\out{</div>}}
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-InteractiveCredential-is_interactive"></a>}}
 \if{latex}{\out{\hypertarget{method-InteractiveCredential-is_interactive}{}}}
@@ -47,6 +106,57 @@ Check if the credential requires user interaction
 
 \subsection{Returns}{
 Logical indicating whether this credential is interactive
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InteractiveCredential-get_token"></a>}}
+\if{latex}{\out{\hypertarget{method-InteractiveCredential-get_token}{}}}
+\subsection{Method \code{get_token()}}{
+Get an access token using the flow configured by the subclass.
+Attempts token acquisition in three steps: (1) return a valid cached
+token without any interaction; (2) silently refresh using an existing
+refresh token; (3) fall back to the configured interactive flow.
+When \code{reauth = TRUE} all three steps are skipped and the interactive
+flow is used directly.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_token(scope = NULL, reauth = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+\code{NULL}, which uses the scope configured on the credential.}
+
+\item{\code{reauth}}{A logical value indicating whether to force
+reauthentication, bypassing the cache and silent refresh. Defaults to
+\code{FALSE}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InteractiveCredential-req_auth"></a>}}
+\if{latex}{\out{\hypertarget{method-InteractiveCredential-req_auth}{}}}
+\subsection{Method \code{req_auth()}}{
+Add OAuth authentication to an httr2 request using the flow configured
+by the subclass
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$req_auth(req)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The request object with OAuth authentication configured
 }
 }
 \if{html}{\out{<hr>}}
