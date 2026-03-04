@@ -72,7 +72,7 @@ Create a new authorization code credential
   offline = TRUE,
   redirect_uri = default_redirect_uri(),
   interactive = TRUE,
-  login = TRUE
+  use_refresh_token = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -99,7 +99,7 @@ with the application. Defaults to \code{\link[=default_redirect_uri]{default_red
 \item{\code{interactive}}{A logical value indicating whether this credential
 requires user interaction. Defaults to \code{TRUE}.}
 
-\item{\code{login}}{A logical value indicating whether to use the login flow
+\item{\code{use_refresh_token}}{A logical value indicating whether to use the login flow
 (acquire tokens via refresh token exchange). Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}

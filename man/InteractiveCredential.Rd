@@ -15,7 +15,7 @@ instead.
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{login}}{Logical indicating whether to use the login flow (acquire
+\item{\code{use_refresh_token}}{Logical indicating whether to use the login flow (acquire
 tokens via refresh token exchange).}
 
 \item{\code{interactive}}{Logical indicating whether this credential requires
@@ -54,7 +54,7 @@ Shared initializer for interactive credentials
   use_cache = "disk",
   offline = TRUE,
   interactive = TRUE,
-  login = TRUE,
+  use_refresh_token = TRUE,
   flow_fun,
   req_auth_fun,
   oauth_endpoint,
@@ -78,7 +78,7 @@ Shared initializer for interactive credentials
 
 \item{\code{interactive}}{Whether this credential requires user interaction.}
 
-\item{\code{login}}{Whether to use the login flow (acquire tokens via refresh token
+\item{\code{use_refresh_token}}{Whether to use the login flow (acquire tokens via refresh token
 exchange). Set to \code{FALSE} to use the access token flow directly.}
 
 \item{\code{flow_fun}}{The httr2 OAuth flow function (e.g. \link[httr2:req_oauth_device]{httr2::oauth_flow_device}).}

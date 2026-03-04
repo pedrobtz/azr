@@ -11,9 +11,9 @@ InteractiveCredential <- R6::R6Class(
   inherit = Credential,
   # public ----
   public = list(
-    #' @field login Logical indicating whether to use the login flow (acquire
+    #' @field use_refresh_token Logical indicating whether to use the login flow (acquire
     #'  tokens via refresh token exchange).
-    login = TRUE,
+    use_refresh_token = TRUE,
     #' @field interactive Logical indicating whether this credential requires
     #'  user interaction.
     interactive = TRUE,
@@ -26,7 +26,7 @@ InteractiveCredential <- R6::R6Class(
     #' @param use_cache Cache type: `"disk"` or `"memory"`.
     #' @param offline Whether to request offline access (refresh tokens).
     #' @param interactive Whether this credential requires user interaction.
-    #' @param login Whether to use the login flow (acquire tokens via refresh token
+    #' @param use_refresh_token Whether to use the login flow (acquire tokens via refresh token
     #'   exchange). Set to `FALSE` to use the access token flow directly.
     #' @param flow_fun The httr2 OAuth flow function (e.g. [httr2::oauth_flow_device]).
     #' @param req_auth_fun The httr2 request auth function (e.g. [httr2::req_oauth_device]).
@@ -41,7 +41,7 @@ InteractiveCredential <- R6::R6Class(
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
-      login = TRUE,
+      use_refresh_token = TRUE,
       flow_fun,
       req_auth_fun,
       oauth_endpoint,
@@ -55,7 +55,7 @@ InteractiveCredential <- R6::R6Class(
         \(...) cli::cli_abort("non-interactive session")
       }
       private$.req_auth_fun <- req_auth_fun
-      self$login <- login
+      self$use_refresh_token <- use_refresh_token
 
       private$.login_scope <- c(default_azure_scope(), "offline_access")
 
@@ -96,7 +96,7 @@ InteractiveCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(scope = NULL, reauth = FALSE) {
-      if (isTRUE(self$login) || !is.null(scope)) {
+      if (isTRUE(self$use_refresh_token) || !is.null(scope)) {
         token <- private$do_flow_refresh_token(scope = scope)
 
         if (inherits(token, "httr2_token")) {
@@ -246,7 +246,7 @@ DeviceCodeCredential <- R6::R6Class(
     #'   (refresh tokens). Defaults to `TRUE`.
     #' @param interactive A logical value indicating whether this credential
     #'   requires user interaction. Defaults to `TRUE`.
-    #' @param login A logical value indicating whether to use the login flow
+    #' @param use_refresh_token A logical value indicating whether to use the login flow
     #'   (acquire tokens via refresh token exchange). Defaults to `TRUE`.
     #'
     #' @return A new `DeviceCodeCredential` object
@@ -257,7 +257,7 @@ DeviceCodeCredential <- R6::R6Class(
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
-      login = TRUE
+      use_refresh_token = TRUE
     ) {
       super$initialize(
         scope = scope,
@@ -266,7 +266,7 @@ DeviceCodeCredential <- R6::R6Class(
         use_cache = use_cache,
         offline = offline,
         interactive = interactive,
-        login = login,
+        use_refresh_token = use_refresh_token,
         flow_fun = httr2::oauth_flow_device,
         req_auth_fun = httr2::req_oauth_device,
         oauth_endpoint = "devicecode",
@@ -333,7 +333,7 @@ AuthCodeCredential <- R6::R6Class(
     #'   with the application. Defaults to [default_redirect_uri()].
     #' @param interactive A logical value indicating whether this credential
     #'   requires user interaction. Defaults to `TRUE`.
-    #' @param login A logical value indicating whether to use the login flow
+    #' @param use_refresh_token A logical value indicating whether to use the login flow
     #'   (acquire tokens via refresh token exchange). Defaults to `TRUE`.
     #'
     #' @return A new `AuthCodeCredential` object
@@ -345,7 +345,7 @@ AuthCodeCredential <- R6::R6Class(
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
       interactive = TRUE,
-      login = TRUE
+      use_refresh_token = TRUE
     ) {
       super$initialize(
         scope = scope,
@@ -354,7 +354,7 @@ AuthCodeCredential <- R6::R6Class(
         use_cache = use_cache,
         offline = offline,
         interactive = interactive,
-        login = login,
+        use_refresh_token = use_refresh_token,
         flow_fun = httr2::oauth_flow_auth_code,
         req_auth_fun = httr2::req_oauth_auth_code,
         oauth_endpoint = "authorize",
