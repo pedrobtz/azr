@@ -19,16 +19,3 @@ az_cli_is_login(timeout = 10L)
 ## Value
 
 A logical value: `TRUE` if the user is logged in, `FALSE` otherwise
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Check if logged in
-if (az_cli_is_login()) {
-  message("User is logged in")
-} else {
-  message("User is not logged in")
-}
-} # }
-```

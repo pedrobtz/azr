@@ -11,7 +11,7 @@ output into an R list."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">azr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,21 +70,6 @@ CLI command. Defaults to <code>10</code>.</p></dd>
 <li><p>Cloud environment details</p></li>
 </ul></div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Get current account information</span></span></span>
-<span class="r-in"><span><span class="va">account_info</span> <span class="op">&lt;-</span> <span class="fu">az_cli_account_show</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Access subscription ID</span></span></span>
-<span class="r-in"><span><span class="va">subscription_id</span> <span class="op">&lt;-</span> <span class="va">account_info</span><span class="op">$</span><span class="va">id</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Access tenant ID</span></span></span>
-<span class="r-in"><span><span class="va">tenant_id</span> <span class="op">&lt;-</span> <span class="va">account_info</span><span class="op">$</span><span class="va">tenantId</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

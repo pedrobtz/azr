@@ -10,13 +10,16 @@ The credential uses the `az account get-access-token` command to
 retrieve access tokens. It will use the currently active Azure CLI
 account and subscription unless a specific tenant is specified.
 
-## Super classes
+## Super class
 
-`azr::Credential` -\>
-[`azr::InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
--\> `AzureCLICredential`
+`azr::Credential` -\> `AzureCLICredential`
 
 ## Public fields
+
+- `interactive`:
+
+  Logical indicating whether to check login status and perform login if
+  needed
 
 - `.process_timeout`:
 
@@ -36,6 +39,8 @@ account and subscription unless a specific tenant is specified.
 
 - [`AzureCLICredential$login()`](#method-AzureCLICredential-login)
 
+- [`AzureCLICredential$is_interactive()`](#method-AzureCLICredential-is_interactive)
+
 - [`AzureCLICredential$logout()`](#method-AzureCLICredential-logout)
 
 - [`AzureCLICredential$clone()`](#method-AzureCLICredential-clone)
@@ -44,7 +49,6 @@ Inherited methods
 
 - [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
 - [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
-- [`azr::InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
 
 ------------------------------------------------------------------------
 
@@ -181,6 +185,20 @@ Perform Azure CLI login using device code flow
 #### Returns
 
 Invisibly returns the exit status (0 for success, non-zero for failure)
+
+------------------------------------------------------------------------
+
+### Method `is_interactive()`
+
+Check if the credential requires user interaction
+
+#### Usage
+
+    AzureCLICredential$is_interactive()
+
+#### Returns
+
+Logical indicating whether this credential is interactive
 
 ------------------------------------------------------------------------
 

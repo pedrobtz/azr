@@ -35,18 +35,3 @@ including:
 - User information
 
 - Cloud environment details
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Get current account information
-account_info <- az_cli_account_show()
-
-# Access subscription ID
-subscription_id <- account_info$id
-
-# Access tenant ID
-tenant_id <- account_info$tenantId
-} # }
-```

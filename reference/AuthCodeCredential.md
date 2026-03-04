@@ -25,17 +25,15 @@ for the OAuth flow to complete.
 
 - [`AuthCodeCredential$new()`](#method-AuthCodeCredential-new)
 
-- [`AuthCodeCredential$get_token()`](#method-AuthCodeCredential-get_token)
-
-- [`AuthCodeCredential$req_auth()`](#method-AuthCodeCredential-req_auth)
-
 - [`AuthCodeCredential$clone()`](#method-AuthCodeCredential-clone)
 
 Inherited methods
 
 - [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
 - [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
+- [`azr::InteractiveCredential$get_token()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-get_token)
 - [`azr::InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
+- [`azr::InteractiveCredential$req_auth()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-req_auth)
 
 ------------------------------------------------------------------------
 
@@ -52,7 +50,8 @@ Create a new authorization code credential
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
-      interactive = TRUE
+      interactive = TRUE,
+      use_refresh_token = TRUE
     )
 
 #### Arguments
@@ -93,55 +92,14 @@ Create a new authorization code credential
   A logical value indicating whether this credential requires user
   interaction. Defaults to `TRUE`.
 
+- `use_refresh_token`:
+
+  A logical value indicating whether to use the login flow (acquire
+  tokens via refresh token exchange). Defaults to `TRUE`.
+
 #### Returns
 
 A new `AuthCodeCredential` object
-
-------------------------------------------------------------------------
-
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
-
-Get an access token using authorization code flow
-
-#### Usage
-
-    AuthCodeCredential$get_token(reauth = FALSE)
-
-#### Arguments
-
-- `reauth`:
-
-  A logical value indicating whether to force reauthentication. Defaults
-  to `FALSE`.
-
-#### Returns
-
-An
-[`httr2::oauth_token()`](https://httr2.r-lib.org/reference/oauth_token.html)
-object containing the access token
-
-------------------------------------------------------------------------
-
-### Method `req_auth()`
-
-Add OAuth authorization code authentication to an httr2 request
-
-#### Usage
-
-    AuthCodeCredential$req_auth(req)
-
-#### Arguments
-
-- `req`:
-
-  An
-  [`httr2::request()`](https://httr2.r-lib.org/reference/request.html)
-  object
-
-#### Returns
-
-The request object with OAuth authorization code authentication
-configured
 
 ------------------------------------------------------------------------
 

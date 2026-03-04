@@ -9,9 +9,9 @@ successfully authenticates. The default chain includes:
 2.  Authorization Code Credential - Interactive browser-based
     authentication
 
-3.  Azure CLI Credential - Uses credentials from Azure CLI
+3.  Device Code Credential - Interactive device code flow
 
-4.  Device Code Credential - Interactive device code flow
+4.  Azure CLI Credential - Uses credentials from Azure CLI
 
 ## Usage
 

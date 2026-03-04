@@ -25,5 +25,5 @@ A character string with the redirect URI
 
 ``` r
 default_redirect_uri()
-#> [1] "http://localhost:33213/"
+#> [1] "http://localhost:35505/"
 ```
