@@ -628,18 +628,10 @@ az_cli_logout <- function() {
   invisible(NULL)
 }
 
-# Reads the MSAL token cache JSON and returns a list with `refresh_token` and
-# `scope` matching the given credentials. If `access_token` is provided its
-# value is matched against the `secret` field of every `AccessToken` entry to
-# resolve `home_account_id`, `client_id`, and `scope`; otherwise both
-# `home_account_id` and `client_id` must be supplied directly.
-find_msal_token <- function(
-  cache_file = default_msal_token_cache(),
-  home_account_id = NULL,
-  client_id = NULL,
-  access_token = NULL
-) {
-  cache <- tryCatch(
+# Reads and parses the MSAL token cache JSON file. Aborts with a descriptive
+# error if the file cannot be parsed.
+read_msal_cache <- function(cache_file) {
+  tryCatch(
     jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
     error = function(e) {
       cli::cli_abort(
@@ -651,6 +643,20 @@ find_msal_token <- function(
       )
     }
   )
+}
+
+# Reads the MSAL token cache JSON and returns a list with `refresh_token` and
+# `scope` matching the given credentials. If `access_token` is provided its
+# value is matched against the `secret` field of every `AccessToken` entry to
+# resolve `home_account_id`, `client_id`, and `scope`; otherwise both
+# `home_account_id` and `client_id` must be supplied directly.
+find_msal_token <- function(
+  cache_file = default_msal_token_cache(),
+  home_account_id = NULL,
+  client_id = NULL,
+  access_token = NULL
+) {
+  cache <- read_msal_cache(cache_file)
 
   scope <- NULL
   if (!is.null(access_token)) {
@@ -733,18 +739,7 @@ az_cli_get_cached_token <- function(
     )
   }
 
-  cache <- tryCatch(
-    jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
-    error = function(e) {
-      cli::cli_abort(
-        c(
-          "Failed to parse MSAL token cache: {e$message}",
-          "i" = "The cache file may be corrupted: {.path {cache_file}}"
-        ),
-        class = "azr_cli_cache_parse_error"
-      )
-    }
-  )
+  cache <- read_msal_cache(cache_file)
 
   tokens <- cache$AccessToken
   if (is.null(tokens) || length(tokens) == 0L) {
