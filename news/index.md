@@ -2,6 +2,8 @@
 
 ## azr 0.3.1
 
+CRAN release: 2026-03-04
+
 - Interactive credentials (`AuthCodeCredential`, `DeviceCodeCredential`)
   now attempt silent token acquisition via refresh token before
   prompting the user interactively.
