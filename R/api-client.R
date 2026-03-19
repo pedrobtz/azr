@@ -495,59 +495,31 @@ default_non_auth <- function(req) {
   req
 }
 
-#' Default Response Handler
-#'
-#' @description
-#' Default callback function for processing API response content. This function
-#' converts data frames within lists to data.table objects for better performance
-#' and functionality, if the data.table package is available.
-#'
-#' @details
-#' The function recursively processes list responses and converts any data.frame
-#' objects to data.table objects using [data.table::as.data.table()], but only
-#' if the data.table package is installed. If data.table is not available,
-#' data frames are returned unchanged. Non-data.frame elements are always
-#' returned unchanged.
-#'
-#' @return A function that accepts parsed response content and returns processed content
-#'
-#' @examples
-#' # Get the default handler
-#' handler <- default_response_handler()
-#'
-#' # Use with a custom handler
-#' custom_handler <- function(content) {
-#'   # Your custom processing logic
-#'   content
-#' }
-#'
-#' @export
-default_response_handler <- function() {
-  function(content) {
-    if (is.list(content)) {
-      # Check if data.table is available
-      has_data_table <- rlang::is_installed("data.table")
 
-      content <- lapply(content, function(x) {
-        if (is.data.frame(x) && has_data_table) {
-          tryCatch(
-            data.table::as.data.table(x),
-            error = function(e) {
-              cli::cli_warn(
-                c(
-                  "Failed to convert data.frame to data.table: {e$message}",
-                  "i" = "Returning original data.frame"
-                )
-              )
-              return(x)
-            }
-          )
-        } else {
-          x
-        }
-      })
+try_as_data_table <- function(x) {
+  tryCatch(
+    data.table::as.data.table(x),
+    error = function(e) {
+      cli::cli_warn(c(
+        "Failed to convert data.frame to data.table: {e$message}",
+        "i" = "Returning original data.frame"
+      ))
+      x
     }
+  )
+}
+
+default_response_handler <- function(content) {
+  if (!rlang::is_installed("data.table")) {
     return(content)
+  }
+  if (is.data.frame(content)) {
+    return(try_as_data_table(content))
+  }
+  if (is.list(content)) {
+    content <- lapply(content, function(x) {
+      if (is.data.frame(x)) try_as_data_table(x) else x
+    })
   }
 }
 
