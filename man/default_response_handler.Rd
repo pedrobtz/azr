@@ -2,33 +2,19 @@
 % Please edit documentation in R/api-client.R
 \name{default_response_handler}
 \alias{default_response_handler}
-\title{Default Response Handler}
+\title{Default response handler}
 \usage{
-default_response_handler()
+default_response_handler(content)
+}
+\arguments{
+\item{content}{Parsed response content from an API call.}
 }
 \value{
-A function that accepts parsed response content and returns processed content
+The processed content, with any \code{data.frame} objects converted to
+\code{data.table} if the \code{data.table} package is installed.
 }
 \description{
-Default callback function for processing API response content. This function
-converts data frames within lists to data.table objects for better performance
-and functionality, if the data.table package is available.
-}
-\details{
-The function recursively processes list responses and converts any data.frame
-objects to data.table objects using \code{\link[data.table:as.data.table]{data.table::as.data.table()}}, but only
-if the data.table package is installed. If data.table is not available,
-data frames are returned unchanged. Non-data.frame elements are always
-returned unchanged.
-}
-\examples{
-# Get the default handler
-handler <- default_response_handler()
-
-# Use with a custom handler
-custom_handler <- function(content) {
-  # Your custom processing logic
-  content
-}
-
+Converts \code{data.frame} results in the parsed response to \code{data.table} objects
+when the \code{data.table} package is available. Applied automatically by
+\link{api_client} unless overridden via the \code{response_handler} argument.
 }

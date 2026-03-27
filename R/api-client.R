@@ -159,7 +159,7 @@ api_client <- R6::R6Class(
 
       # Handle response handler function
       if (is.null(response_handler)) {
-        response_handler <- default_response_handler()
+        response_handler <- default_response_handler
       }
 
       stopifnot(is.function(response_handler))
@@ -517,6 +517,18 @@ try_as_data_table <- function(x) {
   )
 }
 
+#' Default response handler
+#'
+#' Converts `data.frame` results in the parsed response to `data.table` objects
+#' when the `data.table` package is available. Applied automatically by
+#' [api_client] unless overridden via the `response_handler` argument.
+#'
+#' @param content Parsed response content from an API call.
+#'
+#' @return The processed content, with any `data.frame` objects converted to
+#'   `data.table` if the `data.table` package is installed.
+#'
+#' @export
 default_response_handler <- function(content) {
   if (!rlang::is_installed("data.table")) {
     return(content)
