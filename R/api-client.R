@@ -448,8 +448,11 @@ format_size <- function(body, units = "Kb") {
   cli::col_blue(strsplit(x, split = " ", fixed = TRUE)[[1]][1])
 }
 
-format_json_body <- function(x, params = NULL, max_size = 12L) {
+format_json_body <- function(x, params = NULL, max_size = 12L, max_items = 6L) {
   inner_format <- function(z) {
+    if (length(z) > max_items) {
+      z <- c(utils::head(z, 3), list("..."), utils::tail(z, 3))
+    }
     lapply(z, function(i) {
       if (is.list(i)) {
         inner_format(i)
@@ -461,12 +464,16 @@ format_json_body <- function(x, params = NULL, max_size = 12L) {
     })
   }
 
-  if (is.character(x)) {
-    x <- jsonlite::fromJSON(x)
-  }
-
   par_auto_box <- params$auto_unbox %||% TRUE
   par_null <- params$null %||% "null"
+
+  if (is.character(x)) {
+    x <- jsonlite::fromJSON(
+      x,
+      simplifyDataFrame = FALSE,
+      simplifyMatrix = FALSE
+    )
+  }
 
   res <- jsonlite::toJSON(
     inner_format(x),
@@ -475,6 +482,7 @@ format_json_body <- function(x, params = NULL, max_size = 12L) {
     null = par_null
   )
   res <- gsub("\\", "...", res, fixed = TRUE)
+  res <- gsub('"..."', "...", res, fixed = TRUE)
 
   return(res)
 }
