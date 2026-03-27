@@ -2,7 +2,7 @@
 
 Constructs a redirect URI for OAuth flows. If the provided URI doesn't
 have a port, assigns a random port using
-[`httpuv::randomPort()`](https://rdrr.io/pkg/httpuv/man/randomPort.html).
+[`httpuv::randomPort()`](https://rstudio.github.io/httpuv/reference/randomPort.html).
 
 ## Usage
 
@@ -25,5 +25,5 @@ A character string with the redirect URI
 
 ``` r
 default_redirect_uri()
-#> [1] "http://localhost:35505/"
+#> [1] "http://localhost:20302/"
 ```
