@@ -69,7 +69,7 @@
 - [`default_refresh_token()`](https://pedrobtz.github.io/azr/reference/default_refresh_token.md)
   : Get default Azure refresh token
 - [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
-  : Default Response Handler
+  : Default response handler
 - [`get_credential_auth()`](https://pedrobtz.github.io/azr/reference/get_credential_auth.md)
   : Get Credential Authentication Function
 - [`get_credential_provider()`](https://pedrobtz.github.io/azr/reference/get_credential_provider.md)

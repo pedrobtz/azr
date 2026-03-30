@@ -1,5 +1,14 @@
 # Changelog
 
+## azr 0.3.2
+
+- [`is_hosted_session()`](https://pedrobtz.github.io/azr/reference/is_hosted_session.md)
+  now detects VS Code (`VSCODE_INJECTION`, `VSCODE_PROXY_URI`) and
+  Kubernetes (`KUBERNETES_SERVICE_HOST`) environments, and supports an
+  `azr.hosted` option override.
+- Extracted internal `try_as_data_table()` helper from
+  [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md).
+
 ## azr 0.3.1
 
 CRAN release: 2026-03-04

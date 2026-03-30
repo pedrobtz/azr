@@ -1,39 +1,24 @@
-# Default Response Handler
+# Default response handler
 
-Default callback function for processing API response content. This
-function converts data frames within lists to data.table objects for
-better performance and functionality, if the data.table package is
-available.
+Converts `data.frame` results in the parsed response to `data.table`
+objects when the `data.table` package is available. Applied
+automatically by
+[api_client](https://pedrobtz.github.io/azr/reference/api_client.md)
+unless overridden via the `response_handler` argument.
 
 ## Usage
 
 ``` r
-default_response_handler()
+default_response_handler(content)
 ```
+
+## Arguments
+
+- content:
+
+  Parsed response content from an API call.
 
 ## Value
 
-A function that accepts parsed response content and returns processed
-content
-
-## Details
-
-The function recursively processes list responses and converts any
-data.frame objects to data.table objects using
-[`data.table::as.data.table()`](https://rdrr.io/pkg/data.table/man/as.data.table.html),
-but only if the data.table package is installed. If data.table is not
-available, data frames are returned unchanged. Non-data.frame elements
-are always returned unchanged.
-
-## Examples
-
-``` r
-# Get the default handler
-handler <- default_response_handler()
-
-# Use with a custom handler
-custom_handler <- function(content) {
-  # Your custom processing logic
-  content
-}
-```
+The processed content, with any `data.frame` objects converted to
+`data.table` if the `data.table` package is installed.
