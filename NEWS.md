@@ -1,5 +1,10 @@
 # azr
 
+# azr 0.3.2
+
+* `is_hosted_session()` now detects VS Code (`VSCODE_INJECTION`, `VSCODE_PROXY_URI`) and Kubernetes (`KUBERNETES_SERVICE_HOST`) environments, and supports an `azr.hosted` option override.
+* Extracted internal `try_as_data_table()` helper from `default_response_handler()`.
+
 # azr 0.3.1
 
 * Interactive credentials (`AuthCodeCredential`, `DeviceCodeCredential`) now attempt silent token acquisition via refresh token before prompting the user interactively.

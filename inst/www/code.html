@@ -53,8 +53,8 @@
       justify-content: flex-end;
     }
     button {
-      width: 108px;
-      padding: 10px;
+      white-space: nowrap;
+      padding: 10px 16px;
       font-size: 15px;
       font-weight: 600;
       font-family: "Segoe UI", sans-serif;
@@ -92,7 +92,7 @@
     <div class="info-text">Click Next to copy the code and be redirected to the sign-in page. Then paste the code (Ctrl+V) to continue.</div>
     <input type="text" id="Code" value="%s" readonly>
     <div class="button-container">
-      <button onclick="copy_and_continue()">Next</button>
+      <button onclick="copy_and_continue()">Copy & Continue</button>
     </div>
     <div class="footnote">
       Powered by <a href="https://cran.r-project.org/web/packages/azr/" target="_blank">azr</a>

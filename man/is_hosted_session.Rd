@@ -7,17 +7,20 @@
 is_hosted_session()
 }
 \value{
-A logical value: \code{TRUE} if running in a hosted session (Google Colab
-or remote RStudio Server), \code{FALSE} otherwise.
+A logical value: \code{TRUE} if running in a hosted session (Google Colab,
+VS Code, Kubernetes, or remote RStudio Server), \code{FALSE} otherwise.
 }
 \description{
 Determines whether the current R session is running in a hosted environment
-such as Google Colab or RStudio Server (non-localhost).
+such as Google Colab, VS Code, Kubernetes, or RStudio Server (non-localhost).
 }
 \details{
-This function checks for:
+This function checks for (in order):
 \itemize{
+\item Option override: if \code{azr.hosted} option is set, returns \code{isTRUE()} of its value
 \item Google Colab: presence of the \code{COLAB_RELEASE_TAG} environment variable
+\item VS Code: presence of the \code{VSCODE_INJECTION} or \code{VSCODE_PROXY_URI} environment variable
+\item Kubernetes: presence of the \code{KUBERNETES_SERVICE_HOST} environment variable
 \item RStudio Server: \code{RSTUDIO_PROGRAM_MODE} is "server" and
 \code{RSTUDIO_HTTP_REFERER} does not contain "localhost"
 }

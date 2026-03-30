@@ -159,7 +159,7 @@ api_client <- R6::R6Class(
 
       # Handle response handler function
       if (is.null(response_handler)) {
-        response_handler <- default_response_handler()
+        response_handler <- default_response_handler
       }
 
       stopifnot(is.function(response_handler))
@@ -448,8 +448,11 @@ format_size <- function(body, units = "Kb") {
   cli::col_blue(strsplit(x, split = " ", fixed = TRUE)[[1]][1])
 }
 
-format_json_body <- function(x, params = NULL, max_size = 12L) {
+format_json_body <- function(x, params = NULL, max_size = 12L, max_items = 6L) {
   inner_format <- function(z) {
+    if (length(z) > max_items) {
+      z <- c(utils::head(z, 3), list("..."), utils::tail(z, 3))
+    }
     lapply(z, function(i) {
       if (is.list(i)) {
         inner_format(i)
@@ -461,12 +464,16 @@ format_json_body <- function(x, params = NULL, max_size = 12L) {
     })
   }
 
-  if (is.character(x)) {
-    x <- jsonlite::fromJSON(x)
-  }
-
   par_auto_box <- params$auto_unbox %||% TRUE
   par_null <- params$null %||% "null"
+
+  if (is.character(x)) {
+    x <- jsonlite::fromJSON(
+      x,
+      simplifyDataFrame = FALSE,
+      simplifyMatrix = FALSE
+    )
+  }
 
   res <- jsonlite::toJSON(
     inner_format(x),
@@ -475,6 +482,7 @@ format_json_body <- function(x, params = NULL, max_size = 12L) {
     null = par_null
   )
   res <- gsub("\\", "...", res, fixed = TRUE)
+  res <- gsub('"..."', "...", res, fixed = TRUE)
 
   return(res)
 }
@@ -495,59 +503,43 @@ default_non_auth <- function(req) {
   req
 }
 
-#' Default Response Handler
+
+try_as_data_table <- function(x) {
+  tryCatch(
+    data.table::as.data.table(x),
+    error = function(e) {
+      cli::cli_warn(c(
+        "Failed to convert data.frame to data.table: {e$message}",
+        "i" = "Returning original data.frame"
+      ))
+      x
+    }
+  )
+}
+
+#' Default response handler
 #'
-#' @description
-#' Default callback function for processing API response content. This function
-#' converts data frames within lists to data.table objects for better performance
-#' and functionality, if the data.table package is available.
+#' Converts `data.frame` results in the parsed response to `data.table` objects
+#' when the `data.table` package is available. Applied automatically by
+#' [api_client] unless overridden via the `response_handler` argument.
 #'
-#' @details
-#' The function recursively processes list responses and converts any data.frame
-#' objects to data.table objects using [data.table::as.data.table()], but only
-#' if the data.table package is installed. If data.table is not available,
-#' data frames are returned unchanged. Non-data.frame elements are always
-#' returned unchanged.
+#' @param content Parsed response content from an API call.
 #'
-#' @return A function that accepts parsed response content and returns processed content
-#'
-#' @examples
-#' # Get the default handler
-#' handler <- default_response_handler()
-#'
-#' # Use with a custom handler
-#' custom_handler <- function(content) {
-#'   # Your custom processing logic
-#'   content
-#' }
+#' @return The processed content, with any `data.frame` objects converted to
+#'   `data.table` if the `data.table` package is installed.
 #'
 #' @export
-default_response_handler <- function() {
-  function(content) {
-    if (is.list(content)) {
-      # Check if data.table is available
-      has_data_table <- rlang::is_installed("data.table")
-
-      content <- lapply(content, function(x) {
-        if (is.data.frame(x) && has_data_table) {
-          tryCatch(
-            data.table::as.data.table(x),
-            error = function(e) {
-              cli::cli_warn(
-                c(
-                  "Failed to convert data.frame to data.table: {e$message}",
-                  "i" = "Returning original data.frame"
-                )
-              )
-              return(x)
-            }
-          )
-        } else {
-          x
-        }
-      })
-    }
+default_response_handler <- function(content) {
+  if (!rlang::is_installed("data.table")) {
     return(content)
+  }
+  if (is.data.frame(content)) {
+    return(try_as_data_table(content))
+  }
+  if (is.list(content)) {
+    content <- lapply(content, function(x) {
+      if (is.data.frame(x)) try_as_data_table(x) else x
+    })
   }
 }
 

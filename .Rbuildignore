@@ -12,3 +12,6 @@
 ^README\.md$
 ^[.]?air[.]toml$
 ^\.vscode$
+^\.positai$
+^\.claude$
+^tests/testthat/_problems$

@@ -828,7 +828,7 @@ az_cli_get_cached_token <- function(
 
 
 launch_device_code <- function(code) {
-  html_content <- system.file("code.html", package = "azr") |>
+  html_content <- system.file("www/code.html", package = "azr") |>
     readLines() |>
     paste(collapse = "\n") |>
     sprintf(code)
