@@ -2,6 +2,8 @@
 
 ## azr 0.3.2
 
+CRAN release: 2026-03-30
+
 - [`is_hosted_session()`](https://pedrobtz.github.io/azr/reference/is_hosted_session.md)
   now detects VS Code (`VSCODE_INJECTION`, `VSCODE_PROXY_URI`) and
   Kubernetes (`KUBERNETES_SERVICE_HOST`) environments, and supports an
