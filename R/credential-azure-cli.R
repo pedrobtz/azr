@@ -671,6 +671,14 @@ write_msal_token <- function(
   token,
   cache_file = default_msal_token_cache()
 ) {
+  fields <- extract_msal_token_fields(token)
+  cache <- build_msal_cache_entries(token, fields, cache_file)
+  write_msal_cache(cache, cache_file)
+}
+
+# Extracts and validates identity fields from an httr2_token object by decoding
+# its JWT access token claims.
+extract_msal_token_fields <- function(token) {
   if (!inherits(token, "httr2_token")) {
     cli::cli_abort(
       "{.arg token} must be an {.cls httr2_token} object, not {.cls {class(token)[[1L]]}}.",
@@ -697,9 +705,6 @@ write_msal_token <- function(
   }
 
   home_account_id <- paste0(oid, ".", tid)
-  tenant_id <- tid
-  username <- claims[["upn"]] %||% claims[["preferred_username"]]
-  scope_str <- paste(token$scope %||% character(0L), collapse = " ")
 
   iss <- claims[["iss"]]
   environment <- if (!is.null(iss)) {
@@ -710,19 +715,30 @@ write_msal_token <- function(
     sub("/$", "", host)
   }
 
+  list(
+    home_account_id = home_account_id,
+    local_account_id = oid,
+    tenant_id = tid,
+    client_id = client_id,
+    username = claims[["upn"]] %||% claims[["preferred_username"]],
+    environment = environment,
+    scope_str = paste(token$scope %||% character(0L), collapse = " ")
+  )
+}
+
+# Merges new MSAL cache entries built from a token and its extracted fields into
+# an existing cache list (read from disk if present).
+build_msal_cache_entries <- function(token, fields, cache_file) {
   now_unix <- as.character(as.integer(Sys.time()))
   expires_unix <- as.character(as.integer(token$.expires_at))
   ext_expires <- as.character(as.integer(token$.expires_at) + 86400L)
 
-  # local_account_id is the OID portion of "<oid>.<tenant_id>"
-  local_account_id <- strsplit(home_account_id, ".", fixed = TRUE)[[1L]][[1L]]
-
   # All key components are lowercased per MSAL convention
-  env_l <- tolower(environment)
-  client_l <- tolower(client_id)
-  realm_l <- tolower(tenant_id)
-  acct_l <- tolower(home_account_id)
-  target_l <- tolower(scope_str)
+  env_l <- tolower(fields$environment)
+  client_l <- tolower(fields$client_id)
+  realm_l <- tolower(fields$tenant_id)
+  acct_l <- tolower(fields$home_account_id)
+  target_l <- tolower(fields$scope_str)
 
   at_key <- paste(
     acct_l,
@@ -755,11 +771,11 @@ write_msal_token <- function(
   }
 
   cache$AccessToken[[at_key]] <- list(
-    home_account_id = home_account_id,
-    environment = environment,
-    client_id = client_id,
-    target = scope_str,
-    realm = tenant_id,
+    home_account_id = fields$home_account_id,
+    environment = fields$environment,
+    client_id = fields$client_id,
+    target = fields$scope_str,
+    realm = fields$tenant_id,
     token_type = token$token_type %||% "Bearer",
     cached_at = now_unix,
     expires_on = expires_unix,
@@ -770,39 +786,43 @@ write_msal_token <- function(
 
   if (nzchar(token$refresh_token %||% "")) {
     cache$RefreshToken[[rt_key]] <- list(
-      home_account_id = home_account_id,
-      environment = environment,
-      client_id = client_id,
-      target = scope_str,
+      home_account_id = fields$home_account_id,
+      environment = fields$environment,
+      client_id = fields$client_id,
+      target = fields$scope_str,
       secret = token$refresh_token,
       credential_type = "RefreshToken"
     )
   }
 
   acct_entry <- list(
-    home_account_id = home_account_id,
-    environment = environment,
-    realm = tenant_id,
+    home_account_id = fields$home_account_id,
+    environment = fields$environment,
+    realm = fields$tenant_id,
     authority_type = "MSSTS",
-    local_account_id = local_account_id
+    local_account_id = fields$local_account_id
   )
-  if (!is.null(username)) {
-    acct_entry$username <- username
+  if (!is.null(fields$username)) {
+    acct_entry$username <- fields$username
   }
   cache$Account[[account_key]] <- acct_entry
 
   cache$AppMetadata[[app_key]] <- list(
-    client_id = client_id,
-    environment = environment
+    client_id = fields$client_id,
+    environment = fields$environment
   )
 
+  cache
+}
+
+# Serialises a cache list to the MSAL JSON cache file, creating parent
+# directories as needed.
+write_msal_cache <- function(cache, cache_file) {
   cache_dir <- dirname(cache_file)
   if (!dir.exists(cache_dir)) {
     dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
   }
-
   jsonlite::write_json(cache, cache_file, pretty = TRUE, auto_unbox = TRUE)
-
   invisible(cache_file)
 }
 
