@@ -294,6 +294,18 @@ default_azure_config_dir <- function() {
   )
 }
 
+#' Get default MSAL token cache path
+#'
+#' @description
+#' Returns the path to the MSAL token cache file shared by the Azure CLI and
+#' Azure SDKs. Defaults to `msal_token_cache.json` inside the Azure config
+#' directory (see [default_azure_config_dir()]).
+#'
+#' @return A character string with the path to the MSAL token cache file.
+#'
+#' @seealso [default_azure_config_dir()], [write_msal_token()]
+#'
+#' @export
 default_msal_token_cache <- function() {
   file.path(default_azure_config_dir(), "msal_token_cache.json")
 }

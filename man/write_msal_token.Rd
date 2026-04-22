@@ -4,42 +4,15 @@
 \alias{write_msal_token}
 \title{Write an httr2 Token to the MSAL Token Cache}
 \usage{
-write_msal_token(
-  token,
-  home_account_id,
-  client_id = default_azure_client_id(),
-  tenant_id = default_azure_tenant_id(),
-  scope = NULL,
-  username = NULL,
-  environment = NULL,
-  cache_file = default_msal_token_cache()
-)
+write_msal_token(token, cache_file = default_msal_token_cache())
 }
 \arguments{
 \item{token}{An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object. Must contain \code{access_token},
 \code{token_type}, and \code{.expires_at}. May optionally contain \code{refresh_token}
-and \code{scope}.}
-
-\item{home_account_id}{A character string with the MSAL home account
-identifier in \code{"<object_id>.<tenant_id>"} format. The object ID is the
-Azure AD OID of the authenticated user or service principal.}
-
-\item{client_id}{A character string specifying the application (client) ID.
-Defaults to \code{\link[=default_azure_client_id]{default_azure_client_id()}}.}
-
-\item{tenant_id}{A character string specifying the Azure AD tenant ID
-(stored as the \code{realm} field). Defaults to \code{\link[=default_azure_tenant_id]{default_azure_tenant_id()}}.}
-
-\item{scope}{A character string or character vector of OAuth2 scope(s)
-(stored as the \code{target} field). If \code{NULL} (default), uses the \code{scope}
-field from \code{token} when present.}
-
-\item{username}{A character string with the user principal name (UPN) or
-email address for the \code{Account} entry. Defaults to \code{NULL}.}
-
-\item{environment}{A character string with the Azure authority hostname
-(e.g. \code{"login.microsoftonline.com"}). Defaults to the host portion of
-\code{\link[=default_azure_host]{default_azure_host()}}.}
+and \code{scope}. All cache fields (\code{home_account_id}, \code{tenant_id}, \code{username},
+\code{client_id}, \code{scope}, \code{environment}) are derived from the JWT claims
+(\code{oid}, \code{tid}, \code{upn}/\code{preferred_username}, \code{appid}/\code{azp}, \code{scp}/\code{scope},
+\code{iss}) and the token object itself.}
 
 \item{cache_file}{Path to the MSAL token cache JSON file. Defaults to
 \code{\link[=default_msal_token_cache]{default_msal_token_cache()}}.}
