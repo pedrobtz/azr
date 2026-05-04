@@ -136,6 +136,21 @@ is_port_available <- function(port, host = "127.0.0.1") {
   )
 }
 
+token_has_expired <- function(token, delay = 5) {
+  if (!inherits(token, "httr2_token")) {
+    cli::cli_abort(
+      "{.arg token} must be an {.cls httr2_token} object, not {.cls {class(token)[[1L]]}}.",
+      call = rlang::caller_env()
+    )
+  }
+  if (is.null(token$expires_at)) {
+    FALSE
+  } else {
+    (as.integer(Sys.time()) + delay) > token$expires_at
+  }
+}
+
+
 random_port <- function(
   min = 10000L,
   max = 49151L,

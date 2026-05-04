@@ -10,8 +10,12 @@ default_azure_client_id()
 A character string with the client ID
 }
 \description{
-Retrieves the Azure client ID from the \code{AZURE_CLIENT_ID} environment variable,
-or falls back to the default Azure CLI client ID if not set.
+Retrieves the Azure client ID in priority order:
+\enumerate{
+\item Package-level override set via \code{\link[=set_azr_defaults]{set_azr_defaults()}}
+\item \code{AZURE_CLIENT_ID} environment variable
+\item Built-in fallback (Microsoft's public Azure CLI client ID)
+}
 }
 \examples{
 default_azure_client_id()

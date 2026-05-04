@@ -628,9 +628,217 @@ az_cli_logout <- function() {
   invisible(NULL)
 }
 
-# Reads and parses the MSAL token cache JSON file. Aborts with a descriptive
-# error if the file cannot be parsed.
+
+#' Write an httr2 Token to the MSAL Token Cache
+#'
+#' @description
+#' Writes an [httr2::oauth_token()] object into the MSAL token cache JSON file
+#' (`msal_token_cache.json`) shared by the Azure SDK and Azure CLI. The
+#' resulting entry is readable by other Azure tools (Python SDK, Azure CLI,
+#' and the rest of this package via [az_cli_get_cached_token()]).
+#'
+#' @details
+#' The function adds or overwrites `AccessToken`, `RefreshToken` (when the
+#' token carries a refresh token), `Account`, and `AppMetadata` sections.
+#' Existing entries for other accounts or clients are preserved.
+#'
+#' The `home_account_id` follows the MSAL convention
+#' `"<object_id>.<tenant_id>"` where `object_id` is the Azure AD OID of the
+#' authenticated principal. Cache entry keys are built in the same format used
+#' by the Azure CLI and MSAL Python:
+#' \itemize{
+#'   \item AccessToken: `<home_account_id>-<environment>-accesstoken-<client_id>-<realm>-<target>`
+#'   \item RefreshToken: `<home_account_id>-<environment>-refreshtoken-<client_id>--`
+#'   \item Account: `<home_account_id>-<environment>-<realm>`
+#'   \item AppMetadata: `appmetadata-<environment>-<client_id>`
+#' }
+#'
+#' @param token An [httr2::oauth_token()] object. Must contain `access_token`,
+#'   `token_type`, and `.expires_at`. May optionally contain `refresh_token`
+#'   and `scope`. All cache fields (`home_account_id`, `tenant_id`, `username`,
+#'   `client_id`, `scope`, `environment`) are derived from the JWT claims
+#'   (`oid`, `tid`, `upn`/`preferred_username`, `appid`/`azp`, `scp`/`scope`,
+#'   `iss`) and the token object itself.
+#' @param cache_file Path to the MSAL token cache JSON file. Defaults to
+#'   [default_msal_token_cache()].
+#'
+#' @return Invisibly returns the path to the cache file.
+#'
+#' @seealso [az_cli_get_cached_token()], [httr2::oauth_token()]
+#'
+#' @export
+write_msal_token <- function(
+  token,
+  cache_file = default_msal_token_cache()
+) {
+  fields <- extract_msal_token_fields(token)
+  cache <- build_msal_cache_entries(token, fields, cache_file)
+  write_msal_cache(cache, cache_file)
+}
+
+# Extracts and validates identity fields from an httr2_token object by decoding
+# its JWT access token claims.
+extract_msal_token_fields <- function(token) {
+  if (!inherits(token, "httr2_token")) {
+    cli::cli_abort(
+      "{.arg token} must be an {.cls httr2_token} object, not {.cls {class(token)[[1L]]}}.",
+      call = rlang::caller_env()
+    )
+  }
+
+  claims <- decode_jwt_claims(token$access_token)
+
+  oid <- claims[["oid"]]
+  tid <- claims[["tid"]]
+  client_id <- claims[["appid"]] %||% claims[["azp"]]
+  if (is.null(oid) || is.null(tid) || is.null(client_id)) {
+    missing <- names(Filter(
+      is.null,
+      list(oid = oid, tid = tid, appid = client_id)
+    ))
+    cli::cli_abort(
+      c(
+        "Cannot derive account identity from the access token.",
+        "i" = "The JWT is missing {.field {missing}} claim{?s}."
+      )
+    )
+  }
+
+  home_account_id <- paste0(oid, ".", tid)
+
+  iss <- claims[["iss"]]
+  environment <- if (!is.null(iss)) {
+    host <- sub("^https?://", "", iss)
+    sub("/.*$", "", host)
+  } else {
+    host <- sub("^https?://", "", default_azure_host())
+    sub("/$", "", host)
+  }
+
+  list(
+    home_account_id = home_account_id,
+    local_account_id = oid,
+    tenant_id = tid,
+    client_id = client_id,
+    username = claims[["upn"]] %||% claims[["preferred_username"]],
+    environment = environment,
+    scope_str = paste(token$scope %||% character(0L), collapse = " ")
+  )
+}
+
+# Merges new MSAL cache entries built from a token and its extracted fields into
+# an existing cache list (read from disk if present).
+build_msal_cache_entries <- function(token, fields, cache_file) {
+  now_unix <- as.character(as.integer(Sys.time()))
+  expires_unix <- as.character(as.integer(token$.expires_at))
+  ext_expires <- as.character(as.integer(token$.expires_at) + 86400L)
+
+  # All key components are lowercased per MSAL convention
+  env_l <- tolower(fields$environment)
+  client_l <- tolower(fields$client_id)
+  realm_l <- tolower(fields$tenant_id)
+  acct_l <- tolower(fields$home_account_id)
+  target_l <- tolower(fields$scope_str)
+
+  at_key <- paste(
+    acct_l,
+    env_l,
+    "accesstoken",
+    client_l,
+    realm_l,
+    target_l,
+    sep = "-"
+  )
+  # Refresh token key has empty family_id and empty target, producing double trailing dash
+  rt_key <- paste(acct_l, env_l, "refreshtoken", client_l, "", "", sep = "-")
+  account_key <- paste(acct_l, env_l, realm_l, sep = "-")
+  app_key <- paste("appmetadata", env_l, client_l, sep = "-")
+
+  cache <- if (file.exists(cache_file)) {
+    tryCatch(read_msal_cache(cache_file), error = function(e) list())
+  } else {
+    list()
+  }
+
+  for (section in c(
+    "AccessToken",
+    "RefreshToken",
+    "IdToken",
+    "Account",
+    "AppMetadata"
+  )) {
+    if (is.null(cache[[section]])) cache[[section]] <- list()
+  }
+
+  cache$AccessToken[[at_key]] <- list(
+    home_account_id = fields$home_account_id,
+    environment = fields$environment,
+    client_id = fields$client_id,
+    target = fields$scope_str,
+    realm = fields$tenant_id,
+    token_type = token$token_type %||% "Bearer",
+    cached_at = now_unix,
+    expires_on = expires_unix,
+    extended_expires_on = ext_expires,
+    secret = token$access_token,
+    credential_type = "AccessToken"
+  )
+
+  if (nzchar(token$refresh_token %||% "")) {
+    cache$RefreshToken[[rt_key]] <- list(
+      home_account_id = fields$home_account_id,
+      environment = fields$environment,
+      client_id = fields$client_id,
+      target = fields$scope_str,
+      secret = token$refresh_token,
+      credential_type = "RefreshToken"
+    )
+  }
+
+  acct_entry <- list(
+    home_account_id = fields$home_account_id,
+    environment = fields$environment,
+    realm = fields$tenant_id,
+    authority_type = "MSSTS",
+    local_account_id = fields$local_account_id
+  )
+  if (!is.null(fields$username)) {
+    acct_entry$username <- fields$username
+  }
+  cache$Account[[account_key]] <- acct_entry
+
+  cache$AppMetadata[[app_key]] <- list(
+    client_id = fields$client_id,
+    environment = fields$environment
+  )
+
+  cache
+}
+
+# Serialises a cache list to the MSAL JSON cache file, creating parent
+# directories as needed.
+write_msal_cache <- function(cache, cache_file) {
+  cache_dir <- dirname(cache_file)
+  if (!dir.exists(cache_dir)) {
+    dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  jsonlite::write_json(cache, cache_file, pretty = TRUE, auto_unbox = TRUE)
+  invisible(cache_file)
+}
+
+
+# Reads and parses the MSAL token cache JSON file. Aborts if the file does not
+# exist or cannot be parsed.
 read_msal_cache <- function(cache_file) {
+  if (!file.exists(cache_file)) {
+    cli::cli_abort(
+      c(
+        "MSAL token cache file not found.",
+        "i" = "Expected file at: {.path {cache_file}}"
+      ),
+      class = "azr_cli_cache_not_found_error"
+    )
+  }
   tryCatch(
     jsonlite::fromJSON(cache_file, simplifyDataFrame = FALSE),
     error = function(e) {
@@ -642,6 +850,29 @@ read_msal_cache <- function(cache_file) {
         class = "azr_cli_cache_parse_error"
       )
     }
+  )
+}
+
+# Decodes the payload of a JWT (without verifying the signature) and returns
+# the claims as a named list. Returns an empty list if the token is not a
+# well-formed JWT.
+decode_jwt_claims <- function(jwt) {
+  parts <- strsplit(jwt, ".", fixed = TRUE)[[1L]]
+  if (length(parts) < 2L) {
+    return(list())
+  }
+  payload <- parts[[2L]]
+  # base64url -> base64: replace chars and add padding
+  payload <- gsub("-", "+", payload, fixed = TRUE)
+  payload <- gsub("_", "/", payload, fixed = TRUE)
+  pad <- (4L - nchar(payload) %% 4L) %% 4L
+  payload <- paste0(payload, strrep("=", pad))
+  tryCatch(
+    jsonlite::fromJSON(
+      rawToChar(jsonlite::base64_dec(payload)),
+      simplifyDataFrame = FALSE
+    ),
+    error = function(e) list()
   )
 }
 

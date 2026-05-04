@@ -1,8 +1,57 @@
+#' Set package-level Azure defaults
+#'
+#' @description
+#' Overrides the built-in fallback values used by [default_azure_host()],
+#' [default_azure_client_id()], and [default_azure_tenant_id()] when the
+#' corresponding environment variable is not set. Pass `NULL` to a parameter
+#' to clear a previously set override.
+#'
+#' The priority order for each default is:
+#' 1. Package-level override set by `set_azr_defaults()` (highest)
+#' 2. Environment variable (`AZURE_AUTHORITY_HOST`, `AZURE_CLIENT_ID`,
+#'    `AZURE_TENANT_ID`)
+#' 3. Built-in fallback (lowest)
+#'
+#' @param host A character string specifying the Azure authority host, or
+#'   `NULL` to clear any previously set override.
+#' @param client_id A character string specifying the Azure client ID, or
+#'   `NULL` to clear any previously set override.
+#' @param tenant_id A character string specifying the Azure tenant ID, or
+#'   `NULL` to clear any previously set override.
+#'
+#' @return Invisibly returns the previous values as a named list.
+#'
+#' @export
+#' @examples
+#' # Override the authority host for Azure Government
+#' set_azr_defaults(host = "login.microsoftonline.us")
+#'
+#' # Clear the override
+#' set_azr_defaults(host = NULL)
+set_azr_defaults <- function(
+  host = .azr_defaults$host,
+  client_id = .azr_defaults$client_id,
+  tenant_id = .azr_defaults$tenant_id
+) {
+  prev <- list(
+    host = .azr_defaults$host,
+    client_id = .azr_defaults$client_id,
+    tenant_id = .azr_defaults$tenant_id
+  )
+  .azr_defaults$host <- host
+  .azr_defaults$client_id <- client_id
+  .azr_defaults$tenant_id <- tenant_id
+  invisible(prev)
+}
+
+
 #' Get default Azure tenant ID
 #'
 #' @description
-#' Retrieves the Azure tenant ID from the `AZURE_TENANT_ID` environment variable,
-#' or falls back to the default value if not set.
+#' Retrieves the Azure tenant ID in priority order:
+#' 1. Package-level override set via [set_azr_defaults()]
+#' 2. `AZURE_TENANT_ID` environment variable
+#' 3. Built-in fallback (`"common"`)
 #'
 #' @return A character string with the tenant ID
 #'
@@ -10,18 +59,21 @@
 #' @examples
 #' default_azure_tenant_id()
 default_azure_tenant_id <- function() {
-  Sys.getenv(
-    environment_variables$azure_tenant_id,
-    unset = azure_client$tenant_id
-  )
+  .azr_defaults$tenant_id %||%
+    Sys.getenv(
+      environment_variables$azure_tenant_id,
+      unset = azure_client$tenant_id
+    )
 }
 
 
 #' Get default Azure client ID
 #'
 #' @description
-#' Retrieves the Azure client ID from the `AZURE_CLIENT_ID` environment variable,
-#' or falls back to the default Azure CLI client ID if not set.
+#' Retrieves the Azure client ID in priority order:
+#' 1. Package-level override set via [set_azr_defaults()]
+#' 2. `AZURE_CLIENT_ID` environment variable
+#' 3. Built-in fallback (Microsoft's public Azure CLI client ID)
 #'
 #' @return A character string with the client ID
 #'
@@ -29,10 +81,11 @@ default_azure_tenant_id <- function() {
 #' @examples
 #' default_azure_client_id()
 default_azure_client_id <- function() {
-  Sys.getenv(
-    environment_variables$azure_client_id,
-    unset = azure_client$client_id
-  )
+  .azr_defaults$client_id %||%
+    Sys.getenv(
+      environment_variables$azure_client_id,
+      unset = azure_client$client_id
+    )
 }
 
 
@@ -196,8 +249,10 @@ default_azure_url <- function(
 #' Get default Azure authority host
 #'
 #' @description
-#' Retrieves the Azure authority host from the `AZURE_AUTHORITY_HOST` environment
-#' variable, or falls back to Azure Public Cloud if not set.
+#' Retrieves the Azure authority host in priority order:
+#' 1. Package-level override set via [set_azr_defaults()]
+#' 2. `AZURE_AUTHORITY_HOST` environment variable
+#' 3. Built-in fallback (`login.microsoftonline.com`)
 #'
 #' @return A character string with the authority host URL
 #'
@@ -205,10 +260,11 @@ default_azure_url <- function(
 #' @examples
 #' default_azure_host()
 default_azure_host <- function() {
-  Sys.getenv(
-    environment_variables$azure_authority_host,
-    unset = azure_authority_hosts$azure_public_cloud
-  )
+  .azr_defaults$host %||%
+    Sys.getenv(
+      environment_variables$azure_authority_host,
+      unset = azure_authority_hosts$azure_public_cloud
+    )
 }
 
 
@@ -238,6 +294,18 @@ default_azure_config_dir <- function() {
   )
 }
 
+#' Get default MSAL token cache path
+#'
+#' @description
+#' Returns the path to the MSAL token cache file shared by the Azure CLI and
+#' Azure SDKs. Defaults to `msal_token_cache.json` inside the Azure config
+#' directory (see [default_azure_config_dir()]).
+#'
+#' @return A character string with the path to the MSAL token cache file.
+#'
+#' @seealso [default_azure_config_dir()], [write_msal_token()]
+#'
+#' @export
 default_msal_token_cache <- function() {
   file.path(default_azure_config_dir(), "msal_token_cache.json")
 }
