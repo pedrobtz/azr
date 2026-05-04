@@ -136,12 +136,13 @@ Logical indicating whether this credential is interactive
 
 ### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
 
-Get an access token using the flow configured by the subclass. Attempts
-token acquisition in three steps: (1) return a valid cached token
-without any interaction; (2) silently refresh using an existing refresh
-token; (3) fall back to the configured interactive flow. When
-`reauth = TRUE` all three steps are skipped and the interactive flow is
-used directly.
+Get an access token using the flow configured by the subclass. Returns a
+valid in-object cached token immediately if one exists for the requested
+scope. Otherwise attempts token acquisition in three steps: (1) return a
+valid httr2-cached token without any interaction; (2) silently refresh
+using an existing refresh token; (3) fall back to the configured
+interactive flow. When `reauth = TRUE` all caches are bypassed and the
+interactive flow is used directly.
 
 #### Usage
 

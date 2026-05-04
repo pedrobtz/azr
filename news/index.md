@@ -1,5 +1,21 @@
 # Changelog
 
+## azr 0.3.3
+
+- Added
+  [`set_azr_defaults()`](https://pedrobtz.github.io/azr/reference/set_azr_defaults.md)
+  to configure package-level overrides for the authority host, client
+  ID, and tenant ID. These take priority over environment variables in
+  [`default_azure_host()`](https://pedrobtz.github.io/azr/reference/default_azure_host.md),
+  [`default_azure_client_id()`](https://pedrobtz.github.io/azr/reference/default_azure_client_id.md),
+  and
+  [`default_azure_tenant_id()`](https://pedrobtz.github.io/azr/reference/default_azure_tenant_id.md).
+- `AuthCodeCredential` and `DeviceCodeCredential` now maintain an
+  in-object token cache keyed by scope. Repeated calls to
+  [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+  for the same scope return the cached token immediately without hitting
+  the httr2 cache or refresh token flow.
+
 ## azr 0.3.2
 
 CRAN release: 2026-03-30
