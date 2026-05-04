@@ -306,3 +306,71 @@ test_that("DeviceCodeCredential and AuthCodeCredential use different OAuth endpo
   expect_match(device_cred$.oauth_url, "devicecode")
   expect_match(auth_cred$.oauth_url, "authorize")
 })
+
+# Tests for in-object token cache
+
+new_non_interactive_cred <- function() {
+  DeviceCodeCredential$new(
+    tenant_id = "test-tenant-id",
+    client_id = "test-client-id",
+    interactive = FALSE,
+    use_refresh_token = FALSE
+  )
+}
+
+inject_token <- function(cred, token, scope = NULL) {
+  key <- rlang::hash(scope %||% cred$.scope)
+  cred$.__enclos_env__$private$.token_cache[[key]] <- token
+}
+
+test_that("get_token returns valid cached token without calling the flow", {
+  cred <- new_non_interactive_cred()
+  token <- httr2::oauth_token(access_token = "cached_token", expires_in = 3600)
+  inject_token(cred, token)
+
+  result <- cred$get_token()
+
+  expect_identical(result$access_token, "cached_token")
+})
+
+test_that("get_token bypasses cache when reauth = TRUE", {
+  cred <- new_non_interactive_cred()
+  token <- httr2::oauth_token(access_token = "cached_token", expires_in = 3600)
+  inject_token(cred, token)
+
+  expect_error(cred$get_token(reauth = TRUE), "non-interactive")
+})
+
+test_that("get_token calls flow when cached token is expired", {
+  cred <- new_non_interactive_cred()
+  expired <- httr2::oauth_token(access_token = "old_token", expires_in = 3600)
+  expired$expires_at <- Sys.time() - 3600
+  inject_token(cred, expired)
+
+  expect_error(cred$get_token(), "non-interactive")
+})
+
+test_that("get_token caches different scopes independently", {
+  cred <- new_non_interactive_cred()
+  scope_a <- "https://management.azure.com/.default"
+  scope_b <- "https://storage.azure.com/.default"
+  token_a <- httr2::oauth_token(access_token = "token_a", expires_in = 3600)
+  token_b <- httr2::oauth_token(access_token = "token_b", expires_in = 3600)
+  inject_token(cred, token_a, scope = scope_a)
+  inject_token(cred, token_b, scope = scope_b)
+
+  expect_identical(cred$get_token(scope = scope_a)$access_token, "token_a")
+  expect_identical(cred$get_token(scope = scope_b)$access_token, "token_b")
+})
+
+test_that("successful get_token stores result in cache", {
+  cred <- new_non_interactive_cred()
+  token <- httr2::oauth_token(access_token = "new_token", expires_in = 3600)
+  inject_token(cred, token)
+
+  result <- cred$get_token()
+
+  key <- rlang::hash(cred$.scope)
+  cached <- cred$.__enclos_env__$private$.token_cache[[key]]
+  expect_identical(cached$access_token, "new_token")
+})
