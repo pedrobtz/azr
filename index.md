@@ -10,6 +10,7 @@ trying different authentication methods in sequence until one succeeds.
 You can install httr2 from CRAN with:
 
 ``` r
+
 install.packages("azr")
 ```
 
@@ -35,6 +36,7 @@ which automatically tries different authentication methods until one
 succeeds:
 
 ``` r
+
 library(azr)
 
 # Get a token using the default credential chain
@@ -56,6 +58,7 @@ Alternatively, use
 to get a function that adds authentication to requests:
 
 ``` r
+
 library(azr)
 library(httr2)
 
@@ -75,6 +78,7 @@ You can customize which authentication methods are tried and in what
 order:
 
 ``` r
+
 # Define a custom credential chain with specific credential instances
 custom_chain <- credential_chain(
   ClientSecretCredential$new(
@@ -104,6 +108,7 @@ to create a chat connection to Azure OpenAI with the
 [elmer](https://github.com/hadley/elmer) package:
 
 ``` r
+
 library(elmer)
 
 # Create an authentication function for Azure OpenAI

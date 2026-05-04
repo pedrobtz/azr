@@ -62,6 +62,8 @@
   : Get default Azure OAuth URLs
 - [`default_credential_chain()`](https://pedrobtz.github.io/azr/reference/default_credential_chain.md)
   : Create Default Credential Chain
+- [`default_msal_token_cache()`](https://pedrobtz.github.io/azr/reference/default_msal_token_cache.md)
+  : Get default MSAL token cache path
 - [`default_non_auth()`](https://pedrobtz.github.io/azr/reference/default_non_auth.md)
   : Default No Authentication
 - [`default_redirect_uri()`](https://pedrobtz.github.io/azr/reference/default_redirect_uri.md)
@@ -82,3 +84,7 @@
   : Get Default Token Provider Function
 - [`is_hosted_session()`](https://pedrobtz.github.io/azr/reference/is_hosted_session.md)
   : Detect if running in a hosted session
+- [`set_azr_defaults()`](https://pedrobtz.github.io/azr/reference/set_azr_defaults.md)
+  : Set package-level Azure defaults
+- [`write_msal_token()`](https://pedrobtz.github.io/azr/reference/write_msal_token.md)
+  : Write an httr2 Token to the MSAL Token Cache
