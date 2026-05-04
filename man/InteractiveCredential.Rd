@@ -113,11 +113,12 @@ Logical indicating whether this credential is interactive
 \if{latex}{\out{\hypertarget{method-InteractiveCredential-get_token}{}}}
 \subsection{Method \code{get_token()}}{
 Get an access token using the flow configured by the subclass.
-Attempts token acquisition in three steps: (1) return a valid cached
-token without any interaction; (2) silently refresh using an existing
-refresh token; (3) fall back to the configured interactive flow.
-When \code{reauth = TRUE} all three steps are skipped and the interactive
-flow is used directly.
+Returns a valid in-object cached token immediately if one exists for the
+requested scope. Otherwise attempts token acquisition in three steps:
+(1) return a valid httr2-cached token without any interaction; (2)
+silently refresh using an existing refresh token; (3) fall back to the
+configured interactive flow. When \code{reauth = TRUE} all caches are bypassed
+and the interactive flow is used directly.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$get_token(scope = NULL, reauth = FALSE)}\if{html}{\out{</div>}}
 }
