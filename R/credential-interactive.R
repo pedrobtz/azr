@@ -82,11 +82,12 @@ InteractiveCredential <- R6::R6Class(
     },
     #' @description
     #' Get an access token using the flow configured by the subclass.
-    #' Attempts token acquisition in three steps: (1) return a valid cached
-    #' token without any interaction; (2) silently refresh using an existing
-    #' refresh token; (3) fall back to the configured interactive flow.
-    #' When `reauth = TRUE` all three steps are skipped and the interactive
-    #' flow is used directly.
+    #' Returns a valid in-object cached token immediately if one exists for the
+    #' requested scope. Otherwise attempts token acquisition in three steps:
+    #' (1) return a valid httr2-cached token without any interaction; (2)
+    #' silently refresh using an existing refresh token; (3) fall back to the
+    #' configured interactive flow. When `reauth = TRUE` all caches are bypassed
+    #' and the interactive flow is used directly.
     #'
     #' @param scope A character string specifying the OAuth2 scope. Defaults to
     #'   `NULL`, which uses the scope configured on the credential.
@@ -96,21 +97,18 @@ InteractiveCredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(scope = NULL, reauth = FALSE) {
-      if (isTRUE(self$use_refresh_token) || !is.null(scope)) {
-        token <- private$do_flow_refresh_token(scope = scope)
+      cache_key <- rlang::hash(scope %||% self$.scope)
 
-        if (inherits(token, "httr2_token")) {
-          return(token)
-        } else {
-          cli::cli_abort("Failed to acquire token via login refresh flow.")
+      if (!isTRUE(reauth)) {
+        cached <- private$.token_cache[[cache_key]]
+        if (private$token_is_valid(cached)) {
+          return(cached)
         }
       }
 
-      private$do_flow_access_token(
-        scope = NULL,
-        reauth = reauth,
-        interactive = self$interactive
-      )
+      token <- private$fetch_token(scope = scope, reauth = reauth)
+      private$.token_cache[[cache_key]] <- token
+      token
     },
     #' @description
     #' Add OAuth authentication to an httr2 request using the flow configured
@@ -130,6 +128,28 @@ InteractiveCredential <- R6::R6Class(
     .flow_params = NULL,
     .req_auth_fun = NULL,
     .login_scope = NULL,
+    .token_cache = list(),
+    token_is_valid = function(token) {
+      if (is.null(token) || !inherits(token, "httr2_token")) {
+        return(FALSE)
+      }
+      !token_has_expired(token)
+    },
+    fetch_token = function(scope = NULL, reauth = FALSE) {
+      if (isTRUE(self$use_refresh_token) || !is.null(scope)) {
+        token <- private$do_flow_refresh_token(scope = scope)
+        if (inherits(token, "httr2_token")) {
+          return(token)
+        } else {
+          cli::cli_abort("Failed to acquire token via login refresh flow.")
+        }
+      }
+      private$do_flow_access_token(
+        scope = NULL,
+        reauth = reauth,
+        interactive = self$interactive
+      )
+    },
     # runs access token flow
     do_flow_access_token = function(
       scope = NULL,
