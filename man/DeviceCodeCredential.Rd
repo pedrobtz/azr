@@ -62,7 +62,7 @@ Create a new device code credential
 \if{html}{\out{<div class="r">}}\preformatted{DeviceCodeCredential$new(
   scope = NULL,
   tenant_id = NULL,
-  client_id = NULL,
+  client_id = default_azure_cli_client_id(),
   use_cache = "disk",
   offline = TRUE,
   interactive = TRUE,
@@ -79,7 +79,7 @@ Create a new device code credential
 tenant ID. Defaults to \code{NULL}.}
 
 \item{\code{client_id}}{A character string specifying the application (client) ID.
-Defaults to \code{NULL}.}
+Defaults to the Azure CLI public client ID.}
 
 \item{\code{use_cache}}{A character string specifying the cache type. Use \code{"disk"}
 for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \code{"disk"}.}

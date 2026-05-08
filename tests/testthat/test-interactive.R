@@ -117,7 +117,7 @@ test_that("DeviceCodeCredential$req_auth configures request", {
   expect_s3_class(req_with_auth, "httr2_request")
 })
 
-test_that("DeviceCodeCredential can use environment variables", {
+test_that("DeviceCodeCredential uses tenant env and Azure CLI client by default", {
   skip_if_not(rlang::is_interactive(), "Requires interactive session")
 
   withr::local_envvar(
@@ -128,7 +128,7 @@ test_that("DeviceCodeCredential can use environment variables", {
   cred <- DeviceCodeCredential$new()
 
   expect_equal(cred$.tenant_id, "env-tenant-id")
-  expect_equal(cred$.client_id, "env-client-id")
+  expect_equal(cred$.client_id, default_azure_cli_client_id())
 })
 
 # Tests for AuthCodeCredential
@@ -240,7 +240,7 @@ test_that("AuthCodeCredential$req_auth configures request", {
   expect_s3_class(req_with_auth, "httr2_request")
 })
 
-test_that("AuthCodeCredential can use environment variables", {
+test_that("AuthCodeCredential uses tenant env and Azure CLI client by default", {
   skip_if_not(rlang::is_interactive(), "Requires interactive session")
 
   withr::local_envvar(
@@ -251,7 +251,7 @@ test_that("AuthCodeCredential can use environment variables", {
   cred <- AuthCodeCredential$new()
 
   expect_equal(cred$.tenant_id, "env-tenant-id")
-  expect_equal(cred$.client_id, "env-client-id")
+  expect_equal(cred$.client_id, default_azure_cli_client_id())
 })
 
 test_that("AuthCodeCredential parameters override environment variables", {
@@ -269,6 +269,24 @@ test_that("AuthCodeCredential parameters override environment variables", {
 
   expect_equal(cred$.tenant_id, "param-tenant-id")
   expect_equal(cred$.client_id, "param-client-id")
+})
+
+test_that("interactive credentials ignore AZURE_CLIENT_ID by default", {
+  withr::local_envvar(
+    AZURE_TENANT_ID = "env-tenant-id",
+    AZURE_CLIENT_ID = "env-client-id"
+  )
+
+  device_cred <- DeviceCodeCredential$new(interactive = FALSE)
+  auth_cred <- AuthCodeCredential$new(
+    interactive = FALSE,
+    redirect_uri = "http://localhost:1410/"
+  )
+
+  expect_equal(device_cred$.tenant_id, "env-tenant-id")
+  expect_equal(auth_cred$.tenant_id, "env-tenant-id")
+  expect_equal(device_cred$.client_id, default_azure_cli_client_id())
+  expect_equal(auth_cred$.client_id, default_azure_cli_client_id())
 })
 
 # Tests comparing DeviceCodeCredential and AuthCodeCredential

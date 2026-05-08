@@ -266,6 +266,16 @@ test_that("default_azure_url uses custom oauth_host", {
   expect_equal(url, "https://login.microsoftonline.us/common/oauth2/v2.0/token")
 })
 
+test_that("default_azure_url accepts oauth_host with scheme", {
+  withr::local_envvar(AZURE_TENANT_ID = NA)
+  url <- default_azure_url(
+    "token",
+    oauth_host = "https://login.microsoftonline.us/"
+  )
+
+  expect_equal(url, "https://login.microsoftonline.us/common/oauth2/v2.0/token")
+})
+
 test_that("default_azure_url uses environment variables", {
   withr::local_envvar(
     AZURE_TENANT_ID = "env-tenant",
@@ -274,6 +284,18 @@ test_that("default_azure_url uses environment variables", {
   url <- default_azure_url("token")
   expect_equal(
     url,
+    "https://login.chinacloudapi.cn/env-tenant/oauth2/v2.0/token"
+  )
+})
+
+test_that("default_azure_url accepts AZURE_AUTHORITY_HOST with scheme", {
+  withr::local_envvar(
+    AZURE_TENANT_ID = "env-tenant",
+    AZURE_AUTHORITY_HOST = "https://login.chinacloudapi.cn/"
+  )
+
+  expect_equal(
+    default_azure_url("token"),
     "https://login.chinacloudapi.cn/env-tenant/oauth2/v2.0/token"
   )
 })

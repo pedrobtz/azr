@@ -22,7 +22,8 @@ InteractiveCredential <- R6::R6Class(
     #'
     #' @param scope A character string specifying the OAuth2 scope.
     #' @param tenant_id Azure AD tenant ID.
-    #' @param client_id Application (client) ID.
+    #' @param client_id Application (client) ID. Defaults to the Azure CLI
+    #'   public client ID.
     #' @param use_cache Cache type: `"disk"` or `"memory"`.
     #' @param offline Whether to request offline access (refresh tokens).
     #' @param interactive Whether this credential requires user interaction.
@@ -37,7 +38,7 @@ InteractiveCredential <- R6::R6Class(
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
-      client_id = NULL,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
@@ -259,7 +260,7 @@ DeviceCodeCredential <- R6::R6Class(
     #' @param tenant_id A character string specifying the Azure Active Directory
     #'   tenant ID. Defaults to `NULL`.
     #' @param client_id A character string specifying the application (client) ID.
-    #'   Defaults to `NULL`.
+    #'   Defaults to the Azure CLI public client ID.
     #' @param use_cache A character string specifying the cache type. Use `"disk"`
     #'   for disk-based caching or `"memory"` for in-memory caching. Defaults to `"disk"`.
     #' @param offline A logical value indicating whether to request offline access
@@ -273,7 +274,7 @@ DeviceCodeCredential <- R6::R6Class(
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
-      client_id = NULL,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
@@ -344,7 +345,7 @@ AuthCodeCredential <- R6::R6Class(
     #' @param tenant_id A character string specifying the Azure Active Directory
     #'   tenant ID. Defaults to `NULL`.
     #' @param client_id A character string specifying the application (client) ID.
-    #'   Defaults to `NULL`.
+    #'   Defaults to the Azure CLI public client ID.
     #' @param use_cache A character string specifying the cache type. Use `"disk"`
     #'   for disk-based caching or `"memory"` for in-memory caching. Defaults to `"disk"`.
     #' @param offline A logical value indicating whether to request offline access
@@ -360,7 +361,7 @@ AuthCodeCredential <- R6::R6Class(
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
-      client_id = NULL,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),

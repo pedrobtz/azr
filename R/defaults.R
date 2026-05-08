@@ -89,6 +89,11 @@ default_azure_client_id <- function() {
 }
 
 
+default_azure_cli_client_id <- function() {
+  azure_client$client_id
+}
+
+
 #' Get default Azure client secret
 #'
 #' @description
@@ -229,7 +234,8 @@ default_azure_url <- function(
 ) {
   validate_tenant_id(tenant_id)
 
-  oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
+  oauth_host <- normalize_azure_authority_host(oauth_host)
+  oauth_base <- rlang::englue("{oauth_host}/{tenant_id}/oauth2/v2.0")
 
   urls <- c(
     authorize = paste0(oauth_base, "/authorize"),
@@ -265,6 +271,23 @@ default_azure_host <- function() {
       environment_variables$azure_authority_host,
       unset = azure_authority_hosts$azure_public_cloud
     )
+}
+
+
+normalize_azure_authority_host <- function(host) {
+  if (!rlang::is_string(host) || !nzchar(host)) {
+    cli::cli_abort(
+      "{.arg host} must be a non-empty string, not {.obj_type_friendly {host}}"
+    )
+  }
+
+  host <- sub("/+$", "", host)
+
+  if (!grepl("^https?://", host)) {
+    host <- paste0("https://", host)
+  }
+
+  host
 }
 
 
