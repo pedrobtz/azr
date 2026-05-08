@@ -23,6 +23,7 @@ The following environment variables are used when parameters are not provided:
 }
 }
 \examples{
+\dontrun{
 # Create credential using environment variables
 # (requires AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_FEDERATED_TOKEN_FILE)
 cred <- WorkloadIdentityCredential$new(
@@ -37,7 +38,6 @@ cred <- WorkloadIdentityCredential$new(
   scope = "https://management.azure.com/.default"
 )
 
-\dontrun{
 # Get an access token
 token <- cred$get_token()
 
