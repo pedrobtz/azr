@@ -138,7 +138,9 @@ test_that("default_azure_host returns host from environment variable", {
 })
 
 test_that("default_azure_host strips scheme from environment variable", {
-  withr::local_envvar(AZURE_AUTHORITY_HOST = "https://login.microsoftonline.us/")
+  withr::local_envvar(
+    AZURE_AUTHORITY_HOST = "https://login.microsoftonline.us/"
+  )
   expect_equal(default_azure_host(), "login.microsoftonline.us")
 })
 

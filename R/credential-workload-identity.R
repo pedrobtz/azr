@@ -120,18 +120,29 @@ WorkloadIdentityCredential <- R6::R6Class(
     #' Get an access token by exchanging the federated token
     #'
     #' @details
-    #' Reads the federated token from the file on every call so that token
-    #' rotation performed by the runtime is automatically reflected.
+    #' Returns a valid in-object cached token immediately if one exists. Otherwise
+    #' reads the federated token from the file and exchanges it for a new access
+    #' token so that token rotation performed by the runtime is automatically
+    #' reflected.
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function() {
+      cache_key <- rlang::hash(self$.scope)
+
+      cached <- private$.token_cache[[cache_key]]
+      if (private$token_is_valid(cached)) {
+        return(cached)
+      }
+
       federated_token <- wi_read_token_file(self$.token_file_path)
-      wi_exchange_token(
+      token <- wi_exchange_token(
         federated_token = federated_token,
         client_id = self$.client_id,
         scope = self$.scope_str,
         token_url = self$.token_url
       )
+      private$.token_cache[[cache_key]] <- token
+      token
     },
 
     #' @description
@@ -143,6 +154,16 @@ WorkloadIdentityCredential <- R6::R6Class(
     req_auth = function(req) {
       token <- self$get_token()
       httr2::req_auth_bearer_token(req, token$access_token)
+    }
+  ),
+  # private ----
+  private = list(
+    .token_cache = list(),
+    token_is_valid = function(token) {
+      if (is.null(token) || !inherits(token, "httr2_token")) {
+        return(FALSE)
+      }
+      !token_has_expired(token)
     }
   )
 )
