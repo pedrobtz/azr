@@ -62,7 +62,7 @@ Create a new device code credential
 \if{html}{\out{<div class="r">}}\preformatted{DeviceCodeCredential$new(
   scope = NULL,
   tenant_id = NULL,
-  client_id = default_azure_cli_client_id(),
+  client_id = azure_client$client_id,
   use_cache = "disk",
   offline = TRUE,
   interactive = TRUE,

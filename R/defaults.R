@@ -89,11 +89,6 @@ default_azure_client_id <- function() {
 }
 
 
-default_azure_cli_client_id <- function() {
-  azure_client$client_id
-}
-
-
 #' Get default Azure client secret
 #'
 #' @description
@@ -266,15 +261,18 @@ default_azure_url <- function(
 #' @examples
 #' default_azure_host()
 default_azure_host <- function() {
-  .azr_defaults$host %||%
-    Sys.getenv(
-      environment_variables$azure_authority_host,
-      unset = azure_authority_hosts$azure_public_cloud
-    )
+  normalize_azure_authority_host(
+    .azr_defaults$host %||%
+      Sys.getenv(
+        environment_variables$azure_authority_host,
+        unset = azure_authority_hosts$azure_public_cloud
+      ),
+    include_scheme = FALSE
+  )
 }
 
 
-normalize_azure_authority_host <- function(host) {
+normalize_azure_authority_host <- function(host, include_scheme = TRUE) {
   if (!rlang::is_string(host) || !nzchar(host)) {
     cli::cli_abort(
       "{.arg host} must be a non-empty string, not {.obj_type_friendly {host}}"
@@ -282,8 +280,9 @@ normalize_azure_authority_host <- function(host) {
   }
 
   host <- sub("/+$", "", host)
+  host <- sub("^https?://", "", host)
 
-  if (!grepl("^https?://", host)) {
+  if (isTRUE(include_scheme)) {
     host <- paste0("https://", host)
   }
 

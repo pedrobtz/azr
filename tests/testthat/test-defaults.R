@@ -137,6 +137,11 @@ test_that("default_azure_host returns host from environment variable", {
   expect_equal(default_azure_host(), "login.microsoftonline.us")
 })
 
+test_that("default_azure_host strips scheme from environment variable", {
+  withr::local_envvar(AZURE_AUTHORITY_HOST = "https://login.microsoftonline.us/")
+  expect_equal(default_azure_host(), "login.microsoftonline.us")
+})
+
 test_that("default_azure_host returns default when environment variable not set", {
   withr::local_envvar(AZURE_AUTHORITY_HOST = NA)
   expect_equal(default_azure_host(), "login.microsoftonline.com")
@@ -149,6 +154,13 @@ test_that("default_azure_host returns default when environment variable is empty
 
 test_that("set_azr_defaults overrides default_azure_host", {
   prev <- set_azr_defaults(host = "login.microsoftonline.us")
+  on.exit(set_azr_defaults(host = prev$host))
+  withr::local_envvar(AZURE_AUTHORITY_HOST = NA)
+  expect_equal(default_azure_host(), "login.microsoftonline.us")
+})
+
+test_that("set_azr_defaults strips scheme from default_azure_host", {
+  prev <- set_azr_defaults(host = "https://login.microsoftonline.us/")
   on.exit(set_azr_defaults(host = prev$host))
   withr::local_envvar(AZURE_AUTHORITY_HOST = NA)
   expect_equal(default_azure_host(), "login.microsoftonline.us")

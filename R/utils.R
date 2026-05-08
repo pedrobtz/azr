@@ -107,7 +107,6 @@ is_empty_vec <- function(x) {
 
 get_env_config <- function() {
   tenant_id_env <- Sys.getenv("AZURE_TENANT_ID", unset = "")
-  client_id_env <- Sys.getenv("AZURE_CLIENT_ID", unset = "")
   client_secret_env <- Sys.getenv("AZURE_CLIENT_SECRET", unset = "")
   authority_host_env <- Sys.getenv("AZURE_AUTHORITY_HOST", unset = "")
   config_dir_env <- Sys.getenv("AZURE_CONFIG_DIR", unset = "")
@@ -122,12 +121,6 @@ get_env_config <- function() {
       env_val = tenant_id_env,
       override_val = .azr_defaults$tenant_id,
       default_val = azure_client$tenant_id
-    ),
-    env_override_entry(
-      "AZURE_CLIENT_ID",
-      env_val = client_id_env,
-      override_val = .azr_defaults$client_id,
-      default_val = azure_client$client_id
     ),
     "*" = if (nzchar(client_secret_env)) {
       paste0("AZURE_CLIENT_SECRET: ", cli::col_grey("<<REDACTED>>"))

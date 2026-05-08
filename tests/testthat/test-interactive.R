@@ -128,7 +128,7 @@ test_that("DeviceCodeCredential uses tenant env and Azure CLI client by default"
   cred <- DeviceCodeCredential$new()
 
   expect_equal(cred$.tenant_id, "env-tenant-id")
-  expect_equal(cred$.client_id, default_azure_cli_client_id())
+  expect_equal(cred$.client_id, azure_client$client_id)
 })
 
 # Tests for AuthCodeCredential
@@ -251,7 +251,7 @@ test_that("AuthCodeCredential uses tenant env and Azure CLI client by default", 
   cred <- AuthCodeCredential$new()
 
   expect_equal(cred$.tenant_id, "env-tenant-id")
-  expect_equal(cred$.client_id, default_azure_cli_client_id())
+  expect_equal(cred$.client_id, azure_client$client_id)
 })
 
 test_that("AuthCodeCredential parameters override environment variables", {
@@ -285,8 +285,8 @@ test_that("interactive credentials ignore AZURE_CLIENT_ID by default", {
 
   expect_equal(device_cred$.tenant_id, "env-tenant-id")
   expect_equal(auth_cred$.tenant_id, "env-tenant-id")
-  expect_equal(device_cred$.client_id, default_azure_cli_client_id())
-  expect_equal(auth_cred$.client_id, default_azure_cli_client_id())
+  expect_equal(device_cred$.client_id, azure_client$client_id)
+  expect_equal(auth_cred$.client_id, azure_client$client_id)
 })
 
 # Tests comparing DeviceCodeCredential and AuthCodeCredential

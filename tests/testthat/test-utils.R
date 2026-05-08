@@ -131,6 +131,7 @@ test_that("get_env_config returns formatted bullet list", {
   expect_type(result, "character")
   expect_length(result, 5)
   expect_named(result, c("*", "*", "*", "*", "*"))
+  expect_false(any(grepl("AZURE_CLIENT_ID", result)))
 })
 
 test_that("get_env_config shows environment variables when set", {
@@ -143,10 +144,10 @@ test_that("get_env_config shows environment variables when set", {
 
   result <- get_env_config()
 
-  expect_match(result[1], "my-tenant")
-  expect_match(result[2], "my-client")
-  expect_match(result[3], "REDACTED")
-  expect_match(result[4], "login.microsoftonline.us")
+  expect_true(any(grepl("my-tenant", result)))
+  expect_false(any(grepl("AZURE_CLIENT_ID", result)))
+  expect_true(any(grepl("REDACTED", result)))
+  expect_true(any(grepl("login.microsoftonline.us", result)))
 })
 
 test_that("get_env_config shows defaults when not set", {
@@ -159,10 +160,9 @@ test_that("get_env_config shows defaults when not set", {
 
   result <- get_env_config()
 
-  expect_match(result[1], "default")
-  expect_match(result[2], "default")
-  expect_match(result[3], "not set")
-  expect_match(result[4], "default")
+  expect_true(any(grepl("default", result)))
+  expect_false(any(grepl("AZURE_CLIENT_ID", result)))
+  expect_true(any(grepl("not set", result)))
 })
 
 # Tests for r6_get_initialize_arguments
