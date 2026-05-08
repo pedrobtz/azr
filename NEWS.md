@@ -1,4 +1,8 @@
 
+# azr 0.3.4
+
+* `WorkloadIdentityCredential` now maintains an in-object token cache. Repeated calls to `get_token()` return the cached token immediately without re-reading the federated token file or exchanging it, until the token expires.
+
 # azr 0.3.3
 
 * Added `set_azr_defaults()` to configure package-level overrides for the authority host, client ID, and tenant ID. These take priority over environment variables in `default_azure_host()`, `default_azure_client_id()`, and `default_azure_tenant_id()`.
