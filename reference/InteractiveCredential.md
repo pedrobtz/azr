@@ -52,7 +52,7 @@ Shared initializer for interactive credentials
     InteractiveCredential$new(
       scope = NULL,
       tenant_id = NULL,
-      client_id = NULL,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
@@ -76,7 +76,7 @@ Shared initializer for interactive credentials
 
 - `client_id`:
 
-  Application (client) ID.
+  Application (client) ID. Defaults to the Azure CLI public client ID.
 
 - `use_cache`:
 

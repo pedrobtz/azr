@@ -1,11 +1,26 @@
 # Changelog
 
+## azr 0.3.4
+
+- `WorkloadIdentityCredential` now maintains an in-object token cache.
+  Repeated calls to
+  [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+  return the cached token immediately without re-reading the federated
+  token file or exchanging it, until the token expires.
+- `AZURE_AUTHORITY_HOST` values with an `https://` scheme prefix (as
+  recommended by the Azure SDK documentation) are now handled correctly.
+  Previously, setting
+  `AZURE_AUTHORITY_HOST=https://login.microsoftonline.com` would produce
+  malformed token URLs
+  ([\#16](https://github.com/pedrobtz/azr/issues/16)).
+
 ## azr 0.3.3
 
-- Added
-  [`set_azr_defaults()`](https://pedrobtz.github.io/azr/reference/set_azr_defaults.md)
-  to configure package-level overrides for the authority host, client
-  ID, and tenant ID. These take priority over environment variables in
+CRAN release: 2026-05-04
+
+- Added `set_azr_defaults()` to configure package-level overrides for
+  the authority host, client ID, and tenant ID. These take priority over
+  environment variables in
   [`default_azure_host()`](https://pedrobtz.github.io/azr/reference/default_azure_host.md),
   [`default_azure_client_id()`](https://pedrobtz.github.io/azr/reference/default_azure_client_id.md),
   and

@@ -2,12 +2,9 @@
 
 Retrieves the Azure client ID in priority order:
 
-1.  Package-level override set via
-    [`set_azr_defaults()`](https://pedrobtz.github.io/azr/reference/set_azr_defaults.md)
+1.  `AZURE_CLIENT_ID` environment variable
 
-2.  `AZURE_CLIENT_ID` environment variable
-
-3.  Built-in fallback (Microsoft's public Azure CLI client ID)
+2.  Built-in fallback (Microsoft's public Azure CLI client ID)
 
 ## Usage
 

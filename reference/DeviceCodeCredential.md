@@ -45,7 +45,7 @@ Create a new device code credential
     DeviceCodeCredential$new(
       scope = NULL,
       tenant_id = NULL,
-      client_id = NULL,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
@@ -66,7 +66,7 @@ Create a new device code credential
 - `client_id`:
 
   A character string specifying the application (client) ID. Defaults to
-  `NULL`.
+  the Azure CLI public client ID.
 
 - `use_cache`:
 

@@ -16,6 +16,8 @@
   : Device code credential authentication
 - [`RefreshTokenCredential`](https://pedrobtz.github.io/azr/reference/RefreshTokenCredential.md)
   : Refresh token credential authentication
+- [`WorkloadIdentityCredential`](https://pedrobtz.github.io/azr/reference/WorkloadIdentityCredential.md)
+  : Workload Identity credential authentication
 - [`api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
   : Azure API Client
 - [`api_resource`](https://pedrobtz.github.io/azr/reference/api_resource.md)
@@ -62,6 +64,8 @@
   : Get default Azure OAuth URLs
 - [`default_credential_chain()`](https://pedrobtz.github.io/azr/reference/default_credential_chain.md)
   : Create Default Credential Chain
+- [`default_federated_token_file()`](https://pedrobtz.github.io/azr/reference/default_federated_token_file.md)
+  : Get default federated token file path
 - [`default_msal_token_cache()`](https://pedrobtz.github.io/azr/reference/default_msal_token_cache.md)
   : Get default MSAL token cache path
 - [`default_non_auth()`](https://pedrobtz.github.io/azr/reference/default_non_auth.md)
@@ -84,7 +88,5 @@
   : Get Default Token Provider Function
 - [`is_hosted_session()`](https://pedrobtz.github.io/azr/reference/is_hosted_session.md)
   : Detect if running in a hosted session
-- [`set_azr_defaults()`](https://pedrobtz.github.io/azr/reference/set_azr_defaults.md)
-  : Set package-level Azure defaults
 - [`write_msal_token()`](https://pedrobtz.github.io/azr/reference/write_msal_token.md)
   : Write an httr2 Token to the MSAL Token Cache
