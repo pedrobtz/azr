@@ -453,82 +453,11 @@ get_credential_provider <- function(
   }
 
   errors <- list()
+  attempt <- try_build_credential(chain, envir = rlang::current_env())
+  errors <- attempt$errors
 
-  for (i in seq_along(chain)) {
-    crd_expr <- chain[[i]]
-    crd_name <- names(chain)[i] %||% paste0("credential_", i)
-
-    if (verbose) {
-      cli::cli_inform(c(
-        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
-      ))
-    }
-
-    crd <- try(
-      {
-        mask <- rlang::new_data_mask(asNamespace("azr"))
-        rlang::eval_tidy(crd_expr, data = mask)
-      },
-      silent = TRUE
-    )
-
-    if (R6::is.R6Class(crd)) {
-      if (verbose) {
-        cli::cli_inform(c(
-          " " = "Instantiating R6 class {.cls {crd$classname}}."
-        ))
-      }
-
-      obj <- try(
-        new_instance(crd, env = rlang::current_env()),
-        silent = TRUE
-      )
-
-      if (inherits(obj, "try-error")) {
-        errors[[crd_name]] <- conditionMessage(attr(obj, "condition"))
-        if (verbose) {
-          cli::cli_inform(c(
-            "x" = "Failed to instantiate {.strong {crd_name}}: {errors[[crd_name]]}"
-          ))
-        }
-        next
-      }
-
-      if (!inherits(obj, "Credential")) {
-        errors[[crd_name]] <- "Object does not inherit from Credential class"
-        if (verbose) {
-          cli::cli_inform(c(
-            "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
-          ))
-        }
-        next
-      }
-    } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
-      if (verbose) {
-        cli::cli_inform(c(
-          " " = "Using existing R6 instance of class {.cls {class(crd)[1]}}."
-        ))
-      }
-      obj <- crd
-    } else {
-      errors[[crd_name]] <- "Invalid credential type"
-      if (verbose) {
-        cli::cli_inform(c(
-          "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
-        ))
-      }
-      next
-    }
-
-    if (obj$is_interactive() && !rlang::is_interactive()) {
-      errors[[crd_name]] <- "Credential requires interactive session"
-      if (verbose) {
-        cli::cli_inform(c(
-          "x" = "Skipping {.strong {crd_name}}: {errors[[crd_name]]}"
-        ))
-      }
-      next
-    }
+  for (crd_name in names(attempt$credentials)) {
+    obj <- attempt$credentials[[crd_name]]
 
     if (verbose) {
       cli::cli_inform(c(
@@ -578,6 +507,104 @@ get_credential_provider <- function(
   }
 
   cli::cli_abort(error_msgs, class = "azr_credential_chain_failed")
+}
+
+try_build_credential <- function(chain, envir) {
+  verbose <- rlang::env_get(envir, "verbose", default = FALSE)
+  credentials <- list()
+  errors <- list()
+
+  for (i in seq_along(chain)) {
+    crd_expr <- chain[[i]]
+    crd_name <- names(chain)[i]
+    if (is.null(crd_name) || !nzchar(crd_name)) {
+      crd_name <- paste0("credential_", i)
+    }
+
+    if (verbose) {
+      cli::cli_inform(c(
+        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
+      ))
+    }
+
+    crd <- try(
+      {
+        mask <- rlang::new_data_mask(
+          rlang::env_clone(
+            asNamespace("azr"),
+            parent = rlang::quo_get_env(crd_expr)
+          )
+        )
+        rlang::eval_tidy(crd_expr, data = mask)
+      },
+      silent = TRUE
+    )
+
+    if (R6::is.R6Class(crd)) {
+      if (verbose) {
+        cli::cli_inform(c(
+          " " = "Instantiating R6 class {.cls {crd$classname}}."
+        ))
+      }
+
+      obj <- try(
+        new_instance(crd, env = envir),
+        silent = TRUE
+      )
+
+      if (inherits(obj, "try-error")) {
+        errors[[crd_name]] <- conditionMessage(attr(obj, "condition"))
+        if (verbose) {
+          cli::cli_inform(c(
+            "x" = "Failed to instantiate {.strong {crd_name}}: {errors[[crd_name]]}"
+          ))
+        }
+        next
+      }
+
+      if (!inherits(obj, "Credential")) {
+        errors[[crd_name]] <- "Object does not inherit from Credential class"
+        if (verbose) {
+          cli::cli_inform(c(
+            "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
+          ))
+        }
+        next
+      }
+    } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
+      if (verbose) {
+        cli::cli_inform(c(
+          " " = "Using existing R6 instance of class {.cls {class(crd)[1]}}."
+        ))
+      }
+      obj <- crd
+    } else {
+      errors[[crd_name]] <- "Invalid credential type"
+      if (verbose) {
+        cli::cli_inform(c(
+          "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
+        ))
+      }
+      next
+    }
+
+    if (obj$is_interactive() && !rlang::is_interactive()) {
+      errors[[crd_name]] <- "Credential requires interactive session"
+      if (verbose) {
+        cli::cli_inform(c(
+          "x" = "Skipping {.strong {crd_name}}: {errors[[crd_name]]}"
+        ))
+      }
+      next
+    }
+
+    credentials[[crd_name]] <- obj
+  }
+
+  list(
+    credentials = credentials,
+    errors = errors
+  )
 }
 
 
