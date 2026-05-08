@@ -464,7 +464,10 @@ get_credential_provider <- function(
       ))
     }
 
-    crd <- try(rlang::eval_tidy(crd_expr), silent = TRUE)
+    crd <- try(
+      rlang::eval_tidy(crd_expr, data = asNamespace("azr")),
+      silent = TRUE
+    )
 
     if (R6::is.R6Class(crd)) {
       if (verbose) {
