@@ -5,7 +5,7 @@
 \alias{environment_variables}
 \title{Azure Environment Variable Names}
 \format{
-An object of class \code{list} of length 10.
+An object of class \code{list} of length 11.
 }
 \usage{
 environment_variables

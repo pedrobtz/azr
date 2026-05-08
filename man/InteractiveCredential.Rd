@@ -50,7 +50,7 @@ Shared initializer for interactive credentials
 \if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$new(
   scope = NULL,
   tenant_id = NULL,
-  client_id = NULL,
+  client_id = default_azure_cli_client_id(),
   use_cache = "disk",
   offline = TRUE,
   interactive = TRUE,
@@ -70,7 +70,8 @@ Shared initializer for interactive credentials
 
 \item{\code{tenant_id}}{Azure AD tenant ID.}
 
-\item{\code{client_id}}{Application (client) ID.}
+\item{\code{client_id}}{Application (client) ID. Defaults to the Azure CLI
+public client ID.}
 
 \item{\code{use_cache}}{Cache type: \code{"disk"} or \code{"memory"}.}
 

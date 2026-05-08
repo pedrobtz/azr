@@ -36,19 +36,6 @@ azure_scopes <- list(
   azure_openai = "https://cognitiveservices.azure.com/.default"
 )
 
-#' Package-level defaults environment
-#'
-#' @description
-#' Mutable environment for overriding package defaults at runtime via
-#' [set_azr_defaults()]. `NULL` means "not set" and the normal env-var /
-#' built-in fallback applies.
-#'
-#' @keywords internal
-.azr_defaults <- new.env(parent = emptyenv())
-.azr_defaults$host <- NULL
-.azr_defaults$client_id <- NULL
-.azr_defaults$tenant_id <- NULL
-
 #' Azure Environment Variable Names
 #'
 #' @description
@@ -77,5 +64,6 @@ environment_variables <- list(
     "AZURE_CLIENT_ID",
     "AZURE_USERNAME",
     "AZURE_PASSWORD"
-  )
+  ),
+  azure_federated_token_file = "AZURE_FEDERATED_TOKEN_FILE"
 )

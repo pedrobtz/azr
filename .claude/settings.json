@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Rscript --quiet --vanilla -e 'devtools::test\\(filter = \"workload-identity\", reporter = \"check\"\\)')"
+    ]
+  }
+}
