@@ -135,8 +135,10 @@ Get an access token by exchanging the federated token
 }
 
 \subsection{Details}{
-Reads the federated token from the file on every call so that token
-rotation performed by the runtime is automatically reflected.
+Returns a valid in-object cached token immediately if one exists. Otherwise
+reads the federated token from the file and exchanges it for a new access
+token so that token rotation performed by the runtime is automatically
+reflected.
 }
 
 \subsection{Returns}{

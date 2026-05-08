@@ -162,7 +162,7 @@ env_override_entry <- function(var_name, env_val, default_val) {
     ))
   }
 
-  check <- paste0(" ", cli::col_green("✓"))
+  check <- paste0(" ", cli::col_green("\u2713"))
 
   c(
     "*" = paste0(var_name, ":"),
