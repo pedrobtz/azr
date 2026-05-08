@@ -334,3 +334,24 @@ default_redirect_uri <- function(redirect_uri = httr2::oauth_redirect_uri()) {
 
   httr2::url_build(parsed)
 }
+
+#' Get default federated token file path
+#'
+#' @description
+#' Retrieves the path to the federated identity token file from the
+#' `AZURE_FEDERATED_TOKEN_FILE` environment variable, or returns `NULL` if
+#' not set. Used by [WorkloadIdentityCredential].
+#'
+#' @return A character string with the file path, or `NULL` if not set
+#'
+#' @export
+#' @examples
+#' default_federated_token_file()
+default_federated_token_file <- function() {
+  res <- Sys.getenv(
+    environment_variables$azure_federated_token_file,
+    unset = NA_character_
+  )
+
+  if (is.na(res)) NULL else res
+}

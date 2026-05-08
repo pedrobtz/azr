@@ -111,41 +111,87 @@ get_env_config <- function() {
   client_secret_env <- Sys.getenv("AZURE_CLIENT_SECRET", unset = "")
   authority_host_env <- Sys.getenv("AZURE_AUTHORITY_HOST", unset = "")
   config_dir_env <- Sys.getenv("AZURE_CONFIG_DIR", unset = "")
+  federated_token_file_env <- Sys.getenv(
+    "AZURE_FEDERATED_TOKEN_FILE",
+    unset = ""
+  )
 
-  # Build bullet items
   c(
-    "*" = if (nzchar(tenant_id_env)) {
-      cli::format_inline("AZURE_TENANT_ID: {.val {tenant_id_env}}")
-    } else {
-      cli::format_inline(
-        "AZURE_TENANT_ID: {.val {default_azure_tenant_id()}} (default)"
-      )
-    },
-    "*" = if (nzchar(client_id_env)) {
-      cli::format_inline("AZURE_CLIENT_ID: {.val {client_id_env}}")
-    } else {
-      cli::format_inline(
-        "AZURE_CLIENT_ID: {.val {default_azure_client_id()}} (default)"
-      )
-    },
+    env_override_entry(
+      "AZURE_TENANT_ID",
+      env_val = tenant_id_env,
+      override_val = .azr_defaults$tenant_id,
+      default_val = azure_client$tenant_id
+    ),
+    env_override_entry(
+      "AZURE_CLIENT_ID",
+      env_val = client_id_env,
+      override_val = .azr_defaults$client_id,
+      default_val = azure_client$client_id
+    ),
     "*" = if (nzchar(client_secret_env)) {
       paste0("AZURE_CLIENT_SECRET: ", cli::col_grey("<<REDACTED>>"))
     } else {
       paste0("AZURE_CLIENT_SECRET: ", cli::col_grey("(not set)"))
     },
-    "*" = if (nzchar(authority_host_env)) {
-      cli::format_inline("AZURE_AUTHORITY_HOST: {.val {authority_host_env}}")
-    } else {
-      cli::format_inline(
-        "AZURE_AUTHORITY_HOST: {.val {default_azure_host()}} (default)"
-      )
-    },
+    env_override_entry(
+      "AZURE_AUTHORITY_HOST",
+      env_val = authority_host_env,
+      override_val = .azr_defaults$host,
+      default_val = azure_authority_hosts$azure_public_cloud
+    ),
     "*" = if (nzchar(config_dir_env)) {
       cli::format_inline("AZURE_CONFIG_DIR: {.val {config_dir_env}}")
     } else {
       cli::format_inline(
         "AZURE_CONFIG_DIR: {.val {default_azure_config_dir()}} (default)"
       )
+    },
+    "*" = if (nzchar(federated_token_file_env)) {
+      cli::format_inline(
+        "AZURE_FEDERATED_TOKEN_FILE: {.val {federated_token_file_env}}"
+      )
+    } else {
+      paste0("AZURE_FEDERATED_TOKEN_FILE: ", cli::col_grey("(not set)"))
     }
   )
+}
+
+
+# Formats a bullet entry for a field that can be set via an env var OR via
+# set_azr_defaults(). When both sources have a value, expands to two sub-lines
+# and marks the active one (override wins over env).
+env_override_entry <- function(var_name, env_val, override_val, default_val) {
+  has_env <- nzchar(env_val)
+  has_override <- !is.null(override_val)
+
+  if (!has_env && !has_override) {
+    return(c(
+      "*" = cli::format_inline(
+        "{var_name}: {.val {default_val}} {cli::col_grey('(default)')}"
+      )
+    ))
+  }
+
+  check <- paste0(" ", cli::col_green("✓"))
+
+  env_line <- if (has_env) {
+    paste0(
+      cli::format_inline("  env:              {.val {env_val}}"),
+      if (!has_override) check else ""
+    )
+  } else {
+    paste0("  env:              ", cli::col_grey("(not set)"))
+  }
+
+  override_line <- if (has_override) {
+    paste0(
+      cli::format_inline("  set_azr_defaults: {.val {override_val}}"),
+      check
+    )
+  } else {
+    paste0("  set_azr_defaults: ", cli::col_grey("(not set)"))
+  }
+
+  c("*" = paste0(var_name, ":"), " " = env_line, " " = override_line)
 }

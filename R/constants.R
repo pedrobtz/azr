@@ -77,5 +77,6 @@ environment_variables <- list(
     "AZURE_CLIENT_ID",
     "AZURE_USERNAME",
     "AZURE_PASSWORD"
-  )
+  ),
+  azure_federated_token_file = "AZURE_FEDERATED_TOKEN_FILE"
 )

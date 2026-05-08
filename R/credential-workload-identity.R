@@ -1,0 +1,215 @@
+# WorkloadIdentityCredential ----
+#' Workload Identity credential authentication
+#'
+#' @description
+#' Authenticates using Azure Workload Identity by reading a federated token from
+#' a file and exchanging it for an Azure AD access token. This is commonly used
+#' in Kubernetes environments (AKS) where a service account token is mounted
+#' into the pod.
+#'
+#' @details
+#' The credential implements the OAuth 2.0 client credentials flow with a JWT
+#' bearer assertion (`client_assertion`). It reads the federated identity token
+#' from a file on each call to `get_token()` so that token rotation by the
+#' runtime (e.g., Kubernetes) is automatically picked up.
+#'
+#' The following environment variables are used when parameters are not provided:
+#' - `AZURE_CLIENT_ID`: Client (application) ID of the Azure AD application
+#' - `AZURE_TENANT_ID`: Azure AD tenant ID
+#' - `AZURE_FEDERATED_TOKEN_FILE`: Path to the file containing the federated token
+#'
+#' @export
+#' @examples
+#' # Create credential using environment variables
+#' # (requires AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_FEDERATED_TOKEN_FILE)
+#' cred <- WorkloadIdentityCredential$new(
+#'   scope = "https://management.azure.com/.default"
+#' )
+#'
+#' # Or supply parameters directly
+#' cred <- WorkloadIdentityCredential$new(
+#'   tenant_id = "your-tenant-id",
+#'   client_id = "your-client-id",
+#'   token_file_path = "/var/run/secrets/azure/tokens/azure-identity-token",
+#'   scope = "https://management.azure.com/.default"
+#' )
+#'
+#' \dontrun{
+#' # Get an access token
+#' token <- cred$get_token()
+#'
+#' # Use with httr2 request
+#' req <- httr2::request("https://management.azure.com/subscriptions")
+#' resp <- httr2::req_perform(cred$req_auth(req))
+#' }
+WorkloadIdentityCredential <- R6::R6Class(
+  classname = "WorkloadIdentityCredential",
+  inherit = Credential,
+  public = list(
+    #' @field .token_file_path Path to the file containing the federated identity token
+    .token_file_path = NULL,
+
+    #' @description
+    #' Create a new Workload Identity credential
+    #'
+    #' @param scope A character string specifying the OAuth2 scope. Defaults to
+    #'   the Azure Resource Manager scope.
+    #' @param tenant_id A character string specifying the Azure AD tenant ID.
+    #'   Defaults to the `AZURE_TENANT_ID` environment variable.
+    #' @param client_id A character string specifying the client (application) ID.
+    #'   Defaults to the `AZURE_CLIENT_ID` environment variable.
+    #' @param token_file_path A character string specifying the path to the file
+    #'   containing the federated identity token. Defaults to the
+    #'   `AZURE_FEDERATED_TOKEN_FILE` environment variable.
+    #'
+    #' @return A new `WorkloadIdentityCredential` object
+    initialize = function(
+      scope = NULL,
+      tenant_id = NULL,
+      client_id = NULL,
+      token_file_path = NULL
+    ) {
+      self$.token_file_path <- token_file_path %||%
+        default_federated_token_file()
+      super$initialize(
+        scope = scope,
+        tenant_id = tenant_id,
+        client_id = client_id
+      )
+      lockBinding(".token_file_path", self)
+    },
+
+    #' @description
+    #' Validate the credential configuration
+    #'
+    #' @details
+    #' Checks that `token_file_path` is provided and not NA. Calls the parent
+    #' class validation method.
+    validate = function() {
+      super$validate()
+
+      if (
+        is.null(self$.token_file_path) || rlang::is_na(self$.token_file_path)
+      ) {
+        cli::cli_abort(
+          c(
+            "Argument {.arg token_file_path} cannot be NULL or NA.",
+            "i" = "Set the {.envvar AZURE_FEDERATED_TOKEN_FILE} environment variable or pass {.arg token_file_path} directly."
+          ),
+          class = "azr_workload_identity_missing_token_file"
+        )
+      }
+    },
+
+    #' @description
+    #' Get an access token by exchanging the federated token
+    #'
+    #' @details
+    #' Reads the federated token from the file on every call so that token
+    #' rotation performed by the runtime is automatically reflected.
+    #'
+    #' @return An [httr2::oauth_token()] object containing the access token
+    get_token = function() {
+      federated_token <- wi_read_token_file(self$.token_file_path)
+      wi_exchange_token(
+        federated_token = federated_token,
+        client_id = self$.client_id,
+        scope = self$.scope_str,
+        token_url = self$.token_url
+      )
+    },
+
+    #' @description
+    #' Add authentication to an httr2 request
+    #'
+    #' @param req An [httr2::request()] object
+    #'
+    #' @return The request object with a Bearer token authorization header
+    req_auth = function(req) {
+      token <- self$get_token()
+      httr2::req_auth_bearer_token(req, token$access_token)
+    }
+  )
+)
+
+
+# Read the federated identity token from a file, trimming whitespace.
+wi_read_token_file <- function(path) {
+  if (!file.exists(path)) {
+    cli::cli_abort(
+      c(
+        "Federated token file not found: {.path {path}}",
+        "i" = "Ensure {.envvar AZURE_FEDERATED_TOKEN_FILE} points to a valid file."
+      ),
+      class = "azr_workload_identity_file_not_found"
+    )
+  }
+
+  token <- trimws(paste(readLines(path, warn = FALSE), collapse = ""))
+
+  if (!nzchar(token)) {
+    cli::cli_abort(
+      c(
+        "Federated token file is empty: {.path {path}}",
+        "i" = "The file must contain a valid JWT token."
+      ),
+      class = "azr_workload_identity_empty_token"
+    )
+  }
+
+  token
+}
+
+
+# Exchange a federated token for an Azure AD access token using the
+# OAuth 2.0 client credentials grant with a JWT bearer assertion.
+wi_exchange_token <- function(federated_token, client_id, scope, token_url) {
+  resp <- rlang::try_fetch(
+    httr2::request(token_url) |>
+      httr2::req_body_form(
+        grant_type = "client_credentials",
+        client_id = client_id,
+        client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion = federated_token,
+        scope = scope
+      ) |>
+      httr2::req_error(is_error = \(r) FALSE) |>
+      httr2::req_perform(),
+    error = function(cnd) {
+      cli::cli_abort(
+        c(
+          "Failed to reach the token endpoint.",
+          "i" = "URL: {.url {token_url}}",
+          "x" = conditionMessage(cnd)
+        ),
+        class = "azr_workload_identity_exchange_error",
+        call = call("get_token")
+      )
+    }
+  )
+
+  body <- httr2::resp_body_json(resp)
+
+  if (!is.null(body$error)) {
+    cli::cli_abort(
+      c(
+        "Token exchange failed: {body$error}",
+        "x" = body$error_description %||% "No error description provided."
+      ),
+      class = "azr_workload_identity_token_error",
+      call = call("get_token")
+    )
+  }
+
+  expires_at <- if (!is.null(body$expires_in)) {
+    Sys.time() + as.numeric(body$expires_in)
+  } else {
+    NULL
+  }
+
+  httr2::oauth_token(
+    access_token = body$access_token,
+    token_type = body$token_type %||% "Bearer",
+    .expires_at = expires_at
+  )
+}
