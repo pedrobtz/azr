@@ -465,7 +465,10 @@ get_credential_provider <- function(
     }
 
     crd <- try(
-      rlang::eval_tidy(crd_expr, data = asNamespace("azr")),
+      {
+        mask <- rlang::new_data_mask(asNamespace("azr"))
+        rlang::eval_tidy(crd_expr, data = mask)
+      },
       silent = TRUE
     )
 
