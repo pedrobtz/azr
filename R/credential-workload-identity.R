@@ -65,12 +65,27 @@ WorkloadIdentityCredential <- R6::R6Class(
     #' @return A new `WorkloadIdentityCredential` object
     initialize = function(
       scope = NULL,
-      tenant_id = NULL,
-      client_id = NULL,
-      token_file_path = NULL
+      tenant_id = Sys.getenv(
+        environment_variables$azure_tenant_id,
+        unset = NA_character_
+      ),
+      client_id = Sys.getenv(
+        environment_variables$azure_client_id,
+        unset = NA_character_
+      ),
+      token_file_path = default_federated_token_file()
     ) {
-      self$.token_file_path <- token_file_path %||%
-        default_federated_token_file()
+      tenant_id <- wi_required_value(
+        tenant_id,
+        envvar = environment_variables$azure_tenant_id,
+        arg = "tenant_id"
+      )
+      client_id <- wi_required_value(
+        client_id,
+        envvar = environment_variables$azure_client_id,
+        arg = "client_id"
+      )
+      self$.token_file_path <- token_file_path
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
@@ -133,6 +148,21 @@ WorkloadIdentityCredential <- R6::R6Class(
 )
 
 
+wi_required_value <- function(value, envvar, arg) {
+  if (is_empty(value)) {
+    cli::cli_abort(
+      c(
+        "Argument {.arg {arg}} cannot be NULL or NA.",
+        "i" = "Set the {.envvar {envvar}} environment variable or pass {.arg {arg}} directly."
+      ),
+      class = "azr_workload_identity_missing_required_value"
+    )
+  }
+
+  value
+}
+
+
 # Read the federated identity token from a file, trimming whitespace.
 wi_read_token_file <- function(path) {
   if (!file.exists(path)) {
@@ -188,7 +218,7 @@ wi_exchange_token <- function(federated_token, client_id, scope, token_url) {
     }
   )
 
-  body <- httr2::resp_body_json(resp)
+  body <- wi_resp_body_json(resp)
 
   if (!is.null(body$error)) {
     cli::cli_abort(
@@ -201,15 +231,34 @@ wi_exchange_token <- function(federated_token, client_id, scope, token_url) {
     )
   }
 
-  expires_at <- if (!is.null(body$expires_in)) {
-    Sys.time() + as.numeric(body$expires_in)
-  } else {
-    NULL
-  }
-
   httr2::oauth_token(
     access_token = body$access_token,
     token_type = body$token_type %||% "Bearer",
-    .expires_at = expires_at
+    expires_in = as.numeric(body$expires_in)
+  )
+}
+
+
+wi_resp_body_json <- function(resp) {
+  rlang::try_fetch(
+    httr2::resp_body_json(resp),
+    error = function(cnd) {
+      body <- httr2::resp_body_string(resp)
+      if (nchar(body) > 200) {
+        body <- paste0(substr(body, 1, 200), "...")
+      }
+
+      cli::cli_abort(
+        c(
+          "Token endpoint returned an invalid JSON response.",
+          "i" = "URL: {.url {httr2::resp_url(resp)}}",
+          "i" = "Status: {httr2::resp_status(resp)}",
+          "x" = conditionMessage(cnd),
+          "i" = "Body: {body}"
+        ),
+        class = "azr_workload_identity_invalid_json_response",
+        call = call("get_token")
+      )
+    }
   )
 }
