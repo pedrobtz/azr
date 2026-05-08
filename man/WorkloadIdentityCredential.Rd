@@ -82,9 +82,9 @@ Create a new Workload Identity credential
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{WorkloadIdentityCredential$new(
   scope = NULL,
-  tenant_id = NULL,
-  client_id = NULL,
-  token_file_path = NULL
+  tenant_id = Sys.getenv(environment_variables$azure_tenant_id, unset = NA_character_),
+  client_id = Sys.getenv(environment_variables$azure_client_id, unset = NA_character_),
+  token_file_path = default_federated_token_file()
 )}\if{html}{\out{</div>}}
 }
 
