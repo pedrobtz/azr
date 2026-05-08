@@ -38,7 +38,7 @@ InteractiveCredential <- R6::R6Class(
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
-      client_id = azure_client$client_id,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
@@ -274,7 +274,7 @@ DeviceCodeCredential <- R6::R6Class(
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
-      client_id = azure_client$client_id,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       interactive = TRUE,
@@ -361,7 +361,7 @@ AuthCodeCredential <- R6::R6Class(
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
-      client_id = azure_client$client_id,
+      client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),

@@ -119,7 +119,6 @@ get_env_config <- function() {
     env_override_entry(
       "AZURE_TENANT_ID",
       env_val = tenant_id_env,
-      override_val = .azr_defaults$tenant_id,
       default_val = azure_client$tenant_id
     ),
     "*" = if (nzchar(client_secret_env)) {
@@ -130,7 +129,6 @@ get_env_config <- function() {
     env_override_entry(
       "AZURE_AUTHORITY_HOST",
       env_val = authority_host_env,
-      override_val = .azr_defaults$host,
       default_val = azure_authority_hosts$azure_public_cloud
     ),
     "*" = if (nzchar(config_dir_env)) {
@@ -151,14 +149,12 @@ get_env_config <- function() {
 }
 
 
-# Formats a bullet entry for a field that can be set via an env var OR via
-# set_azr_defaults(). When both sources have a value, expands to two sub-lines
-# and marks the active one (override wins over env).
-env_override_entry <- function(var_name, env_val, override_val, default_val) {
+# Formats a bullet entry for a field that can be set via an env var and
+# otherwise falls back to a built-in default.
+env_override_entry <- function(var_name, env_val, default_val) {
   has_env <- nzchar(env_val)
-  has_override <- !is.null(override_val)
 
-  if (!has_env && !has_override) {
+  if (!has_env) {
     return(c(
       "*" = cli::format_inline(
         "{var_name}: {.val {default_val}} {cli::col_grey('(default)')}"
@@ -168,23 +164,8 @@ env_override_entry <- function(var_name, env_val, override_val, default_val) {
 
   check <- paste0(" ", cli::col_green("✓"))
 
-  env_line <- if (has_env) {
-    paste0(
-      cli::format_inline("  env:              {.val {env_val}}"),
-      if (!has_override) check else ""
-    )
-  } else {
-    paste0("  env:              ", cli::col_grey("(not set)"))
-  }
-
-  override_line <- if (has_override) {
-    paste0(
-      cli::format_inline("  set_azr_defaults: {.val {override_val}}"),
-      check
-    )
-  } else {
-    paste0("  set_azr_defaults: ", cli::col_grey("(not set)"))
-  }
-
-  c("*" = paste0(var_name, ":"), " " = env_line, " " = override_line)
+  c(
+    "*" = paste0(var_name, ":"),
+    " " = paste0(cli::format_inline("  env: {.val {env_val}}"), check)
+  )
 }

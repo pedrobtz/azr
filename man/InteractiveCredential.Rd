@@ -50,7 +50,7 @@ Shared initializer for interactive credentials
 \if{html}{\out{<div class="r">}}\preformatted{InteractiveCredential$new(
   scope = NULL,
   tenant_id = NULL,
-  client_id = azure_client$client_id,
+  client_id = default_azure_cli_client_id(),
   use_cache = "disk",
   offline = TRUE,
   interactive = TRUE,

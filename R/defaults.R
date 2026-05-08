@@ -1,57 +1,9 @@
-#' Set package-level Azure defaults
-#'
-#' @description
-#' Overrides the built-in fallback values used by [default_azure_host()],
-#' [default_azure_client_id()], and [default_azure_tenant_id()] when the
-#' corresponding environment variable is not set. Pass `NULL` to a parameter
-#' to clear a previously set override.
-#'
-#' The priority order for each default is:
-#' 1. Package-level override set by `set_azr_defaults()` (highest)
-#' 2. Environment variable (`AZURE_AUTHORITY_HOST`, `AZURE_CLIENT_ID`,
-#'    `AZURE_TENANT_ID`)
-#' 3. Built-in fallback (lowest)
-#'
-#' @param host A character string specifying the Azure authority host, or
-#'   `NULL` to clear any previously set override.
-#' @param client_id A character string specifying the Azure client ID, or
-#'   `NULL` to clear any previously set override.
-#' @param tenant_id A character string specifying the Azure tenant ID, or
-#'   `NULL` to clear any previously set override.
-#'
-#' @return Invisibly returns the previous values as a named list.
-#'
-#' @export
-#' @examples
-#' # Override the authority host for Azure Government
-#' set_azr_defaults(host = "login.microsoftonline.us")
-#'
-#' # Clear the override
-#' set_azr_defaults(host = NULL)
-set_azr_defaults <- function(
-  host = .azr_defaults$host,
-  client_id = .azr_defaults$client_id,
-  tenant_id = .azr_defaults$tenant_id
-) {
-  prev <- list(
-    host = .azr_defaults$host,
-    client_id = .azr_defaults$client_id,
-    tenant_id = .azr_defaults$tenant_id
-  )
-  .azr_defaults$host <- host
-  .azr_defaults$client_id <- client_id
-  .azr_defaults$tenant_id <- tenant_id
-  invisible(prev)
-}
-
-
 #' Get default Azure tenant ID
 #'
 #' @description
 #' Retrieves the Azure tenant ID in priority order:
-#' 1. Package-level override set via [set_azr_defaults()]
-#' 2. `AZURE_TENANT_ID` environment variable
-#' 3. Built-in fallback (`"common"`)
+#' 1. `AZURE_TENANT_ID` environment variable
+#' 2. Built-in fallback (`"common"`)
 #'
 #' @return A character string with the tenant ID
 #'
@@ -59,11 +11,10 @@ set_azr_defaults <- function(
 #' @examples
 #' default_azure_tenant_id()
 default_azure_tenant_id <- function() {
-  .azr_defaults$tenant_id %||%
-    Sys.getenv(
-      environment_variables$azure_tenant_id,
-      unset = azure_client$tenant_id
-    )
+  Sys.getenv(
+    environment_variables$azure_tenant_id,
+    unset = azure_client$tenant_id
+  )
 }
 
 
@@ -71,9 +22,8 @@ default_azure_tenant_id <- function() {
 #'
 #' @description
 #' Retrieves the Azure client ID in priority order:
-#' 1. Package-level override set via [set_azr_defaults()]
-#' 2. `AZURE_CLIENT_ID` environment variable
-#' 3. Built-in fallback (Microsoft's public Azure CLI client ID)
+#' 1. `AZURE_CLIENT_ID` environment variable
+#' 2. Built-in fallback (Microsoft's public Azure CLI client ID)
 #'
 #' @return A character string with the client ID
 #'
@@ -81,11 +31,15 @@ default_azure_tenant_id <- function() {
 #' @examples
 #' default_azure_client_id()
 default_azure_client_id <- function() {
-  .azr_defaults$client_id %||%
-    Sys.getenv(
-      environment_variables$azure_client_id,
-      unset = azure_client$client_id
-    )
+  Sys.getenv(
+    environment_variables$azure_client_id,
+    unset = azure_client$client_id
+  )
+}
+
+
+default_azure_cli_client_id <- function() {
+  azure_client$client_id
 }
 
 
@@ -229,8 +183,15 @@ default_azure_url <- function(
 ) {
   validate_tenant_id(tenant_id)
 
-  oauth_host <- normalize_azure_authority_host(oauth_host)
-  oauth_base <- rlang::englue("{oauth_host}/{tenant_id}/oauth2/v2.0")
+  if (!rlang::is_string(oauth_host) || !nzchar(oauth_host)) {
+    cli::cli_abort(
+      "{.arg oauth_host} must be a non-empty string, not {.obj_type_friendly {oauth_host}}"
+    )
+  }
+
+  oauth_host <- sub("/+$", "", oauth_host)
+  oauth_host <- sub("^https?://", "", oauth_host)
+  oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
 
   urls <- c(
     authorize = paste0(oauth_base, "/authorize"),
@@ -251,9 +212,8 @@ default_azure_url <- function(
 #'
 #' @description
 #' Retrieves the Azure authority host in priority order:
-#' 1. Package-level override set via [set_azr_defaults()]
-#' 2. `AZURE_AUTHORITY_HOST` environment variable
-#' 3. Built-in fallback (`login.microsoftonline.com`)
+#' 1. `AZURE_AUTHORITY_HOST` environment variable
+#' 2. Built-in fallback (`login.microsoftonline.com`)
 #'
 #' @return A character string with the authority host URL
 #'
@@ -261,18 +221,11 @@ default_azure_url <- function(
 #' @examples
 #' default_azure_host()
 default_azure_host <- function() {
-  normalize_azure_authority_host(
-    .azr_defaults$host %||%
-      Sys.getenv(
-        environment_variables$azure_authority_host,
-        unset = azure_authority_hosts$azure_public_cloud
-      ),
-    include_scheme = FALSE
+  host <- Sys.getenv(
+    environment_variables$azure_authority_host,
+    unset = azure_authority_hosts$azure_public_cloud
   )
-}
 
-
-normalize_azure_authority_host <- function(host, include_scheme = TRUE) {
   if (!rlang::is_string(host) || !nzchar(host)) {
     cli::cli_abort(
       "{.arg host} must be a non-empty string, not {.obj_type_friendly {host}}"
@@ -280,16 +233,8 @@ normalize_azure_authority_host <- function(host, include_scheme = TRUE) {
   }
 
   host <- sub("/+$", "", host)
-  host <- sub("^https?://", "", host)
-
-  if (isTRUE(include_scheme)) {
-    host <- paste0("https://", host)
-  }
-
-  host
+  sub("^https?://", "", host)
 }
-
-
 #' Get default Azure configuration directory
 #'
 #' @description

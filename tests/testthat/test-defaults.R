@@ -152,55 +152,6 @@ test_that("default_azure_host returns default when environment variable is empty
   expect_equal(default_azure_host(), "login.microsoftonline.com")
 })
 
-test_that("set_azr_defaults overrides default_azure_host", {
-  prev <- set_azr_defaults(host = "login.microsoftonline.us")
-  on.exit(set_azr_defaults(host = prev$host))
-  withr::local_envvar(AZURE_AUTHORITY_HOST = NA)
-  expect_equal(default_azure_host(), "login.microsoftonline.us")
-})
-
-test_that("set_azr_defaults strips scheme from default_azure_host", {
-  prev <- set_azr_defaults(host = "https://login.microsoftonline.us/")
-  on.exit(set_azr_defaults(host = prev$host))
-  withr::local_envvar(AZURE_AUTHORITY_HOST = NA)
-  expect_equal(default_azure_host(), "login.microsoftonline.us")
-})
-
-test_that("set_azr_defaults host takes priority over environment variable", {
-  prev <- set_azr_defaults(host = "login.microsoftonline.us")
-  on.exit(set_azr_defaults(host = prev$host))
-  withr::local_envvar(AZURE_AUTHORITY_HOST = "login.chinacloudapi.cn")
-  expect_equal(default_azure_host(), "login.microsoftonline.us")
-})
-
-test_that("set_azr_defaults overrides default_azure_client_id", {
-  prev <- set_azr_defaults(client_id = "my-pkg-client-id")
-  on.exit(set_azr_defaults(client_id = prev$client_id))
-  withr::local_envvar(AZURE_CLIENT_ID = NA)
-  expect_equal(default_azure_client_id(), "my-pkg-client-id")
-})
-
-test_that("set_azr_defaults overrides default_azure_tenant_id", {
-  prev <- set_azr_defaults(tenant_id = "my-pkg-tenant-id")
-  on.exit(set_azr_defaults(tenant_id = prev$tenant_id))
-  withr::local_envvar(AZURE_TENANT_ID = NA)
-  expect_equal(default_azure_tenant_id(), "my-pkg-tenant-id")
-})
-
-test_that("set_azr_defaults returns previous values invisibly", {
-  set_azr_defaults(host = "first-host")
-  prev <- set_azr_defaults(host = "second-host")
-  on.exit(set_azr_defaults(host = NULL))
-  expect_equal(prev$host, "first-host")
-})
-
-test_that("clearing set_azr_defaults falls back to env var", {
-  set_azr_defaults(host = "override-host")
-  set_azr_defaults(host = NULL)
-  withr::local_envvar(AZURE_AUTHORITY_HOST = "login.chinacloudapi.cn")
-  expect_equal(default_azure_host(), "login.chinacloudapi.cn")
-})
-
 test_that("default_azure_config_dir returns config dir from environment variable", {
   withr::local_envvar(AZURE_CONFIG_DIR = "/custom/azure/config")
   expect_equal(default_azure_config_dir(), "/custom/azure/config")

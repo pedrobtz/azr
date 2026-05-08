@@ -12,7 +12,6 @@ A character string with the tenant ID
 \description{
 Retrieves the Azure tenant ID in priority order:
 \enumerate{
-\item Package-level override set via \code{\link[=set_azr_defaults]{set_azr_defaults()}}
 \item \code{AZURE_TENANT_ID} environment variable
 \item Built-in fallback (\code{"common"})
 }

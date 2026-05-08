@@ -12,7 +12,6 @@ A character string with the authority host URL
 \description{
 Retrieves the Azure authority host in priority order:
 \enumerate{
-\item Package-level override set via \code{\link[=set_azr_defaults]{set_azr_defaults()}}
 \item \code{AZURE_AUTHORITY_HOST} environment variable
 \item Built-in fallback (\code{login.microsoftonline.com})
 }
