@@ -7,6 +7,9 @@
 azr_storage_client(
   storageaccount,
   filesystem,
+  endpoint_suffix = default_storage_endpoint(),
+  scope = default_azure_scope("azure_storage"),
+  provider = NULL,
   chain = default_credential_chain(),
   tenant_id = default_azure_tenant_id(),
   ...
@@ -16,6 +19,16 @@ azr_storage_client(
 \item{storageaccount}{A character string specifying the Azure Storage account name.}
 
 \item{filesystem}{A character string specifying the filesystem (container) name.}
+
+\item{endpoint_suffix}{A character string specifying the Azure
+Storage DFS endpoint suffix. Defaults to
+\code{\link[=default_storage_endpoint]{default_storage_endpoint()}}.}
+
+\item{scope}{A character string specifying the OAuth2 scope. Defaults to
+\link{default_azure_scope("azure_storage")}.}
+
+\item{provider}{An optional credential provider object that inherits from
+\code{Credential} or \code{DefaultCredential}. If provided, \code{chain} is ignored.}
 
 \item{chain}{A \link{credential_chain} instance for authentication. Defaults to
 \code{\link[=default_credential_chain]{default_credential_chain()}}.}

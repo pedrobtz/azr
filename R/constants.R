@@ -22,6 +22,16 @@ azure_authority_hosts <- list(
   azure_public_cloud = "login.microsoftonline.com"
 )
 
+#' Azure Storage Endpoint Defaults
+#'
+#' @description
+#' Default endpoint suffixes for Azure Storage services.
+#'
+#' @keywords internal
+azure_storage_endpoints <- list(
+  dfs = "dfs.core.windows.net"
+)
+
 #' Common Azure OAuth Scopes
 #'
 #' @description

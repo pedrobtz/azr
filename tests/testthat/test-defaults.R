@@ -154,6 +154,10 @@ test_that("default_azure_host returns default when environment variable is empty
   expect_equal(default_azure_host(), "login.microsoftonline.com")
 })
 
+test_that("default_storage_endpoint returns DFS public cloud suffix", {
+  expect_equal(default_storage_endpoint(), "dfs.core.windows.net")
+})
+
 test_that("default_azure_config_dir returns config dir from environment variable", {
   withr::local_envvar(AZURE_CONFIG_DIR = "/custom/azure/config")
   expect_equal(default_azure_config_dir(), "/custom/azure/config")
