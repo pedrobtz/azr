@@ -46,7 +46,7 @@ Create a new authorization code credential
     AuthCodeCredential$new(
       scope = NULL,
       tenant_id = NULL,
-      client_id = default_azure_cli_client_id(),
+      client_id = NULL,
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
@@ -68,7 +68,7 @@ Create a new authorization code credential
 - `client_id`:
 
   A character string specifying the application (client) ID. Defaults to
-  the Azure CLI public client ID.
+  `NULL`.
 
 - `use_cache`:
 

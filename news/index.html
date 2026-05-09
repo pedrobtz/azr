@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">azr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,19 +29,12 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/pedrobtz/azr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/pedrobtz/azr/blob/0.3.3/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.4" id="azr-034">azr 0.3.4<a class="anchor" aria-label="anchor" href="#azr-034"></a></h2>
-<ul><li>
-<code>WorkloadIdentityCredential</code> now maintains an in-object token cache. Repeated calls to <code><a href="../reference/get_token.html">get_token()</a></code> return the cached token immediately without re-reading the federated token file or exchanging it, until the token expires.</li>
-<li>
-<code>AZURE_AUTHORITY_HOST</code> values with an <code>https://</code> scheme prefix (as recommended by the Azure SDK documentation) are now handled correctly. Previously, setting <code>AZURE_AUTHORITY_HOST=https://login.microsoftonline.com</code> would produce malformed token URLs (<a href="https://github.com/pedrobtz/azr/issues/16" class="external-link">#16</a>).</li>
-</ul></div>
-    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.3" id="azr-033">azr 0.3.3<a class="anchor" aria-label="anchor" href="#azr-033"></a></h2><p class="text-muted">CRAN release: 2026-05-04</p>
-<ul><li>Added <code>set_azr_defaults()</code> to configure package-level overrides for the authority host, client ID, and tenant ID. These take priority over environment variables in <code><a href="../reference/default_azure_host.html">default_azure_host()</a></code>, <code><a href="../reference/default_azure_client_id.html">default_azure_client_id()</a></code>, and <code><a href="../reference/default_azure_tenant_id.html">default_azure_tenant_id()</a></code>.</li>
+<ul><li>Added <code><a href="../reference/set_azr_defaults.html">set_azr_defaults()</a></code> to configure package-level overrides for the authority host, client ID, and tenant ID. These take priority over environment variables in <code><a href="../reference/default_azure_host.html">default_azure_host()</a></code>, <code><a href="../reference/default_azure_client_id.html">default_azure_client_id()</a></code>, and <code><a href="../reference/default_azure_tenant_id.html">default_azure_tenant_id()</a></code>.</li>
 <li>
 <code>AuthCodeCredential</code> and <code>DeviceCodeCredential</code> now maintain an in-object token cache keyed by scope. Repeated calls to <code><a href="../reference/get_token.html">get_token()</a></code> for the same scope return the cached token immediately without hitting the httr2 cache or refresh token flow.</li>
 </ul></div>

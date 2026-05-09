@@ -2,9 +2,12 @@
 
 Retrieves the Azure tenant ID in priority order:
 
-1.  `AZURE_TENANT_ID` environment variable
+1.  Package-level override set via
+    [`set_azr_defaults()`](https://pedrobtz.github.io/azr/reference/set_azr_defaults.md)
 
-2.  Built-in fallback (`"common"`)
+2.  `AZURE_TENANT_ID` environment variable
+
+3.  Built-in fallback (`"common"`)
 
 ## Usage
 

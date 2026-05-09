@@ -8,7 +8,7 @@ REST API operations.
 ## Details
 
 The base URL is constructed as:
-`https://{storageaccount}.{endpoint_suffix}`
+`https://{storageaccount}.dfs.core.windows.net`
 
 ## Super class
 
@@ -55,9 +55,7 @@ Create a new Azure Storage API client instance
     api_storage_client$new(
       storageaccount,
       filesystem,
-      scope = default_azure_scope("azure_storage"),
-      endpoint_suffix = default_storage_endpoint(),
-      provider = NULL,
+      scopes = ".default",
       chain = NULL,
       tenant_id = NULL,
       ...
@@ -73,21 +71,10 @@ Create a new Azure Storage API client instance
 
   A character string specifying the filesystem (container) name.
 
-- `scope`:
+- `scopes`:
 
-  A character string specifying the OAuth2 scope. Defaults to
-  `default_azure_scope("azure_storage")`.
-
-- `endpoint_suffix`:
-
-  A character string specifying the Azure Storage DFS endpoint suffix.
-  Defaults to
-  [`default_storage_endpoint()`](https://pedrobtz.github.io/azr/reference/default_storage_endpoint.md).
-
-- `provider`:
-
-  An optional credential provider object that inherits from `Credential`
-  or `DefaultCredential`. If provided, `chain` is ignored.
+  A character string specifying the OAuth2 scope suffix. Defaults to
+  `".default"`, which requests all permissions the app has been granted.
 
 - `chain`:
 

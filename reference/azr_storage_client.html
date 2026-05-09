@@ -9,7 +9,7 @@ client for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations."></head
 
     <a class="navbar-brand me-2" href="../index.html">azr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,7 +31,7 @@ client for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations."></head
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Create an Azure Storage Client</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/main/R/azure-storage-client.R" class="external-link"><code>R/azure-storage-client.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/0.3.3/R/azure-storage-client.R" class="external-link"><code>R/azure-storage-client.R</code></a></small>
       <div class="d-none name"><code>azr_storage_client.Rd</code></div>
     </div>
 
@@ -45,9 +45,6 @@ client for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">azr_storage_client</span><span class="op">(</span></span>
 <span>  <span class="va">storageaccount</span>,</span>
 <span>  <span class="va">filesystem</span>,</span>
-<span>  endpoint_suffix <span class="op">=</span> <span class="fu"><a href="default_storage_endpoint.html">default_storage_endpoint</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  scope <span class="op">=</span> <span class="fu"><a href="default_azure_scope.html">default_azure_scope</a></span><span class="op">(</span><span class="st">"azure_storage"</span><span class="op">)</span>,</span>
-<span>  provider <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  chain <span class="op">=</span> <span class="fu"><a href="default_credential_chain.html">default_credential_chain</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  tenant_id <span class="op">=</span> <span class="fu"><a href="default_azure_tenant_id.html">default_azure_tenant_id</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -64,22 +61,6 @@ client for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
 
 <dt id="arg-filesystem">filesystem<a class="anchor" aria-label="anchor" href="#arg-filesystem"></a></dt>
 <dd><p>A character string specifying the filesystem (container) name.</p></dd>
-
-
-<dt id="arg-endpoint-suffix">endpoint_suffix<a class="anchor" aria-label="anchor" href="#arg-endpoint-suffix"></a></dt>
-<dd><p>A character string specifying the Azure
-Storage DFS endpoint suffix. Defaults to
-<code><a href="default_storage_endpoint.html">default_storage_endpoint()</a></code>.</p></dd>
-
-
-<dt id="arg-scope">scope<a class="anchor" aria-label="anchor" href="#arg-scope"></a></dt>
-<dd><p>A character string specifying the OAuth2 scope. Defaults to
-<code>default_azure_scope("azure_storage")</code>.</p></dd>
-
-
-<dt id="arg-provider">provider<a class="anchor" aria-label="anchor" href="#arg-provider"></a></dt>
-<dd><p>An optional credential provider object that inherits from
-<code>Credential</code> or <code>DefaultCredential</code>. If provided, <code>chain</code> is ignored.</p></dd>
 
 
 <dt id="arg-chain">chain<a class="anchor" aria-label="anchor" href="#arg-chain"></a></dt>
