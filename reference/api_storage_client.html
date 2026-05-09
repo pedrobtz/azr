@@ -44,7 +44,7 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The base URL is constructed as:
-<code>https://{storageaccount}.dfs.core.windows.net</code></p>
+<code>https://{storageaccount}.{endpoint_suffix}</code></p>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
@@ -82,7 +82,9 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_storage_client.html">api_storage_client</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  <span class="va">storageaccount</span>,</span>
 <span>  <span class="va">filesystem</span>,</span>
-<span>  scopes <span class="op">=</span> <span class="st">".default"</span>,</span>
+<span>  scope <span class="op">=</span> <span class="fu"><a href="../reference/default_azure_scope.html">default_azure_scope</a></span><span class="op">(</span><span class="st">"azure_storage"</span><span class="op">)</span>,</span>
+<span>  endpoint_suffix <span class="op">=</span> <span class="fu"><a href="../reference/default_storage_endpoint.html">default_storage_endpoint</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  provider <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  chain <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tenant_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -99,9 +101,20 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
 <dd><p>A character string specifying the filesystem (container) name.</p></dd>
 
 
-<dt><code>scopes</code></dt>
-<dd><p>A character string specifying the OAuth2 scope suffix. Defaults to
-<code>".default"</code>, which requests all permissions the app has been granted.</p></dd>
+<dt><code>scope</code></dt>
+<dd><p>A character string specifying the OAuth2 scope. Defaults to
+<code>default_azure_scope("azure_storage")</code>.</p></dd>
+
+
+<dt><code>endpoint_suffix</code></dt>
+<dd><p>A character string specifying the Azure
+Storage DFS endpoint suffix. Defaults to
+<code><a href="default_storage_endpoint.html">default_storage_endpoint()</a></code>.</p></dd>
+
+
+<dt><code>provider</code></dt>
+<dd><p>An optional credential provider object that inherits from
+<code>Credential</code> or <code>DefaultCredential</code>. If provided, <code>chain</code> is ignored.</p></dd>
 
 
 <dt><code>chain</code></dt>

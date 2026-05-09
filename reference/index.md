@@ -76,6 +76,8 @@
   : Get default Azure refresh token
 - [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
   : Default response handler
+- [`default_storage_endpoint()`](https://pedrobtz.github.io/azr/reference/default_storage_endpoint.md)
+  : Get default Azure Storage DFS endpoint suffix
 - [`get_credential_auth()`](https://pedrobtz.github.io/azr/reference/get_credential_auth.md)
   : Get Credential Authentication Function
 - [`get_credential_provider()`](https://pedrobtz.github.io/azr/reference/get_credential_provider.md)

@@ -31,6 +31,7 @@
 <url><loc>https://pedrobtz.github.io/azr/reference/azure_authority_hosts.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/azure_client.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/azure_scopes.html</loc></url>
+<url><loc>https://pedrobtz.github.io/azr/reference/azure_storage_endpoints.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/cached_token_credential_chain.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/credential_chain.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_azure_client_id.html</loc></url>
@@ -48,6 +49,7 @@
 <url><loc>https://pedrobtz.github.io/azr/reference/default_redirect_uri.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_refresh_token.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/default_response_handler.html</loc></url>
+<url><loc>https://pedrobtz.github.io/azr/reference/default_storage_endpoint.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/environment_variables.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/get_credential_auth.html</loc></url>
 <url><loc>https://pedrobtz.github.io/azr/reference/get_credential_provider.html</loc></url>
