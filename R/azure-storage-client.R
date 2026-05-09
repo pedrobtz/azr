@@ -39,7 +39,7 @@ api_storage_client <- R6::R6Class(
     #' @param storageaccount A character string specifying the Azure Storage account name.
     #' @param filesystem A character string specifying the filesystem (container) name.
     #' @param scope A character string specifying the OAuth2 scope. Defaults to
-    #'   [default_azure_scope("azure_storage")].
+    #'   `default_azure_scope("azure_storage")`.
     #' @param endpoint_suffix A character string specifying the Azure
     #'   Storage DFS endpoint suffix. Defaults to
     #'   [default_storage_endpoint()].
@@ -248,7 +248,7 @@ storage_host_url <- function(storageaccount, endpoint_suffix) {
 #'   Storage DFS endpoint suffix. Defaults to
 #'   [default_storage_endpoint()].
 #' @param scope A character string specifying the OAuth2 scope. Defaults to
-#'   [default_azure_scope("azure_storage")].
+#'   `default_azure_scope("azure_storage")`.
 #' @param provider An optional credential provider object that inherits from
 #'   `Credential` or `DefaultCredential`. If provided, `chain` is ignored.
 #' @param chain A [credential_chain] instance for authentication. Defaults to

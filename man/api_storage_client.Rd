@@ -87,7 +87,7 @@ Create a new Azure Storage API client instance
 \item{\code{filesystem}}{A character string specifying the filesystem (container) name.}
 
 \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
-\link{default_azure_scope("azure_storage")}.}
+\code{default_azure_scope("azure_storage")}.}
 
 \item{\code{endpoint_suffix}}{A character string specifying the Azure
 Storage DFS endpoint suffix. Defaults to

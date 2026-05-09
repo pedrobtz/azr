@@ -25,7 +25,7 @@ Storage DFS endpoint suffix. Defaults to
 \code{\link[=default_storage_endpoint]{default_storage_endpoint()}}.}
 
 \item{scope}{A character string specifying the OAuth2 scope. Defaults to
-\link{default_azure_scope("azure_storage")}.}
+\code{default_azure_scope("azure_storage")}.}
 
 \item{provider}{An optional credential provider object that inherits from
 \code{Credential} or \code{DefaultCredential}. If provided, \code{chain} is ignored.}
