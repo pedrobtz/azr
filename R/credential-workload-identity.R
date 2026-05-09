@@ -109,7 +109,8 @@ WorkloadIdentityCredential <- R6::R6Class(
         cli::cli_abort(
           c(
             "Argument {.arg token_file_path} cannot be NULL or NA.",
-            "i" = "Set the {.envvar AZURE_FEDERATED_TOKEN_FILE} environment variable or pass {.arg token_file_path} directly."
+            "i" = "Set the {.envvar AZURE_FEDERATED_TOKEN_FILE} environment variable or pass 
+            {.arg token_file_path} directly."
           ),
           class = "azr_workload_identity_missing_token_file"
         )

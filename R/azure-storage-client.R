@@ -6,7 +6,7 @@
 #'
 #' @details
 #' The base URL is constructed as:
-#' `https://{storageaccount}.dfs.core.windows.net`
+#' `https://{storageaccount}.{endpoint_suffix}`
 #'
 #' @export
 #' @examples
@@ -38,8 +38,13 @@ api_storage_client <- R6::R6Class(
     #'
     #' @param storageaccount A character string specifying the Azure Storage account name.
     #' @param filesystem A character string specifying the filesystem (container) name.
-    #' @param scopes A character string specifying the OAuth2 scope suffix. Defaults to
-    #'   `".default"`, which requests all permissions the app has been granted.
+    #' @param scope A character string specifying the OAuth2 scope. Defaults to
+    #'   `default_azure_scope("azure_storage")`.
+    #' @param endpoint_suffix A character string specifying the Azure
+    #'   Storage DFS endpoint suffix. Defaults to
+    #'   [default_storage_endpoint()].
+    #' @param provider An optional credential provider object that inherits from
+    #'   `Credential` or `DefaultCredential`. If provided, `chain` is ignored.
     #' @param chain A [credential_chain] instance for authentication. If NULL,
     #'   a default credential chain will be created using [DefaultCredential].
     #' @param tenant_id A character string specifying the Azure tenant ID. Passed to
@@ -50,7 +55,9 @@ api_storage_client <- R6::R6Class(
     initialize = function(
       storageaccount,
       filesystem,
-      scopes = ".default",
+      scope = default_azure_scope("azure_storage"),
+      endpoint_suffix = default_storage_endpoint(),
+      provider = NULL,
       chain = NULL,
       tenant_id = NULL,
       ...
@@ -64,24 +71,41 @@ api_storage_client <- R6::R6Class(
       if (!is.character(filesystem) || length(filesystem) != 1L) {
         cli::cli_abort("{.arg filesystem} must be a single character string.")
       }
+      if (
+        !is.character(endpoint_suffix) ||
+          length(endpoint_suffix) != 1L ||
+          !nzchar(endpoint_suffix)
+      ) {
+        cli::cli_abort(
+          "{.arg endpoint_suffix} must be a non-empty character string."
+        )
+      }
 
-      # Construct the Azure Storage Data Lake Gen2 URL
-      host_url <- rlang::englue(
-        "https://{storageaccount}.dfs.core.windows.net"
+      host_url <- storage_host_url(
+        storageaccount = storageaccount,
+        endpoint_suffix = endpoint_suffix
       )
 
-      # Construct the full scope URL for Azure Storage
-      if (length(scopes) > 1) {
-        scopes <- paste(scopes, collapse = " ")
+      if (length(scope) > 1) {
+        scope <- paste(scope, collapse = " ")
       }
-      scope <- paste0("https://storage.azure.com/", scopes)
 
       # Create credential provider
-      provider <- DefaultCredential$new(
-        scope = scope,
-        chain = chain,
-        tenant_id = tenant_id
-      )
+      if (is.null(provider)) {
+        provider <- DefaultCredential$new(
+          scope = scope,
+          chain = chain,
+          tenant_id = tenant_id
+        )
+      } else if (
+        !R6::is.R6(provider) ||
+          !(inherits(provider, "Credential") ||
+            inherits(provider, "DefaultCredential"))
+      ) {
+        cli::cli_abort(
+          "Argument {.arg provider} must inherit from {.cls Credential} or {.cls DefaultCredential}."
+        )
+      }
 
       self$.filesystem <- filesystem
 
@@ -199,6 +223,19 @@ api_storage_client <- R6::R6Class(
   )
 )
 
+storage_host_url <- function(storageaccount, endpoint_suffix) {
+  endpoint_suffix <- sub("/+$", "", endpoint_suffix)
+  endpoint_suffix <- sub("^https?://", "", endpoint_suffix)
+  endpoint_suffix <- sub("^\\.+", "", endpoint_suffix)
+  if (!nzchar(endpoint_suffix)) {
+    cli::cli_abort(
+      "{.arg endpoint_suffix} must be a non-empty character string."
+    )
+  }
+
+  rlang::englue("https://{storageaccount}.{endpoint_suffix}")
+}
+
 #' Create an Azure Storage Client
 #'
 #' @description
@@ -207,6 +244,13 @@ api_storage_client <- R6::R6Class(
 #'
 #' @param storageaccount A character string specifying the Azure Storage account name.
 #' @param filesystem A character string specifying the filesystem (container) name.
+#' @param endpoint_suffix A character string specifying the Azure
+#'   Storage DFS endpoint suffix. Defaults to
+#'   [default_storage_endpoint()].
+#' @param scope A character string specifying the OAuth2 scope. Defaults to
+#'   `default_azure_scope("azure_storage")`.
+#' @param provider An optional credential provider object that inherits from
+#'   `Credential` or `DefaultCredential`. If provided, `chain` is ignored.
 #' @param chain A [credential_chain] instance for authentication. Defaults to
 #'   [default_credential_chain()].
 #' @param tenant_id A character string specifying the Azure tenant ID. Defaults to
@@ -234,6 +278,9 @@ api_storage_client <- R6::R6Class(
 azr_storage_client <- function(
   storageaccount,
   filesystem,
+  endpoint_suffix = default_storage_endpoint(),
+  scope = default_azure_scope("azure_storage"),
+  provider = NULL,
   chain = default_credential_chain(),
   tenant_id = default_azure_tenant_id(),
   ...
@@ -241,6 +288,9 @@ azr_storage_client <- function(
   api_storage_client$new(
     storageaccount = storageaccount,
     filesystem = filesystem,
+    endpoint_suffix = endpoint_suffix,
+    scope = scope,
+    provider = provider,
     chain = chain,
     tenant_id = tenant_id,
     ...

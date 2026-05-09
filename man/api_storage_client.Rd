@@ -9,7 +9,7 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.
 }
 \details{
 The base URL is constructed as:
-\verb{https://\{storageaccount\}.dfs.core.windows.net}
+\verb{https://\{storageaccount\}.\{endpoint_suffix\}}
 }
 \examples{
 \dontrun{
@@ -70,7 +70,9 @@ Create a new Azure Storage API client instance
 \if{html}{\out{<div class="r">}}\preformatted{api_storage_client$new(
   storageaccount,
   filesystem,
-  scopes = ".default",
+  scope = default_azure_scope("azure_storage"),
+  endpoint_suffix = default_storage_endpoint(),
+  provider = NULL,
   chain = NULL,
   tenant_id = NULL,
   ...
@@ -84,8 +86,15 @@ Create a new Azure Storage API client instance
 
 \item{\code{filesystem}}{A character string specifying the filesystem (container) name.}
 
-\item{\code{scopes}}{A character string specifying the OAuth2 scope suffix. Defaults to
-\code{".default"}, which requests all permissions the app has been granted.}
+\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+\code{default_azure_scope("azure_storage")}.}
+
+\item{\code{endpoint_suffix}}{A character string specifying the Azure
+Storage DFS endpoint suffix. Defaults to
+\code{\link[=default_storage_endpoint]{default_storage_endpoint()}}.}
+
+\item{\code{provider}}{An optional credential provider object that inherits from
+\code{Credential} or \code{DefaultCredential}. If provided, \code{chain} is ignored.}
 
 \item{\code{chain}}{A \link{credential_chain} instance for authentication. If NULL,
 a default credential chain will be created using \link{DefaultCredential}.}

@@ -151,6 +151,124 @@ test_that("new_instance works with classes that have no initialize arguments", {
 })
 
 
+test_that("try_build_credential builds unqualified workload identity credential", {
+  chain <- credential_chain(DeviceCodeCredential, WorkloadIdentityCredential)
+  env <- rlang::env(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client",
+    token_file_path = tempfile(),
+    verbose = FALSE
+  )
+
+  result <- try_build_credential(chain, envir = env)
+
+  expect_named(result$credentials, "credential_2")
+  expect_s3_class(result$credentials$credential_2, "WorkloadIdentityCredential")
+  expect_named(result$errors, "credential_1")
+  expect_match(result$errors$credential_1, "interactive session")
+})
+
+test_that("try_build_credential builds qualified workload identity credential", {
+  chain <- credential_chain(
+    azr::DeviceCodeCredential,
+    azr::WorkloadIdentityCredential
+  )
+  env <- rlang::env(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client",
+    token_file_path = tempfile(),
+    verbose = FALSE
+  )
+
+  result <- try_build_credential(chain, envir = env)
+
+  expect_named(result$credentials, "credential_2")
+  expect_s3_class(result$credentials$credential_2, "WorkloadIdentityCredential")
+  expect_named(result$errors, "credential_1")
+  expect_match(result$errors$credential_1, "interactive session")
+})
+
+test_that("try_build_credential reports invalid credentials", {
+  chain <- credential_chain(DeviceCodeCredential, FakeCredential)
+  env <- rlang::env(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client",
+    token_file_path = tempfile(),
+    verbose = FALSE
+  )
+
+  result <- try_build_credential(chain, envir = env)
+
+  expect_length(result$credentials, 0)
+  expect_named(result$errors, c("credential_1", "credential_2"))
+  expect_match(result$errors$credential_1, "interactive session")
+  expect_equal(result$errors$credential_2, "Invalid credential type")
+})
+
+test_that("try_build_credential passes env values to device code credential", {
+  scope <- "https://graph.microsoft.com/.default"
+  chain <- credential_chain(DeviceCodeCredential)
+  env <- rlang::env(
+    scope = scope,
+    tenant_id = "common",
+    client_id = "test-client",
+    use_cache = "memory",
+    offline = FALSE,
+    interactive = FALSE,
+    verbose = FALSE
+  )
+
+  result <- try_build_credential(chain, envir = env)
+  cred <- result$credentials$credential_1
+
+  expect_s3_class(cred, "DeviceCodeCredential")
+  expect_equal(cred$.scope, scope)
+  expect_equal(cred$.tenant_id, "common")
+  expect_equal(cred$.client_id, "test-client")
+  expect_equal(cred$.use_cache, "memory")
+  expect_false(cred$is_interactive())
+})
+
+test_that("try_build_credential passes env values to workload identity credential", {
+  token_file_path <- tempfile()
+  chain <- credential_chain(WorkloadIdentityCredential)
+  env <- rlang::env(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client",
+    token_file_path = token_file_path,
+    verbose = FALSE
+  )
+
+  result <- try_build_credential(chain, envir = env)
+  cred <- result$credentials$credential_1
+
+  expect_s3_class(cred, "WorkloadIdentityCredential")
+  expect_equal(cred$.tenant_id, "common")
+  expect_equal(cred$.client_id, "test-client")
+  expect_equal(cred$.token_file_path, token_file_path)
+})
+
+test_that("try_build_credential preserves names while passing env values", {
+  chain <- credential_chain(workload = WorkloadIdentityCredential)
+  env <- rlang::env(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client",
+    token_file_path = tempfile(),
+    verbose = FALSE
+  )
+
+  result <- try_build_credential(chain, envir = env)
+
+  expect_named(result$credentials, "workload")
+  expect_equal(result$credentials$workload$.client_id, "test-client")
+})
+
+
 test_that("get_credential_provider validates chain parameter", {
   expect_error(
     get_credential_provider(chain = "not-a-chain"),

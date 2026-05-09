@@ -235,6 +235,22 @@ default_azure_host <- function() {
   host <- sub("/+$", "", host)
   sub("^https?://", "", host)
 }
+
+#' Get default Azure Storage DFS endpoint suffix
+#'
+#' @description
+#' Returns the default endpoint suffix used to construct Azure Data Lake Storage
+#' Gen2 DFS URLs.
+#'
+#' @return A character string with the DFS endpoint suffix.
+#'
+#' @export
+#' @examples
+#' default_storage_endpoint()
+default_storage_endpoint <- function() {
+  azure_storage_endpoints$dfs
+}
+
 #' Get default Azure configuration directory
 #'
 #' @description
