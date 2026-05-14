@@ -1,5 +1,5 @@
 
- # azr <a href="https://pedrobtz.github.io/azr"><img src="man/figures/logo.png" align="right" height="139" alt="azr website" /></a>
+# azr <a href="https://pedrobtz.github.io/azr"><img src="man/figures/logo.png" align="right" height="139" alt="azr website" /></a>
 
 <!-- badges: start -->
 [![PackageVersion](https://www.r-pkg.org/badges/version/azr)](https://www.r-pkg.org/pkg/azr)
