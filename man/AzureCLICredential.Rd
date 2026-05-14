@@ -43,6 +43,9 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \item{\code{interactive}}{Logical indicating whether to check login status and
 perform login if needed}
 
+\item{\code{use_bridge}}{Logical indicating whether to use the device code bridge
+webpage during interactive login}
+
 \item{\code{.process_timeout}}{Timeout in seconds for Azure CLI command execution}
 }
 \if{html}{\out{</div>}}

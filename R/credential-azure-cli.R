@@ -38,6 +38,9 @@ AzureCLICredential <- R6::R6Class(
     #' @field interactive Logical indicating whether to check login status and
     #'   perform login if needed
     interactive = FALSE,
+    #' @field use_bridge Logical indicating whether to use the device code bridge
+    #'   webpage during interactive login
+    use_bridge = FALSE,
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
 
@@ -66,19 +69,12 @@ AzureCLICredential <- R6::R6Class(
       use_bridge = FALSE
     ) {
       self$interactive <- interactive
+      self$use_bridge <- use_bridge
       super$initialize(
         scope = scope,
         tenant_id = tenant_id
       )
       self$.process_timeout <- process_timeout %||% self$.process_timeout
-
-      if (isTRUE(self$is_interactive())) {
-        # Check if user is logged in
-        if (!az_cli_is_login(timeout = self$.process_timeout)) {
-          cli::cli_alert_info("User is not logged in to Azure CLI")
-          az_cli_login(use_bridge = use_bridge)
-        }
-      }
     },
     #' @description
     #' Get an access token from Azure CLI
@@ -88,15 +84,19 @@ AzureCLICredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(scope = NULL) {
-      # Check if user is logged in
       if (!az_cli_is_login(timeout = self$.process_timeout)) {
-        cli::cli_abort(
-          c(
-            "User is not logged in to Azure CLI",
-            "i" = "Please run {.code $login()} or use {.code az login} in your terminal"
-          ),
-          class = "azr_cli_not_logged_in"
-        )
+        if (isTRUE(self$is_interactive())) {
+          cli::cli_alert_info("User is not logged in to Azure CLI")
+          az_cli_login(use_bridge = self$use_bridge)
+        } else {
+          cli::cli_abort(
+            c(
+              "User is not logged in to Azure CLI",
+              "i" = "Please run {.code $login()} or use {.code az login} in your terminal"
+            ),
+            class = "azr_cli_not_logged_in"
+          )
+        }
       }
 
       rlang::try_fetch(
