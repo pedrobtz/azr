@@ -11,6 +11,9 @@ Gen2) REST API operations.
 azr_storage_client(
   storageaccount,
   filesystem,
+  endpoint_suffix = default_storage_endpoint(),
+  scope = default_azure_scope("azure_storage"),
+  provider = NULL,
   chain = default_credential_chain(),
   tenant_id = default_azure_tenant_id(),
   ...
@@ -26,6 +29,22 @@ azr_storage_client(
 - filesystem:
 
   A character string specifying the filesystem (container) name.
+
+- endpoint_suffix:
+
+  A character string specifying the Azure Storage DFS endpoint suffix.
+  Defaults to
+  [`default_storage_endpoint()`](https://pedrobtz.github.io/azr/reference/default_storage_endpoint.md).
+
+- scope:
+
+  A character string specifying the OAuth2 scope. Defaults to
+  `default_azure_scope("azure_storage")`.
+
+- provider:
+
+  An optional credential provider object that inherits from `Credential`
+  or `DefaultCredential`. If provided, `chain` is ignored.
 
 - chain:
 

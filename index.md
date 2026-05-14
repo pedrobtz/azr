@@ -1,4 +1,5 @@
-# azr
+\# azr [![azr
+website](reference/figures/logo.png)](https://pedrobtz.github.io/azr)
 
 azr implements a credential chain for seamless OAuth 2.0 authentication
 to Azure services. It builds on [httr2](https://httr2.r-lib.org/)’s
