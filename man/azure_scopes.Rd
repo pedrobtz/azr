@@ -5,7 +5,7 @@
 \alias{azure_scopes}
 \title{Common Azure OAuth Scopes}
 \format{
-An object of class \code{list} of length 5.
+An object of class \code{list} of length 10.
 }
 \usage{
 azure_scopes

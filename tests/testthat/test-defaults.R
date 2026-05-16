@@ -74,6 +74,54 @@ test_that("default_azure_scope returns azure_key_vault scope", {
   )
 })
 
+test_that("default_azure_scope returns azure_log_analytics scope", {
+  expect_equal(
+    default_azure_scope("azure_log_analytics"),
+    "https://api.loganalytics.io/.default"
+  )
+})
+
+test_that("default_azure_scope returns azure_app_insights scope", {
+  expect_equal(
+    default_azure_scope("azure_app_insights"),
+    "https://api.applicationinsights.io/.default"
+  )
+})
+
+test_that("default_azure_scope returns azure_databricks scope", {
+  expect_equal(
+    default_azure_scope("azure_databricks"),
+    "https://databricks.azure.com/.default"
+  )
+})
+
+test_that("default_azure_scope returns azure_sql scope", {
+  expect_equal(
+    default_azure_scope("azure_sql"),
+    "https://database.windows.net/.default"
+  )
+})
+
+test_that("default_azure_scope returns azure_service_bus scope", {
+  expect_equal(
+    default_azure_scope("azure_service_bus"),
+    "https://servicebus.azure.net/.default"
+  )
+})
+
+test_that("default_azure_scope accepts short names without azure_ prefix", {
+  expect_equal(default_azure_scope("arm"), "https://management.azure.com/.default")
+  expect_equal(default_azure_scope("graph"), "https://graph.microsoft.com/.default")
+  expect_equal(default_azure_scope("storage"), "https://storage.azure.com/.default")
+  expect_equal(default_azure_scope("key_vault"), "https://vault.azure.net/.default")
+  expect_equal(default_azure_scope("openai"), "https://cognitiveservices.azure.com/.default")
+  expect_equal(default_azure_scope("log_analytics"), "https://api.loganalytics.io/.default")
+  expect_equal(default_azure_scope("app_insights"), "https://api.applicationinsights.io/.default")
+  expect_equal(default_azure_scope("databricks"), "https://databricks.azure.com/.default")
+  expect_equal(default_azure_scope("sql"), "https://database.windows.net/.default")
+  expect_equal(default_azure_scope("service_bus"), "https://servicebus.azure.net/.default")
+})
+
 test_that("default_azure_scope errors with invalid resource", {
   expect_error(default_azure_scope("invalid_resource"))
 })

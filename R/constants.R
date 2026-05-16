@@ -43,7 +43,12 @@ azure_scopes <- list(
   azure_graph = "https://graph.microsoft.com/.default",
   azure_storage = "https://storage.azure.com/.default",
   azure_key_vault = "https://vault.azure.net/.default",
-  azure_openai = "https://cognitiveservices.azure.com/.default"
+  azure_openai = "https://cognitiveservices.azure.com/.default",
+  azure_log_analytics = "https://api.loganalytics.io/.default",
+  azure_app_insights = "https://api.applicationinsights.io/.default",
+  azure_databricks = "https://databricks.azure.com/.default",
+  azure_sql = "https://database.windows.net/.default",
+  azure_service_bus = "https://servicebus.azure.net/.default"
 )
 
 #' Azure Environment Variable Names

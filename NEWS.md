@@ -1,5 +1,8 @@
 # azr (development version)
 
+* Added `azure_spark_storage_conf()` to generate Hadoop `fs.azure.*` configuration keys for authenticating Spark / ABFS against Azure Data Lake Storage Gen2. Supports client secret, refresh token, and workload identity flows, scoped either globally or to a specific storage account.
+* Added Azure OAuth scopes for Log Analytics (`azure_log_analytics`), Application Insights (`azure_app_insights`), Databricks (`azure_databricks`), SQL (`azure_sql`), and Service Bus (`azure_service_bus`).
+* `default_azure_scope()` now accepts short names without the `azure_` prefix (e.g. `"storage"` in addition to `"azure_storage"`).
 
 # azr 0.3.4
 

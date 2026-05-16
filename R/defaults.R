@@ -98,9 +98,19 @@ default_refresh_token <- function() {
 #' @description
 #' Returns the default OAuth scope for a specified Azure resource.
 #'
-#' @param resource A character string specifying the Azure resource. Must be one of:
-#'   `"azure_arm"` (Azure Resource Manager), `"azure_graph"` (Microsoft Graph),
-#'   `"azure_storage"` (Azure Storage), or `"azure_key_vault"` (Azure Key Vault).
+#' @param resource A character string specifying the Azure resource. Accepts
+#'   both the full name (e.g. `"azure_arm"`) and the short name without the
+#'   `azure_` prefix (e.g. `"arm"`). Must be one of:
+#'   `"azure_arm"` / `"arm"` (Azure Resource Manager),
+#'   `"azure_graph"` / `"graph"` (Microsoft Graph),
+#'   `"azure_storage"` / `"storage"` (Azure Storage),
+#'   `"azure_key_vault"` / `"key_vault"` (Azure Key Vault),
+#'   `"azure_openai"` / `"openai"` (Azure OpenAI),
+#'   `"azure_log_analytics"` / `"log_analytics"` (Azure Log Analytics),
+#'   `"azure_app_insights"` / `"app_insights"` (Azure Application Insights),
+#'   `"azure_databricks"` / `"databricks"` (Azure Databricks),
+#'   `"azure_sql"` / `"sql"` (Azure SQL / Synapse), or
+#'   `"azure_service_bus"` / `"service_bus"` (Azure Service Bus).
 #'   Defaults to `"azure_arm"`.
 #'
 #' @return A character string with the OAuth scope URL
@@ -109,8 +119,17 @@ default_refresh_token <- function() {
 #' @examples
 #' default_azure_scope()
 #' default_azure_scope("azure_graph")
+#' default_azure_scope("graph")
+#' default_azure_scope("storage")
 default_azure_scope <- function(resource = "azure_arm") {
-  resource <- rlang::arg_match(resource, values = names(azure_scopes))
+  full_names <- names(azure_scopes)
+  short_names <- sub("^azure_", "", full_names)
+
+  if (resource %in% short_names && !resource %in% full_names) {
+    resource <- paste0("azure_", resource)
+  }
+
+  resource <- rlang::arg_match(resource, values = full_names)
   azure_scopes[[resource]]
 }
 

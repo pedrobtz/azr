@@ -7,9 +7,19 @@
 default_azure_scope(resource = "azure_arm")
 }
 \arguments{
-\item{resource}{A character string specifying the Azure resource. Must be one of:
-\code{"azure_arm"} (Azure Resource Manager), \code{"azure_graph"} (Microsoft Graph),
-\code{"azure_storage"} (Azure Storage), or \code{"azure_key_vault"} (Azure Key Vault).
+\item{resource}{A character string specifying the Azure resource. Accepts
+both the full name (e.g. \code{"azure_arm"}) and the short name without the
+\code{azure_} prefix (e.g. \code{"arm"}). Must be one of:
+\code{"azure_arm"} / \code{"arm"} (Azure Resource Manager),
+\code{"azure_graph"} / \code{"graph"} (Microsoft Graph),
+\code{"azure_storage"} / \code{"storage"} (Azure Storage),
+\code{"azure_key_vault"} / \code{"key_vault"} (Azure Key Vault),
+\code{"azure_openai"} / \code{"openai"} (Azure OpenAI),
+\code{"azure_log_analytics"} / \code{"log_analytics"} (Azure Log Analytics),
+\code{"azure_app_insights"} / \code{"app_insights"} (Azure Application Insights),
+\code{"azure_databricks"} / \code{"databricks"} (Azure Databricks),
+\code{"azure_sql"} / \code{"sql"} (Azure SQL / Synapse), or
+\code{"azure_service_bus"} / \code{"service_bus"} (Azure Service Bus).
 Defaults to \code{"azure_arm"}.}
 }
 \value{
@@ -21,4 +31,6 @@ Returns the default OAuth scope for a specified Azure resource.
 \examples{
 default_azure_scope()
 default_azure_scope("azure_graph")
+default_azure_scope("graph")
+default_azure_scope("storage")
 }
