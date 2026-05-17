@@ -51,3 +51,5 @@ rsconnect/
 
 # Positron test problem files
 tests/testthat/_problems/
+
+.claude/*.json

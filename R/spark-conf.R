@@ -13,9 +13,10 @@
 #'     (`ClientCredsTokenProvider`).}
 #'   \item{`"refresh_token"`}{Delegated user identity via a refresh token
 #'     (`RefreshTokenBasedTokenProvider`).}
-#'   \item{`"workload_identity"`}{Managed identity / workload identity
-#'     (`MsiTokenProvider`). Suitable for AKS pods with workload identity
-#'     enabled or Azure-hosted runtimes with a managed identity.}
+#'   \item{`"workload_identity"`}{Kubernetes workload identity via a projected
+#'     service-account token file (`WorkloadIdentityTokenProvider`). Requires
+#'     Hadoop 3.4.1+ / 3.5.0+ (HADOOP-18610). Suitable for AKS pods with
+#'     workload identity enabled.}
 #' }
 #'
 #' @param type Authentication type. One of `"client_secret"`,
@@ -31,6 +32,11 @@
 #'   `type = "client_secret"`. Defaults to [default_azure_client_secret()].
 #' @param refresh_token Refresh token. Required when
 #'   `type = "refresh_token"`. Defaults to [default_refresh_token()].
+#' @param token_file Path to the federated service-account token file. Used
+#'   only when `type = "workload_identity"`. Defaults to
+#'   [default_federated_token_file()] (`AZURE_FEDERATED_TOKEN_FILE`).
+#' @param oauth_host Azure authority host. Used only when
+#'   `type = "workload_identity"`. Defaults to [default_azure_host()].
 #'
 #' @return A named list of Hadoop `fs.azure.*` key-value pairs.
 #'
@@ -54,7 +60,7 @@
 #' )
 #'
 #' \dontrun{
-#' # Workload identity (reads tenant / client from environment)
+#' # Workload identity on AKS (reads env vars automatically)
 #' azure_spark_storage_conf(type = "workload_identity")
 #' }
 azure_spark_storage_conf <- function(
@@ -63,7 +69,9 @@ azure_spark_storage_conf <- function(
   tenant_id = default_azure_tenant_id(),
   client_id = default_azure_client_id(),
   client_secret = default_azure_client_secret(),
-  refresh_token = default_refresh_token()
+  refresh_token = default_refresh_token(),
+  token_file = default_federated_token_file(),
+  oauth_host = default_azure_host()
 ) {
   type <- rlang::arg_match(type)
 
@@ -82,6 +90,13 @@ azure_spark_storage_conf <- function(
     cli::cli_abort(c(
       "{.arg refresh_token} is required when {.arg type} is {.val refresh_token}.",
       "i" = "Set {.envvar AZURE_REFRESH_TOKEN} or pass {.arg refresh_token} directly."
+    ))
+  }
+
+  if (type == "workload_identity" && is.null(token_file)) {
+    cli::cli_abort(c(
+      "{.arg token_file} is required when {.arg type} is {.val workload_identity}.",
+      "i" = "Set {.envvar AZURE_FEDERATED_TOKEN_FILE} or pass {.arg token_file} directly."
     ))
   }
 
@@ -105,9 +120,11 @@ azure_spark_storage_conf <- function(
     ),
     workload_identity = rlang::list2(
       !!key("auth.type") := "OAuth",
-      !!key("oauth.provider.type") := "org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider",
+      !!key("oauth.provider.type") := "org.apache.hadoop.fs.azurebfs.oauth2.WorkloadIdentityTokenProvider",
+      !!key("oauth2.client.id") := client_id,
       !!key("oauth2.msi.tenant") := tenant_id,
-      !!key("oauth2.client.id") := client_id
+      !!key("oauth2.token.file") := token_file,
+      !!key("oauth2.msi.authority") := oauth_host
     )
   )
 }

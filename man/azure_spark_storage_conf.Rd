@@ -10,7 +10,9 @@ azure_spark_storage_conf(
   tenant_id = default_azure_tenant_id(),
   client_id = default_azure_client_id(),
   client_secret = default_azure_client_secret(),
-  refresh_token = default_refresh_token()
+  refresh_token = default_refresh_token(),
+  token_file = default_federated_token_file(),
+  oauth_host = default_azure_host()
 )
 }
 \arguments{
@@ -32,6 +34,13 @@ accounts. When a name is supplied the keys are scoped to
 
 \item{refresh_token}{Refresh token. Required when
 \code{type = "refresh_token"}. Defaults to \code{\link[=default_refresh_token]{default_refresh_token()}}.}
+
+\item{token_file}{Path to the federated service-account token file. Used
+only when \code{type = "workload_identity"}. Defaults to
+\code{\link[=default_federated_token_file]{default_federated_token_file()}} (\code{AZURE_FEDERATED_TOKEN_FILE}).}
+
+\item{oauth_host}{Azure authority host. Used only when
+\code{type = "workload_identity"}. Defaults to \code{\link[=default_azure_host]{default_azure_host()}}.}
 }
 \value{
 A named list of Hadoop \verb{fs.azure.*} key-value pairs.
@@ -49,9 +58,10 @@ Three authentication types are supported:
 (\code{ClientCredsTokenProvider}).}
 \item{\code{"refresh_token"}}{Delegated user identity via a refresh token
 (\code{RefreshTokenBasedTokenProvider}).}
-\item{\code{"workload_identity"}}{Managed identity / workload identity
-(\code{MsiTokenProvider}). Suitable for AKS pods with workload identity
-enabled or Azure-hosted runtimes with a managed identity.}
+\item{\code{"workload_identity"}}{Kubernetes workload identity via a projected
+service-account token file (\code{WorkloadIdentityTokenProvider}). Requires
+Hadoop 3.4.1+ / 3.5.0+ (HADOOP-18610). Suitable for AKS pods with
+workload identity enabled.}
 }
 }
 \examples{
@@ -73,7 +83,7 @@ azure_spark_storage_conf(
 )
 
 \dontrun{
-# Workload identity (reads tenant / client from environment)
+# Workload identity on AKS (reads env vars automatically)
 azure_spark_storage_conf(type = "workload_identity")
 }
 }

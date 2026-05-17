@@ -83,16 +83,23 @@ test_that("workload_identity type returns correct global keys", {
   conf <- azure_spark_storage_conf(
     type = "workload_identity",
     tenant_id = "my-tenant",
-    client_id = "my-client"
+    client_id = "my-client",
+    token_file = "/var/run/secrets/azure/tokens/azure-identity-token",
+    oauth_host = "login.microsoftonline.com"
   )
 
   expect_equal(conf[["fs.azure.account.auth.type"]], "OAuth")
   expect_equal(
     conf[["fs.azure.account.oauth.provider.type"]],
-    "org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider"
+    "org.apache.hadoop.fs.azurebfs.oauth2.WorkloadIdentityTokenProvider"
   )
-  expect_equal(conf[["fs.azure.account.oauth2.msi.tenant"]], "my-tenant")
   expect_equal(conf[["fs.azure.account.oauth2.client.id"]], "my-client")
+  expect_equal(conf[["fs.azure.account.oauth2.msi.tenant"]], "my-tenant")
+  expect_equal(
+    conf[["fs.azure.account.oauth2.token.file"]],
+    "/var/run/secrets/azure/tokens/azure-identity-token"
+  )
+  expect_equal(conf[["fs.azure.account.oauth2.msi.authority"]], "login.microsoftonline.com")
 })
 
 test_that("workload_identity type scopes keys to specific storage account", {
@@ -100,7 +107,9 @@ test_that("workload_identity type scopes keys to specific storage account", {
     type = "workload_identity",
     storage = "mystorageaccount",
     tenant_id = "my-tenant",
-    client_id = "my-client"
+    client_id = "my-client",
+    token_file = "/var/run/secrets/azure/tokens/azure-identity-token",
+    oauth_host = "login.microsoftonline.com"
   )
 
   expect_equal(
@@ -108,8 +117,20 @@ test_that("workload_identity type scopes keys to specific storage account", {
     "OAuth"
   )
   expect_equal(
-    conf[["fs.azure.account.oauth2.msi.tenant.mystorageaccount.dfs.core.windows.net"]],
-    "my-tenant"
+    conf[["fs.azure.account.oauth2.token.file.mystorageaccount.dfs.core.windows.net"]],
+    "/var/run/secrets/azure/tokens/azure-identity-token"
+  )
+})
+
+test_that("workload_identity errors when token_file is missing", {
+  expect_error(
+    azure_spark_storage_conf(
+      type = "workload_identity",
+      tenant_id = "my-tenant",
+      client_id = "my-client",
+      token_file = NULL
+    ),
+    class = "rlang_error"
   )
 })
 
@@ -149,7 +170,7 @@ test_that("errors on invalid storage argument", {
   )
 })
 
-test_that("all three types return exactly 5, 5, and 4 keys respectively", {
+test_that("all three types return the correct number of keys", {
   cs <- azure_spark_storage_conf(
     type = "client_secret",
     tenant_id = "t",
@@ -165,10 +186,12 @@ test_that("all three types return exactly 5, 5, and 4 keys respectively", {
   wi <- azure_spark_storage_conf(
     type = "workload_identity",
     tenant_id = "t",
-    client_id = "c"
+    client_id = "c",
+    token_file = "/tmp/token",
+    oauth_host = "login.microsoftonline.com"
   )
 
   expect_length(cs, 5L)
   expect_length(rt, 5L)
-  expect_length(wi, 4L)
+  expect_length(wi, 6L)
 })
