@@ -92,10 +92,17 @@ test_that("default_credential_chain creates a credential_chain", {
 test_that("default_credential_chain contains expected credentials", {
   chain <- default_credential_chain()
 
-  expect_length(chain, 4)
+  expect_length(chain, 6)
   expect_named(
     chain,
-    c("client_secret", "auth_code", "device_code", "azure_cli")
+    c(
+      "client_secret",
+      "workload_identity",
+      "managed_identity",
+      "azure_cli",
+      "auth_code",
+      "device_code"
+    )
   )
 })
 
@@ -104,9 +111,25 @@ test_that("default_credential_chain credentials are in correct order", {
 
   names_order <- names(chain)
   expect_equal(names_order[1], "client_secret")
-  expect_equal(names_order[2], "auth_code")
-  expect_equal(names_order[3], "device_code")
+  expect_equal(names_order[2], "workload_identity")
+  expect_equal(names_order[3], "managed_identity")
   expect_equal(names_order[4], "azure_cli")
+  expect_equal(names_order[5], "auth_code")
+  expect_equal(names_order[6], "device_code")
+})
+
+# Tests for DefaultCredential
+
+test_that("DefaultCredential errors on invalid use_cache at construction time", {
+  expect_error(
+    DefaultCredential$new(use_cache = "invalid"),
+    class = "rlang_error"
+  )
+})
+
+test_that("DefaultCredential accepts valid use_cache values", {
+  expect_no_error(DefaultCredential$new(use_cache = "disk"))
+  expect_no_error(DefaultCredential$new(use_cache = "memory"))
 })
 
 # Tests for new_instance
@@ -125,6 +148,10 @@ test_that("new_instance creates an instance from a class", {
 })
 
 test_that("new_instance uses NULL for missing parameters", {
+  testthat::local_mocked_bindings(
+    az_cli_is_login = function(...) TRUE,
+    .package = "azr"
+  )
   env <- rlang::env(
     tenant_id = "test-tenant",
     client_id = "test-client"
@@ -151,61 +178,62 @@ test_that("new_instance works with classes that have no initialize arguments", {
 })
 
 
-test_that("try_build_credential builds unqualified workload identity credential", {
-  chain <- credential_chain(DeviceCodeCredential, WorkloadIdentityCredential)
+test_that("try_build_credential skips interactive credentials in non-interactive sessions", {
+  chain <- credential_chain(DeviceCodeCredential)
   env <- rlang::env(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
-    client_id = "test-client",
-    token_file_path = tempfile(),
-    verbose = FALSE
+    client_id = "test-client"
   )
 
-  result <- try_build_credential(chain, envir = env)
+  result <- try_build_credential(chain[[1]], "device_code", envir = env)
 
-  expect_named(result$credentials, "credential_2")
-  expect_s3_class(result$credentials$credential_2, "WorkloadIdentityCredential")
-  expect_named(result$errors, "credential_1")
-  expect_match(result$errors$credential_1, "interactive session")
+  expect_null(result$obj)
+  expect_match(result$error, "interactive session")
 })
 
-test_that("try_build_credential builds qualified workload identity credential", {
-  chain <- credential_chain(
-    azr::DeviceCodeCredential,
-    azr::WorkloadIdentityCredential
-  )
+test_that("try_build_credential builds workload identity credential", {
+  chain <- credential_chain(WorkloadIdentityCredential)
   env <- rlang::env(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client",
-    token_file_path = tempfile(),
-    verbose = FALSE
+    token_file_path = tempfile()
   )
 
-  result <- try_build_credential(chain, envir = env)
+  result <- try_build_credential(chain[[1]], "workload", envir = env)
 
-  expect_named(result$credentials, "credential_2")
-  expect_s3_class(result$credentials$credential_2, "WorkloadIdentityCredential")
-  expect_named(result$errors, "credential_1")
-  expect_match(result$errors$credential_1, "interactive session")
+  expect_null(result$error)
+  expect_s3_class(result$obj, "WorkloadIdentityCredential")
+})
+
+test_that("try_build_credential resolves namespace-qualified credential class", {
+  chain <- credential_chain(azr::WorkloadIdentityCredential)
+  env <- rlang::env(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client",
+    token_file_path = tempfile()
+  )
+
+  result <- try_build_credential(chain[[1]], "workload", envir = env)
+
+  expect_null(result$error)
+  expect_s3_class(result$obj, "WorkloadIdentityCredential")
 })
 
 test_that("try_build_credential reports invalid credentials", {
-  chain <- credential_chain(DeviceCodeCredential, FakeCredential)
+  chain <- credential_chain(FakeCredential)
   env <- rlang::env(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
-    client_id = "test-client",
-    token_file_path = tempfile(),
-    verbose = FALSE
+    client_id = "test-client"
   )
 
-  result <- try_build_credential(chain, envir = env)
+  result <- try_build_credential(chain[[1]], "fake", envir = env)
 
-  expect_length(result$credentials, 0)
-  expect_named(result$errors, c("credential_1", "credential_2"))
-  expect_match(result$errors$credential_1, "interactive session")
-  expect_equal(result$errors$credential_2, "Invalid credential type")
+  expect_null(result$obj)
+  expect_equal(result$error, "Invalid credential type")
 })
 
 test_that("try_build_credential passes env values to device code credential", {
@@ -217,12 +245,11 @@ test_that("try_build_credential passes env values to device code credential", {
     client_id = "test-client",
     use_cache = "memory",
     offline = FALSE,
-    interactive = FALSE,
-    verbose = FALSE
+    interactive = FALSE
   )
 
-  result <- try_build_credential(chain, envir = env)
-  cred <- result$credentials$credential_1
+  result <- try_build_credential(chain[[1]], "device_code", envir = env)
+  cred <- result$obj
 
   expect_s3_class(cred, "DeviceCodeCredential")
   expect_equal(cred$.scope, scope)
@@ -239,33 +266,16 @@ test_that("try_build_credential passes env values to workload identity credentia
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client",
-    token_file_path = token_file_path,
-    verbose = FALSE
+    token_file_path = token_file_path
   )
 
-  result <- try_build_credential(chain, envir = env)
-  cred <- result$credentials$credential_1
+  result <- try_build_credential(chain[[1]], "workload", envir = env)
+  cred <- result$obj
 
   expect_s3_class(cred, "WorkloadIdentityCredential")
   expect_equal(cred$.tenant_id, "common")
   expect_equal(cred$.client_id, "test-client")
   expect_equal(cred$.token_file_path, token_file_path)
-})
-
-test_that("try_build_credential preserves names while passing env values", {
-  chain <- credential_chain(workload = WorkloadIdentityCredential)
-  env <- rlang::env(
-    scope = "https://management.azure.com/.default",
-    tenant_id = "common",
-    client_id = "test-client",
-    token_file_path = tempfile(),
-    verbose = FALSE
-  )
-
-  result <- try_build_credential(chain, envir = env)
-
-  expect_named(result$credentials, "workload")
-  expect_equal(result$credentials$workload$.client_id, "test-client")
 })
 
 

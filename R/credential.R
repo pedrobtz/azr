@@ -16,7 +16,6 @@ Credential <- R6::R6Class(
     .oauth_endpoint = NULL,
     .oauth_url = NULL,
     .token_url = NULL,
-    .redirect_uri = NULL,
     .classname = NULL,
     initialize = function(
       scope = NULL,
@@ -142,10 +141,9 @@ Credential <- R6::R6Class(
 )
 
 
-credential_chain <- function(...) {
-  res <- rlang::enquos(...)
-  class(res) <- c("credential_chain", class(res))
-  res
+is_credential <- function(x) {
+  R6::is.R6(x) &&
+    inherits(x, c("Credential", "DefaultCredential", "CachedTokenCredential"))
 }
 
 

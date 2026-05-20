@@ -38,6 +38,19 @@ default_azure_client_id <- function() {
 }
 
 
+#' Get the Azure CLI public client ID
+#'
+#' @description
+#' Returns Microsoft's public Azure CLI client ID
+#' (`04b07795-8ddb-461a-bbee-02f9e1bf7b46`). This is the default `client_id`
+#' used by interactive credentials when no application-specific client ID is
+#' configured.
+#'
+#' @return A character string with the Azure CLI client ID
+#'
+#' @export
+#' @examples
+#' default_azure_cli_client_id()
 default_azure_cli_client_id <- function() {
   azure_client$client_id
 }
@@ -201,15 +214,7 @@ default_azure_url <- function(
   tenant_id = default_azure_tenant_id()
 ) {
   validate_tenant_id(tenant_id)
-
-  if (!rlang::is_string(oauth_host) || !nzchar(oauth_host)) {
-    cli::cli_abort(
-      "{.arg oauth_host} must be a non-empty string, not {.obj_type_friendly {oauth_host}}"
-    )
-  }
-
-  oauth_host <- sub("/+$", "", oauth_host)
-  oauth_host <- sub("^https?://", "", oauth_host)
+  oauth_host <- normalize_authority_host(oauth_host)
   oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
 
   urls <- c(
@@ -244,13 +249,18 @@ default_azure_host <- function() {
     environment_variables$azure_authority_host,
     unset = azure_authority_hosts$azure_public_cloud
   )
+  normalize_authority_host(host)
+}
 
+# Single source of truth for authority-host normalization: strip an optional
+# `https?://` scheme and any trailing slashes, returning a bare host string.
+# Callers that want a URL prepend `https://` themselves.
+normalize_authority_host <- function(host, arg = rlang::caller_arg(host)) {
   if (!rlang::is_string(host) || !nzchar(host)) {
     cli::cli_abort(
-      "{.arg host} must be a non-empty string, not {.obj_type_friendly {host}}"
+      "{.arg {arg}} must be a non-empty string, not {.obj_type_friendly {host}}"
     )
   }
-
   host <- sub("/+$", "", host)
   sub("^https?://", "", host)
 }

@@ -37,10 +37,10 @@ AzureCLICredential <- R6::R6Class(
   public = list(
     #' @field interactive Logical indicating whether to check login status and
     #'   perform login if needed
-    interactive = FALSE,
+    interactive = azr_opt("cli_login_enable"),
     #' @field use_bridge Logical indicating whether to use the device code bridge
     #'   webpage during interactive login
-    use_bridge = FALSE,
+    use_bridge = TRUE,
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
 
@@ -54,19 +54,19 @@ AzureCLICredential <- R6::R6Class(
     #' @param process_timeout A numeric value specifying the timeout in seconds
     #'   for the Azure CLI process. Defaults to `10`.
     #' @param interactive A logical value indicating whether to check if the user is
-    #'   logged in and perform login if needed. Defaults to `FALSE`.
+    #'   logged in and perform login if needed. Defaults to `azr_opt("cli_login_enable")`.
     #' @param use_bridge A logical value indicating whether to use the device code
     #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
     #'   that displays the device code and facilitates copy-pasting before redirecting
-    #'   to the Microsoft device login page. Only used when `interactive = TRUE`. Defaults to `FALSE`.
+    #'   to the Microsoft device login page. Only used when `interactive = TRUE`. Defaults to `TRUE`.
     #'
     #' @return A new `AzureCLICredential` object
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
       process_timeout = NULL,
-      interactive = FALSE,
-      use_bridge = FALSE
+      interactive = azr_opt("cli_login_enable"),
+      use_bridge = TRUE
     ) {
       self$interactive <- interactive
       self$use_bridge <- use_bridge
@@ -75,15 +75,7 @@ AzureCLICredential <- R6::R6Class(
         tenant_id = tenant_id
       )
       self$.process_timeout <- process_timeout %||% self$.process_timeout
-    },
-    #' @description
-    #' Get an access token from Azure CLI
-    #'
-    #' @param scope A character string specifying the OAuth2 scope. If `NULL`,
-    #'   uses the scope specified during initialization.
-    #'
-    #' @return An [httr2::oauth_token()] object containing the access token
-    get_token = function(scope = NULL) {
+
       if (!az_cli_is_login(timeout = self$.process_timeout)) {
         if (isTRUE(self$is_interactive())) {
           cli::cli_alert_info("User is not logged in to Azure CLI")
@@ -98,7 +90,15 @@ AzureCLICredential <- R6::R6Class(
           )
         }
       }
-
+    },
+    #' @description
+    #' Get an access token from Azure CLI
+    #'
+    #' @param scope A character string specifying the OAuth2 scope. If `NULL`,
+    #'   uses the scope specified during initialization.
+    #'
+    #' @return An [httr2::oauth_token()] object containing the access token
+    get_token = function(scope = NULL) {
       rlang::try_fetch(
         az_cli_get_token(
           scope = scope %||% self$.scope,
@@ -415,7 +415,7 @@ az_cli_login <- function(
     }
 
     # Print output to console
-    if (isTRUE((verbose) && lines_err) > 0) {
+    if (isTRUE(verbose) && length(lines_err) > 0) {
       cli::cli_alert_warning("Error output:")
       for (line in lines_err) {
         cli::cli_text(line)
@@ -711,8 +711,7 @@ extract_msal_token_fields <- function(token) {
     host <- sub("^https?://", "", iss)
     sub("/.*$", "", host)
   } else {
-    host <- sub("^https?://", "", default_azure_host())
-    sub("/$", "", host)
+    default_azure_host()
   }
 
   list(

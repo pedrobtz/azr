@@ -182,8 +182,9 @@ Defaults to \code{FALSE}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A data.frame (or data.table if available) containing file and directory
-information with columns such as name, contentLength, lastModified, etc.
+A data.frame (or data.table if available) with one row per file or
+directory. Columns include \code{name}, \code{contentLength}, \code{lastModified}, etc.
+All pages are fetched transparently; the result is the complete listing.
 }
 }
 \if{html}{\out{<hr>}}

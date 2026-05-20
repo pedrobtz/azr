@@ -79,7 +79,7 @@ Create a new DefaultCredential object
   tenant_id = NULL,
   client_id = NULL,
   client_secret = NULL,
-  use_cache = "disk",
+  use_cache = c("disk", "memory"),
   offline = TRUE,
   chain = default_credential_chain()
 )}\if{html}{\out{</div>}}

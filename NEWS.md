@@ -1,11 +1,13 @@
 # azr (development version)
 
-* Added `azure_spark_storage_conf()` to generate Hadoop `fs.azure.*` configuration keys for authenticating Spark / ABFS against Azure Data Lake Storage Gen2. Supports client secret, refresh token, and workload identity flows, scoped either globally or to a specific storage account.
-* Added Azure OAuth scopes for Log Analytics (`azure_log_analytics`), Application Insights (`azure_app_insights`), Databricks (`azure_databricks`), SQL (`azure_sql`), and Service Bus (`azure_service_bus`).
-* `default_azure_scope()` now accepts short names without the `azure_` prefix (e.g. `"storage"` in addition to `"azure_storage"`).
+* Added `ManagedIdentityCredential` for Azure managed identity authentication (system- or user-assigned) via the IMDS endpoint. `default_credential_chain()` now includes `WorkloadIdentityCredential` and `ManagedIdentityCredential`, and places `AzureCLICredential` before interactive credentials.
+* Breaking: `azure_spark_storage_conf()` parameters renamed (`type` → `auth_type`, `storage` → `storage_account`, `oauth_host` → `authority_host`), default `auth_type` changed to `"refresh_token"`, and output now prefixed with `spark.hadoop.` by default (`prefix = NULL` for raw `fs.azure.*` keys). Added `"managed_identity"` and `"shared_key"` auth types, sovereign cloud support, and several bug fixes. The returned list now has a `print()` method that redacts secrets.
+* `parse_storage_path()` now accepts `az://` and `azure://` schemes, captures a new `endpoint_suffix` field for sovereign cloud detection, handles DNS-zone endpoints, and redacts SAS credentials in `print()`.
+* `default_azure_scope()` now accepts short names without the `azure_` prefix (e.g. `"storage"`). New scopes added: `azure_log_analytics`, `azure_app_insights`, `azure_databricks`, `azure_sql`, `azure_service_bus`.
 
 # azr 0.3.4
 
+* Removed `set_azr_defaults()` that was announced in 0.3.3 but never shipped. The corresponding `getOption()` reads in `default_azure_host()`, `default_azure_client_id()`, and `default_azure_tenant_id()` were also not implemented; use environment variables (`AZURE_AUTHORITY_HOST`, `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`) instead.
 * `WorkloadIdentityCredential` now maintains an in-object token cache. Repeated calls to `get_token()` return the cached token immediately without re-reading the federated token file or exchanging it, until the token expires.
 * `AZURE_AUTHORITY_HOST` values with an `https://` scheme prefix (as recommended by the Azure SDK documentation) are now handled correctly. Previously, setting `AZURE_AUTHORITY_HOST=https://login.microsoftonline.com` would produce malformed token URLs (#16).
 

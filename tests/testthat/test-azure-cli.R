@@ -1,4 +1,5 @@
 test_that("AzureCLICredential can be initialized", {
+  testthat::local_mocked_bindings(az_cli_is_login = function(...) TRUE)
   cred <- AzureCLICredential$new()
 
   expect_s3_class(cred, "AzureCLICredential")
@@ -7,6 +8,7 @@ test_that("AzureCLICredential can be initialized", {
 })
 
 test_that("AzureCLICredential initialization with custom parameters", {
+  testthat::local_mocked_bindings(az_cli_is_login = function(...) TRUE)
   cred <- AzureCLICredential$new(
     scope = "https://management.azure.com/.default",
     tenant_id = "test-tenant-id",
@@ -19,40 +21,19 @@ test_that("AzureCLICredential initialization with custom parameters", {
 })
 
 test_that("AzureCLICredential$is_interactive returns FALSE", {
+  testthat::local_mocked_bindings(az_cli_is_login = function(...) TRUE)
   cred <- AzureCLICredential$new()
 
   expect_false(cred$is_interactive())
 })
 
-test_that("AzureCLICredential$get_token fails when Azure CLI is not available", {
-  skip_if(nzchar(Sys.which("az")), "Azure CLI is installed")
-
-  cred <- AzureCLICredential$new()
+test_that("AzureCLICredential$new fails when not logged in to Azure CLI", {
+  testthat::local_mocked_bindings(az_cli_is_login = function(...) FALSE)
 
   expect_error(
-    cred$get_token(),
-    "User is not logged in to Azure CLI"
-  )
-})
-
-test_that("AzureCLICredential$get_token fails when not logged in via az login", {
-  skip_if_not(nzchar(Sys.which("az")), "Azure CLI not installed")
-
-  cred <- AzureCLICredential$new()
-
-  # This test expects get_token to fail because we're not logged in
-  # or because we're in a non-interactive environment
-  expect_error(cred$get_token())
-})
-
-test_that("AzureCLICredential$get_token accepts custom scope", {
-  skip_if_not(nzchar(Sys.which("az")), "Azure CLI not installed")
-
-  cred <- AzureCLICredential$new()
-
-  # This will fail if not logged in, but we're testing parameter passing
-  expect_error(
-    cred$get_token(scope = "https://storage.azure.com/.default")
+    AzureCLICredential$new(),
+    "User is not logged in to Azure CLI",
+    class = "azr_cli_not_logged_in"
   )
 })
 

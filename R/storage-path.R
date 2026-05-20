@@ -11,6 +11,9 @@
 #'     older Spark / Hadoop integrations.}
 #'   \item{`https://` / `http://`}{Standard Azure Blob or DFS REST endpoint,
 #'     optionally with a SAS token query string.}
+#'   \item{`az://` / `azure://`}{Non-standard aliases used by some Python tools
+#'     (e.g. `adlfs`); parsed using the same `container@account.host/path`
+#'     shape as `abfs://`.}
 #' }
 #'
 #' The `format` field is inferred from the path on a best-effort basis:
@@ -26,7 +29,13 @@
 #'   \item{`scheme`}{URL scheme, e.g. `"abfss"`, `"wasbs"`, `"https"`.}
 #'   \item{`storage_account`}{Storage account name.}
 #'   \item{`endpoint`}{Storage endpoint type: `"dfs"` or `"blob"`.}
-#'   \item{`container`}{Container (or filesystem) name.}
+#'   \item{`endpoint_suffix`}{Host suffix after the endpoint label, e.g.
+#'     `"core.windows.net"` (Azure public), `"core.usgovcloudapi.net"`
+#'     (US Government), `"core.chinacloudapi.cn"` (China), or
+#'     `"storage.azure.net"` (DNS-zone endpoints). Use this to distinguish
+#'     sovereign clouds from the public cloud.}
+#'   \item{`container`}{Container name. Called "filesystem" in ADLS Gen2 /
+#'     ABFS contexts; both refer to the same underlying object.}
 #'   \item{`path`}{Path within the container, without a leading `/`. Empty
 #'     string if the URL points to the container root.}
 #'   \item{`format`}{Inferred dataset or file format (see above).}
@@ -56,7 +65,16 @@ parse_storage_path <- function(path) {
   parsed <- httr2::url_parse(path)
 
   scheme <- parsed$scheme %||% NA_character_
-  valid_schemes <- c("abfss", "abfs", "wasbs", "wasb", "https", "http")
+  valid_schemes <- c(
+    "abfss",
+    "abfs",
+    "wasbs",
+    "wasb",
+    "https",
+    "http",
+    "az",
+    "azure"
+  )
 
   if (is.na(scheme) || !scheme %in% valid_schemes) {
     cli::cli_abort(c(
@@ -68,8 +86,36 @@ parse_storage_path <- function(path) {
   host <- parsed$hostname %||% NA_character_
   host_parts <- strsplit(host, ".", fixed = TRUE)[[1]]
 
+  if (length(host_parts) < 2L) {
+    cli::cli_abort(c(
+      "Invalid storage hostname {.val {host}} in {.val {path}}.",
+      "i" = "Expected format: {.val <account>.dfs.core.windows.net} or
+      {.val <container>@<account>.dfs.core.windows.net}."
+    ))
+  }
+
   storage_account <- host_parts[[1]]
-  endpoint <- if (length(host_parts) >= 2L) host_parts[[2L]] else NA_character_
+
+  # Endpoint is normally label 2 (account.dfs.core.windows.net), but DNS-zone
+  # endpoints insert a zNN label first (account.z42.blob.storage.azure.net).
+  endpoint_index <- if (
+    length(host_parts) >= 2L &&
+      grepl("^z[0-9]+$", host_parts[[2L]])
+  ) {
+    3L
+  } else {
+    2L
+  }
+  endpoint <- if (length(host_parts) >= endpoint_index) {
+    host_parts[[endpoint_index]]
+  } else {
+    NA_character_
+  }
+  endpoint_suffix <- if (length(host_parts) > endpoint_index) {
+    paste(host_parts[-seq_len(endpoint_index)], collapse = ".")
+  } else {
+    NA_character_
+  }
 
   if (!endpoint %in% c("dfs", "blob")) {
     cli::cli_warn(
@@ -77,13 +123,21 @@ parse_storage_path <- function(path) {
     )
   }
 
-  if (scheme %in% c("abfss", "abfs", "wasbs", "wasb")) {
+  if (scheme %in% c("abfss", "abfs", "wasbs", "wasb", "az", "azure")) {
     container <- parsed$username %||% NA_character_
     inner_path <- sub("^/", "", parsed$path %||% "")
   } else {
-    path_segments <- strsplit(sub("^/", "", parsed$path %||% ""), "/", fixed = TRUE)[[1]]
+    path_segments <- strsplit(
+      sub("^/", "", parsed$path %||% ""),
+      "/",
+      fixed = TRUE
+    )[[1]]
     path_segments <- path_segments[nzchar(path_segments)]
-    container <- if (length(path_segments) >= 1L) path_segments[[1L]] else NA_character_
+    container <- if (length(path_segments) >= 1L) {
+      path_segments[[1L]]
+    } else {
+      NA_character_
+    }
     inner_path <- paste(path_segments[-1L], collapse = "/")
   }
 
@@ -92,6 +146,7 @@ parse_storage_path <- function(path) {
       scheme = scheme,
       storage_account = storage_account,
       endpoint = endpoint,
+      endpoint_suffix = endpoint_suffix,
       container = container,
       path = inner_path,
       format = storage_path_format(inner_path, parsed$path %||% ""),
@@ -110,15 +165,35 @@ print.azure_storage_path <- function(x, ...) {
     scheme = x$scheme,
     storage_account = x$storage_account,
     endpoint = x$endpoint,
+    endpoint_suffix = x$endpoint_suffix %||% "(none)",
     container = x$container %||% "(none)",
     path = if (nzchar(x$path)) x$path else "(container root)",
     format = x$format %||% "(unknown)"
   ))
   if (!is.null(x$query)) {
     cli::cli_text("query:")
-    cli::cli_dl(unlist(lapply(x$query, as.character)))
+    cli::cli_dl(unlist(lapply(redact_sas(x$query), as.character)))
   }
   invisible(x)
+}
+
+# Keys that carry SAS credentials or identity material; redacted on print.
+sas_sensitive_keys <- c(
+  "sig",
+  "skoid",
+  "sktid",
+  "skt",
+  "ske",
+  "sks",
+  "skv",
+  "signedoid",
+  "signedtid"
+)
+
+redact_sas <- function(query) {
+  hits <- intersect(names(query), sas_sensitive_keys)
+  query[hits] <- "<redacted>"
+  query
 }
 
 
@@ -138,7 +213,8 @@ storage_path_format <- function(inner_path, raw_path) {
     return("folder")
   }
 
-  switch(ext,
+  switch(
+    ext,
     parquet = "parquet",
     csv = "csv",
     tsv = "tsv",

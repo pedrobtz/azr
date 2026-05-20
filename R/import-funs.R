@@ -94,6 +94,13 @@ list_redact <- function(x, names, case_sensitive = TRUE) {
 }
 
 
+list_redact_pattern <- function(x, pattern, ...) {
+  i <- grepl(pattern, names(x), ...)
+  x[i] <- list(redacted())
+  x
+}
+
+
 redacted <- function() {
   structure(list(), class = "redacted")
 }

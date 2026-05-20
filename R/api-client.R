@@ -142,13 +142,10 @@ api_client <- R6::R6Class(
         self$.credentials <- credentials
       } else if (!is.null(provider)) {
         # Handle credential provider if provided
-        if (
-          !R6::is.R6(provider) ||
-            !(inherits(provider, "Credential") ||
-              inherits(provider, "DefaultCredential"))
-        ) {
+        if (!is_credential(provider)) {
           cli::cli_abort(
-            "Argument 'provider' must be an R6 object that inherits from 'Credential' or 'DefaultCredential' class."
+            "Argument {.arg provider} must inherit from {.cls Credential},
+            {.cls DefaultCredential}, or {.cls CachedTokenCredential}."
           )
         }
         self$.provider <- provider
@@ -541,6 +538,7 @@ default_response_handler <- function(content) {
       if (is.data.frame(x)) try_as_data_table(x) else x
     })
   }
+  return(content)
 }
 
 drop_null <- function(x) Filter(Negate(is.null), x)

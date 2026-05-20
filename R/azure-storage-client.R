@@ -97,13 +97,10 @@ api_storage_client <- R6::R6Class(
           chain = chain,
           tenant_id = tenant_id
         )
-      } else if (
-        !R6::is.R6(provider) ||
-          !(inherits(provider, "Credential") ||
-            inherits(provider, "DefaultCredential"))
-      ) {
+      } else if (!is_credential(provider)) {
         cli::cli_abort(
-          "Argument {.arg provider} must inherit from {.cls Credential} or {.cls DefaultCredential}."
+          "Argument {.arg provider} must inherit from {.cls Credential},
+          {.cls DefaultCredential}, or {.cls CachedTokenCredential}."
         )
       }
 
@@ -190,8 +187,9 @@ api_storage_client <- R6::R6Class(
     #'   Defaults to `FALSE`.
     #' @param ... Additional query parameters to pass to the API.
     #'
-    #' @return A data.frame (or data.table if available) containing file and directory
-    #'   information with columns such as name, contentLength, lastModified, etc.
+    #' @return A data.frame (or data.table if available) with one row per file or
+    #'   directory. Columns include `name`, `contentLength`, `lastModified`, etc.
+    #'   All pages are fetched transparently; the result is the complete listing.
     list_files = function(path = "", recursive = FALSE, ...) {
       if (is.null(path)) {
         path <- ""
@@ -207,18 +205,34 @@ api_storage_client <- R6::R6Class(
         query_params$directory <- path
       }
 
-      response <- self$.fetch(
+      req <- self$.fetch(
         path = self$.filesystem,
         query = query_params,
-        method = "get"
+        method = "get",
+        content = "request"
+      )
+      req <- self$.credentials(req)
+
+      resps <- httr2::req_perform_iterative(
+        req,
+        next_req = httr2::iterate_with_cursor(
+          "continuation",
+          \(resp) httr2::resp_header(resp, "x-ms-continuation")
+        ),
+        max_reqs = Inf
       )
 
-      if (!is.null(response$paths) && is.data.frame(response$paths)) {
-        return(response$paths)
-      } else {
+      pages <- httr2::resps_data(resps, \(resp) {
+        body <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+        body$paths
+      })
+
+      if (is.null(pages) || length(pages) == 0L) {
         cli::cli_inform("No files found in path: {.path {path}}")
         return(data.frame())
       }
+
+      self$.response_handler(as.data.frame(pages))
     }
   )
 )

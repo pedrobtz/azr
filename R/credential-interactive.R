@@ -73,6 +73,8 @@ InteractiveCredential <- R6::R6Class(
         list(scope = self$.scope_str, auth_url = self$.oauth_url),
         extra_flow_params
       )
+      lockBinding("interactive", self)
+      lockBinding("use_refresh_token", self)
     },
     #' @description
     #' Check if the credential requires user interaction
@@ -141,8 +143,6 @@ InteractiveCredential <- R6::R6Class(
         token <- private$do_flow_refresh_token(scope = scope)
         if (inherits(token, "httr2_token")) {
           return(token)
-        } else {
-          cli::cli_abort("Failed to acquire token via login refresh flow.")
         }
       }
       private$do_flow_access_token(
@@ -338,6 +338,8 @@ AuthCodeCredential <- R6::R6Class(
   classname = "AuthCodeCredential",
   inherit = InteractiveCredential,
   public = list(
+    #' @field .redirect_uri Character string specifying the redirect URI registered with the application.
+    .redirect_uri = NULL,
     #' @description
     #' Create a new authorization code credential
     #'

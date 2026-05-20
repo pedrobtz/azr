@@ -40,6 +40,13 @@ req <- cred$req_auth(req)
 \section{Super classes}{
 \code{azr::Credential} -> \code{\link[azr:InteractiveCredential]{azr::InteractiveCredential}} -> \code{AuthCodeCredential}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{.redirect_uri}}{Character string specifying the redirect URI registered with the application.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
