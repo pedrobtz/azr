@@ -14,6 +14,8 @@ access tokens. It will use the currently active Azure CLI account and
 subscription unless a specific tenant is specified.
 }
 \examples{
+# 'az login' must have been executed successfully for these examples to work.
+\dontrun{
 # Create credential with default settings
 cred <- AzureCLICredential$new()
 
@@ -23,9 +25,6 @@ cred <- AzureCLICredential$new(
   tenant_id = "your-tenant-id"
 )
 
-# To get a token or authenticate a request it is required that
-# 'az login' is successfully executed, otherwise it will return an error.
-\dontrun{
 # Get an access token
 token <- cred$get_token()
 

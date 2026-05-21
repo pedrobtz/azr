@@ -15,7 +15,7 @@ get_credential_provider(
   oauth_endpoint = NULL,
   chain = NULL,
   interactive = TRUE,
-  verbose = getOption("azr.verbose", FALSE)
+  verbose = azr_opt("chain_verbose")
 )
 }
 \arguments{
@@ -50,7 +50,9 @@ provided until \code{get_token} succeeds. If \code{NULL}, uses
 are allowed. Defaults to \code{TRUE}.}
 
 \item{verbose}{A logical value indicating whether to print verbose messages
-during credential discovery. Defaults to \code{getOption("azr.verbose", FALSE)}.}
+during credential discovery. Defaults to \code{azr_opt("chain_verbose")}, which
+reads \code{options(azr.chain_verbose = ...)} or the \code{AZR_CHAIN_VERBOSE}
+environment variable.}
 }
 \value{
 A credential object that inherits from the \code{Credential} class and

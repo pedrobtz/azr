@@ -75,6 +75,8 @@ api_client <- R6::R6Class(
     .options = NULL,
     #' @field .response_handler Optional callback function to process response content
     .response_handler = NULL,
+    #' @field .verbose Logical flag controlling request/response logging in `.send_request()`
+    .verbose = NULL,
     #' @description
     #' Create a new API client instance
     #'
@@ -98,6 +100,11 @@ api_client <- R6::R6Class(
     #'   content. The function should accept one argument (the parsed response) and
     #'   return the processed content. If `NULL`, uses [default_response_handler()]
     #'   which converts data frames to data.table objects. Defaults to `NULL`.
+    #' @param verbose A logical flag controlling request/response logging in
+    #'   `.send_request()`. When `FALSE`, the `>>>` request and `<<<` response
+    #'   `cli` alerts are suppressed. Defaults to `azr_opt("api_verbose")`, which
+    #'   reads `options(azr.api_verbose = ...)` or the `AZR_API_VERBOSE`
+    #'   environment variable.
     #'
     #' @return A new `api_client` object
     initialize = function(
@@ -107,7 +114,8 @@ api_client <- R6::R6Class(
       timeout = 60L,
       connecttimeout = 30L,
       max_tries = 5L,
-      response_handler = NULL
+      response_handler = NULL,
+      verbose = azr_opt("api_verbose")
     ) {
       if (!missing(host_url)) {
         self$.host_url <- host_url
@@ -162,6 +170,13 @@ api_client <- R6::R6Class(
       stopifnot(is.function(response_handler))
       self$.response_handler <- response_handler
 
+      if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
+        cli::cli_abort(
+          "Argument {.arg verbose} must be a single non-NA logical value."
+        )
+      }
+      self$.verbose <- verbose
+
       self$.base_req <- httr2::request(self$.host_url) |>
         httr2::req_options(
           timeout = timeout,
@@ -197,6 +212,7 @@ api_client <- R6::R6Class(
       lockBinding(".credentials", self)
       lockBinding(".options", self)
       lockBinding(".response_handler", self)
+      lockBinding(".verbose", self)
     },
     #' @description
     #' Make an HTTP request to the API
@@ -347,23 +363,27 @@ api_client <- R6::R6Class(
     #'
     #' @return An [httr2::response()] object containing the API response
     .send_request = function(req, verbosity) {
-      cli::cli_alert_info(">>> {.strong {req$method}} {.url {req$url}}")
+      if (isTRUE(self$.verbose)) {
+        cli::cli_alert_info(">>> {.strong {req$method}} {.url {req$url}}")
 
-      if (!is.null(req$body) && req$body$content_type == "application/json") {
-        cli::cli_alert_info(">>> body:")
-        cli::cli_verbatim(format_json_body(
-          req$body$data,
-          params = req$body$params
-        ))
+        if (!is.null(req$body) && req$body$content_type == "application/json") {
+          cli::cli_alert_info(">>> body:")
+          cli::cli_verbatim(format_json_body(
+            req$body$data,
+            params = req$body$params
+          ))
+        }
       }
 
       resp <- httr2::req_perform(self$.credentials(req), verbosity = verbosity)
 
-      size <- format_size(resp$body, units = "Kb")
-      time <- format_timing(resp$timing)
-      cli::cli_alert_success(
-        "<<< status = {.val {resp$status}} | time = {time} secs. | size = {size} Kb"
-      )
+      if (isTRUE(self$.verbose)) {
+        size <- format_size(resp$body, units = "Kb")
+        time <- format_timing(resp$timing)
+        cli::cli_alert_success(
+          "<<< status = {.val {resp$status}} | time = {time} secs. | size = {size} Kb"
+        )
+      }
 
       return(resp)
     },

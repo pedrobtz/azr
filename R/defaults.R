@@ -135,7 +135,7 @@ default_refresh_token <- function() {
 #' default_azure_scope("graph")
 #' default_azure_scope("storage")
 default_azure_scope <- function(resource = "azure_arm") {
-  full_names <- names(azure_scopes)
+  full_names <- names(azure_services)
   short_names <- sub("^azure_", "", full_names)
 
   if (resource %in% short_names && !resource %in% full_names) {
@@ -143,7 +143,7 @@ default_azure_scope <- function(resource = "azure_arm") {
   }
 
   resource <- rlang::arg_match(resource, values = full_names)
-  azure_scopes[[resource]]
+  paste0("https://", azure_services[[resource]]$host, "/.default")
 }
 
 
@@ -277,7 +277,7 @@ normalize_authority_host <- function(host, arg = rlang::caller_arg(host)) {
 #' @examples
 #' default_storage_endpoint()
 default_storage_endpoint <- function() {
-  azure_storage_endpoints$dfs
+  azure_services$azure_storage$dfs
 }
 
 #' Get default Azure Log Analytics query endpoint
@@ -292,7 +292,22 @@ default_storage_endpoint <- function() {
 #' @examples
 #' default_log_analytics_endpoint()
 default_log_analytics_endpoint <- function() {
-  azure_log_analytics_endpoints$query
+  azure_services$azure_log_analytics$host
+}
+
+#' Get default Microsoft Graph endpoint
+#'
+#' @description
+#' Returns the default host used to construct Microsoft Graph API URLs
+#' (`graph.microsoft.com`).
+#'
+#' @return A character string with the Microsoft Graph endpoint host.
+#'
+#' @export
+#' @examples
+#' default_graph_endpoint()
+default_graph_endpoint <- function() {
+  azure_services$azure_graph$host
 }
 
 #' Get default Azure configuration directory

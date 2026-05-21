@@ -3,18 +3,18 @@
 #' @description
 #' Retrieves the value of an azr package option by name, using the following
 #' priority order:
-#' 1. R option (e.g. `options(azr.verbose = TRUE)`)
-#' 2. Environment variable (e.g. `AZR_VERBOSE=true`)
+#' 1. R option (e.g. `options(azr.chain_verbose = TRUE)`)
+#' 2. Environment variable (e.g. `AZR_CHAIN_VERBOSE=true`)
 #' 3. Built-in default
 #'
 #' @param name A character string naming the option. Must be one of the keys in
-#'   [azr_options] (e.g. `"verbose"`).
+#'   [azr_options] (e.g. `"chain_verbose"`).
 #'
 #' @return The option value, coerced to the type of the built-in default.
 #'
 #' @export
 #' @examples
-#' azr_opt("verbose")
+#' azr_opt("chain_verbose")
 azr_opt <- function(name) {
   spec <- azr_options[[name]]
   if (is.null(spec)) {
@@ -52,7 +52,8 @@ coerce_env_value <- function(value, default) {
 #'
 #' | Name | R option | Env variable | Default | Description |
 #' |------|----------|--------------|---------|-------------|
-#' | `"verbose"` | `azr.verbose` | `AZR_VERBOSE` | `FALSE` | Enable verbose diagnostic output |
+#' | `"chain_verbose"` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose diagnostic output during credential-chain discovery |
+#' | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose request/response logging in [api_client] |
 #' | `"cli_login_enable"` | `azr.cli_login_enable` | `AZR_CLI_LOGIN_ENABLE` | `FALSE` | Auto Azure CLI login |
 #'
 #' @export
@@ -61,17 +62,22 @@ coerce_env_value <- function(value, default) {
 #' azr_options
 #'
 #' # Read with azr_opt()
-#' azr_opt("verbose")
+#' azr_opt("chain_verbose")
 #'
 #' # Set for the session
-#' options(azr.verbose = TRUE)
+#' options(azr.chain_verbose = TRUE)
 #'
 #' # Or via environment variable (before starting R)
-#' # AZR_VERBOSE=true
+#' # AZR_CHAIN_VERBOSE=true
 azr_options <- list(
-  verbose = list(
-    option = "azr.verbose",
-    env_var = "AZR_VERBOSE",
+  chain_verbose = list(
+    option = "azr.chain_verbose",
+    env_var = "AZR_CHAIN_VERBOSE",
+    default = FALSE
+  ),
+  api_verbose = list(
+    option = "azr.api_verbose",
+    env_var = "AZR_API_VERBOSE",
     default = FALSE
   ),
   cli_login_enable = list(

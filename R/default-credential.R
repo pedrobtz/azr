@@ -408,7 +408,9 @@ get_credential_auth <- function(
 #' @param interactive A logical value indicating whether interactive credentials
 #'   are allowed. Defaults to `TRUE`.
 #' @param verbose A logical value indicating whether to print verbose messages
-#'   during credential discovery. Defaults to `getOption("azr.verbose", FALSE)`.
+#'   during credential discovery. Defaults to `azr_opt("chain_verbose")`, which
+#'   reads `options(azr.chain_verbose = ...)` or the `AZR_CHAIN_VERBOSE`
+#'   environment variable.
 #'
 #' @return A credential object that inherits from the `Credential` class and
 #'   has successfully authenticated.
@@ -440,7 +442,7 @@ get_credential_provider <- function(
   oauth_endpoint = NULL,
   chain = NULL,
   interactive = TRUE,
-  verbose = getOption("azr.verbose", FALSE)
+  verbose = azr_opt("chain_verbose")
 ) {
   if (is.null(chain) || length(chain) == 0L) {
     chain <- default_credential_chain()

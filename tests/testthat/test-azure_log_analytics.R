@@ -230,8 +230,8 @@ test_that("log_analytics_parse_tables handles empty rows and NULL values", {
   expect_equal(df2$y, c(NA_real_, 2.5))
 })
 
-test_that("azr_log_analytics_client passes arguments through", {
-  client <- azr_log_analytics_client(
+test_that("azr_logs_client passes arguments through", {
+  client <- azr_logs_client(
     subscription_id = "sub-123",
     resource_id = "rg-abc",
     endpoint = "api.loganalytics.us",

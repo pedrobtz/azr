@@ -8,7 +8,7 @@ azr_opt(name)
 }
 \arguments{
 \item{name}{A character string naming the option. Must be one of the keys in
-\link{azr_options} (e.g. \code{"verbose"}).}
+\link{azr_options} (e.g. \code{"chain_verbose"}).}
 }
 \value{
 The option value, coerced to the type of the built-in default.
@@ -17,11 +17,11 @@ The option value, coerced to the type of the built-in default.
 Retrieves the value of an azr package option by name, using the following
 priority order:
 \enumerate{
-\item R option (e.g. \code{options(azr.verbose = TRUE)})
-\item Environment variable (e.g. \code{AZR_VERBOSE=true})
+\item R option (e.g. \code{options(azr.chain_verbose = TRUE)})
+\item Environment variable (e.g. \code{AZR_CHAIN_VERBOSE=true})
 \item Built-in default
 }
 }
 \examples{
-azr_opt("verbose")
+azr_opt("chain_verbose")
 }

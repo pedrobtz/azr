@@ -339,7 +339,7 @@ log_analytics_coerce_column <- function(values, type) {
 #' @export
 #' @examples
 #' \dontrun{
-#' la <- azr_log_analytics_client(
+#' la <- azr_logs_client(
 #'   subscription_id = "00000000-0000-0000-0000-000000000000",
 #'   resource_id = "my-resource-group"
 #' )
@@ -350,7 +350,7 @@ log_analytics_coerce_column <- function(values, type) {
 #'   scope = "hierarchy"
 #' )
 #' }
-azr_log_analytics_client <- function(
+azr_logs_client <- function(
   subscription_id,
   resource_id,
   endpoint = default_log_analytics_endpoint(),

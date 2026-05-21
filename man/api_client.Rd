@@ -76,6 +76,8 @@ response <- client$.fetch(
 \item{\code{.options}}{Request options (timeout, connecttimeout, max_tries)}
 
 \item{\code{.response_handler}}{Optional callback function to process response content}
+
+\item{\code{.verbose}}{Logical flag controlling request/response logging in \code{.send_request()}}
 }
 \if{html}{\out{</div>}}
 }
@@ -105,7 +107,8 @@ Create a new API client instance
   timeout = 60L,
   connecttimeout = 30L,
   max_tries = 5L,
-  response_handler = NULL
+  response_handler = NULL,
+  verbose = azr_opt("api_verbose")
 )}\if{html}{\out{</div>}}
 }
 
@@ -138,6 +141,12 @@ attempts for failed requests. Defaults to \code{5}.}
 content. The function should accept one argument (the parsed response) and
 return the processed content. If \code{NULL}, uses \code{\link[=default_response_handler]{default_response_handler()}}
 which converts data frames to data.table objects. Defaults to \code{NULL}.}
+
+\item{\code{verbose}}{A logical flag controlling request/response logging in
+\code{.send_request()}. When \code{FALSE}, the \verb{>>>} request and \verb{<<<} response
+\code{cli} alerts are suppressed. Defaults to \code{azr_opt("api_verbose")}, which
+reads \code{options(azr.api_verbose = ...)} or the \code{AZR_API_VERBOSE}
+environment variable.}
 }
 \if{html}{\out{</div>}}
 }
