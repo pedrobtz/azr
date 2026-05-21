@@ -68,8 +68,8 @@ DefaultCredential <- R6::R6Class(
     #' @param chain A list of credential objects, where each element must inherit
     #'   from the `Credential` base class. Credentials are attempted in the order
     #'   provided until `get_token` succeeds.
-    #' @param verbose Logical. If `TRUE`, prints the class of the resolved
-    #'   credential provider on first access. Defaults to `FALSE`.
+    #' @param verbose Logical. If `TRUE`, prints the resolved credential provider
+    #'   on first access. Defaults to `azr_opt("chain_verbose")`.
     #'
     #' @return A new `DefaultCredential` object
     initialize = function(
@@ -80,7 +80,7 @@ DefaultCredential <- R6::R6Class(
       use_cache = c("disk", "memory"),
       offline = TRUE,
       chain = default_credential_chain(),
-      verbose = FALSE
+      verbose = azr_opt("chain_verbose")
     ) {
       self$.scope <- scope
       self$.tenant_id <- tenant_id

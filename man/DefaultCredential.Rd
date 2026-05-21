@@ -84,7 +84,7 @@ Create a new DefaultCredential object
   use_cache = c("disk", "memory"),
   offline = TRUE,
   chain = default_credential_chain(),
-  verbose = FALSE
+  verbose = azr_opt("chain_verbose")
 )}\if{html}{\out{</div>}}
 }
 
@@ -113,8 +113,8 @@ Defaults to \code{TRUE}.}
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
 
-\item{\code{verbose}}{Logical. If \code{TRUE}, prints the class of the resolved
-credential provider on first access. Defaults to \code{FALSE}.}
+\item{\code{verbose}}{Logical. If \code{TRUE}, prints the resolved credential provider
+on first access. Defaults to \code{azr_opt("chain_verbose")}.}
 }
 \if{html}{\out{</div>}}
 }
