@@ -1,5 +1,6 @@
 # azr (development version)
 
+* Added S7 classes `az_dataset` and `az_catalog` for declaring collections of Azure Storage datasets, along with `az_dataset_from_uri()`, `load_dataset_catalog()`, `dataset_uri()`, `lookup_dataset_uri()`, and `catalog_dataset_uris()`. Use `jsonlite::toJSON(as.list(catalog))` to serialise. Adds `S7` to Imports.
 * `api_client$new()` gained a `verbose` argument that gates the `>>>` request and `<<<` response `cli` alerts in `.send_request()`. Defaults to `azr_opt("api_verbose")` (R option `azr.api_verbose` or env var `AZR_API_VERBOSE`); previously these alerts were always on.
 * The `verbose` argument of `get_credential_provider()` now defaults to `azr_opt("chain_verbose")` (R option `azr.chain_verbose` or env var `AZR_CHAIN_VERBOSE`), replacing the prior `azr.verbose` / `AZR_VERBOSE` option.
 * Added `default_graph_endpoint()` and an `endpoint` argument to `azr_graph_client()` so the Microsoft Graph host is no longer hardcoded. Service metadata (resource host and data-plane endpoints) is now consolidated in a single internal `azure_services` list, and `default_azure_scope()` derives the `/.default` scope from the resource host.

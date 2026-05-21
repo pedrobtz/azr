@@ -254,6 +254,9 @@ spark_conf_sensitive_pattern <- "account\\.key|client\\.secret|refresh\\.token$"
 #' @exportS3Method print azure_spark_config
 print.azure_spark_config <- function(x, ...) {
   display <- list_redact_pattern(unclass(x), spark_conf_sensitive_pattern)
+  display[] <- lapply(display, function(v) {
+    if (inherits(v, "redacted")) format(v) else v
+  })
   print(display, ...)
   invisible(x)
 }

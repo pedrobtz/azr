@@ -19,6 +19,7 @@ Depends:
 Imports:
     utils,
     R6,
+    S7,
     cli,
     httr2 (>= 1.2.2),
     jsonlite,
