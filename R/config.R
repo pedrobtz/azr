@@ -52,8 +52,8 @@ coerce_env_value <- function(value, default) {
 #'
 #' | Name | R option | Env variable | Default | Description |
 #' |------|----------|--------------|---------|-------------|
-#' | `"chain_verbose"` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose diagnostic output during credential-chain discovery |
-#' | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose request/response logging in [api_client] |
+#' | `"chain_verbose"` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose credential-chain discovery |
+#' | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose api_client request/response |
 #' | `"cli_login_enable"` | `azr.cli_login_enable` | `AZR_CLI_LOGIN_ENABLE` | `FALSE` | Auto Azure CLI login |
 #'
 #' @export

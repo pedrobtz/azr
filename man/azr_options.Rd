@@ -14,8 +14,8 @@ azr_options
 Registry of all azr package options. Each option can be set via an R option
 or an environment variable. Use \code{\link[=azr_opt]{azr_opt()}} to read an option value.\tabular{lllll}{
    Name \tab R option \tab Env variable \tab Default \tab Description \cr
-   \code{"chain_verbose"} \tab \code{azr.chain_verbose} \tab \code{AZR_CHAIN_VERBOSE} \tab \code{FALSE} \tab Verbose diagnostic output during credential-chain discovery \cr
-   \code{"api_verbose"} \tab \code{azr.api_verbose} \tab \code{AZR_API_VERBOSE} \tab \code{FALSE} \tab Verbose request/response logging in \link{api_client} \cr
+   \code{"chain_verbose"} \tab \code{azr.chain_verbose} \tab \code{AZR_CHAIN_VERBOSE} \tab \code{FALSE} \tab Verbose credential-chain discovery \cr
+   \code{"api_verbose"} \tab \code{azr.api_verbose} \tab \code{AZR_API_VERBOSE} \tab \code{FALSE} \tab Verbose api_client request/response \cr
    \code{"cli_login_enable"} \tab \code{azr.cli_login_enable} \tab \code{AZR_CLI_LOGIN_ENABLE} \tab \code{FALSE} \tab Auto Azure CLI login \cr
 }
 }
