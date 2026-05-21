@@ -32,6 +32,16 @@ azure_storage_endpoints <- list(
   dfs = "dfs.core.windows.net"
 )
 
+#' Azure Log Analytics Endpoint Defaults
+#'
+#' @description
+#' Default endpoint hosts for the Azure Log Analytics query API.
+#'
+#' @keywords internal
+azure_log_analytics_endpoints <- list(
+  query = "api.loganalytics.io"
+)
+
 #' Common Azure OAuth Scopes
 #'
 #' @description

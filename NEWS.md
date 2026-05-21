@@ -1,5 +1,6 @@
 # azr (development version)
 
+* Added `api_log_analytics_client` and `azr_log_analytics_client()` for running KQL queries against the Azure Log Analytics REST API. The client binds to a `subscription_id` and `resource_id` (resource group) at construction and exposes a `$query()` method that POSTs the KQL query as JSON; the `tables` response is parsed into one or more `data.frame`s.
 * Added `ManagedIdentityCredential` for Azure managed identity authentication (system- or user-assigned) via the IMDS endpoint. `default_credential_chain()` now includes `WorkloadIdentityCredential` and `ManagedIdentityCredential`, and places `AzureCLICredential` before interactive credentials.
 * Breaking: `azure_spark_storage_conf()` parameters renamed (`type` → `auth_type`, `storage` → `storage_account`, `oauth_host` → `authority_host`), default `auth_type` changed to `"refresh_token"`, and output now prefixed with `spark.hadoop.` by default (`prefix = NULL` for raw `fs.azure.*` keys). Added `"managed_identity"` and `"shared_key"` auth types, sovereign cloud support, and several bug fixes. The returned list now has a `print()` method that redacts secrets.
 * `parse_storage_path()` now accepts `az://` and `azure://` schemes, captures a new `endpoint_suffix` field for sovereign cloud detection, handles DNS-zone endpoints, and redacts SAS credentials in `print()`.

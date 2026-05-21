@@ -280,6 +280,21 @@ default_storage_endpoint <- function() {
   azure_storage_endpoints$dfs
 }
 
+#' Get default Azure Log Analytics query endpoint
+#'
+#' @description
+#' Returns the default host used to construct Azure Log Analytics query URLs
+#' (`api.loganalytics.io`).
+#'
+#' @return A character string with the Log Analytics query endpoint host.
+#'
+#' @export
+#' @examples
+#' default_log_analytics_endpoint()
+default_log_analytics_endpoint <- function() {
+  azure_log_analytics_endpoints$query
+}
+
 #' Get default Azure configuration directory
 #'
 #' @description

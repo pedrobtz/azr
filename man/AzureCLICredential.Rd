@@ -81,8 +81,8 @@ Create a new Azure CLI credential
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
-  interactive = FALSE,
-  use_bridge = FALSE
+  interactive = azr_opt("cli_login_enable"),
+  use_bridge = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -99,12 +99,12 @@ tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI
 for the Azure CLI process. Defaults to \code{10}.}
 
 \item{\code{interactive}}{A logical value indicating whether to check if the user is
-logged in and perform login if needed. Defaults to \code{FALSE}.}
+logged in and perform login if needed. Defaults to \code{azr_opt("cli_login_enable")}.}
 
 \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
-to the Microsoft device login page. Only used when \code{interactive = TRUE}. Defaults to \code{FALSE}.}
+to the Microsoft device login page. Only used when \code{interactive = TRUE}. Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }
