@@ -37,6 +37,7 @@
 #' @field .use_cache Character string indicating the caching strategy.
 #' @field .offline Logical indicating whether to request offline access.
 #' @field .chain A credential chain object for authentication.
+#' @field .verbose Logical indicating whether to print the resolved provider class.
 DefaultCredential <- R6::R6Class(
   classname = "DefaultCredential",
   public = list(
@@ -47,6 +48,7 @@ DefaultCredential <- R6::R6Class(
     .use_cache = NULL,
     .offline = NULL,
     .chain = NULL,
+    .verbose = NULL,
 
     #' @description
     #' Create a new DefaultCredential object
@@ -66,6 +68,8 @@ DefaultCredential <- R6::R6Class(
     #' @param chain A list of credential objects, where each element must inherit
     #'   from the `Credential` base class. Credentials are attempted in the order
     #'   provided until `get_token` succeeds.
+    #' @param verbose Logical. If `TRUE`, prints the class of the resolved
+    #'   credential provider on first access. Defaults to `FALSE`.
     #'
     #' @return A new `DefaultCredential` object
     initialize = function(
@@ -75,7 +79,8 @@ DefaultCredential <- R6::R6Class(
       client_secret = NULL,
       use_cache = c("disk", "memory"),
       offline = TRUE,
-      chain = default_credential_chain()
+      chain = default_credential_chain(),
+      verbose = FALSE
     ) {
       self$.scope <- scope
       self$.tenant_id <- tenant_id
@@ -84,6 +89,7 @@ DefaultCredential <- R6::R6Class(
       self$.use_cache <- rlang::arg_match(use_cache)
       self$.offline <- offline
       self$.chain <- chain
+      self$.verbose <- verbose
     },
 
     #' @description
@@ -117,6 +123,10 @@ DefaultCredential <- R6::R6Class(
           offline = self$.offline,
           chain = self$.chain
         )
+        if (isTRUE(self$.verbose)) {
+          cli::cli_inform("Using provider:")
+          print(private$.provider_cache)
+        }
       }
       private$.provider_cache
     }
