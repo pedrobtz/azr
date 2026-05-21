@@ -130,10 +130,15 @@ Issue a KQL query against the bound subscription and resource group.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{api_log_analytics_client$query(
   query,
+  date_from = Sys.Date() - 3,
+  date_to = Sys.Date() + 1,
   timespan = NULL,
-  workspaces = NULL,
+  max_rows = 500001L,
+  options = list(truncationMaxSize = 67108864L),
+  workspace_filters = list(regions = list()),
   ...,
-  raw = FALSE
+  raw = FALSE,
+  coerce_types = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -142,19 +147,39 @@ Issue a KQL query against the bound subscription and resource group.
 \describe{
 \item{\code{query}}{A character string containing the KQL query to execute.}
 
-\item{\code{timespan}}{An optional ISO 8601 duration (e.g. \code{"PT12H"}) or
-start/end pair separated by \code{/} (e.g. \code{"2024-01-01/2024-01-02"}).}
+\item{\code{date_from}}{Start of the time range as a \code{Date} or \code{POSIXct}. When
+provided together with \code{date_to}, appends
+\verb{| where TimeGenerated between(datetime(...), datetime(...))} to the
+query and sets \code{timespan} to \code{NULL}. Defaults to \code{Sys.Date() - 3}.}
 
-\item{\code{workspaces}}{An optional character vector of additional workspace IDs
-to include in a cross-workspace query.}
+\item{\code{date_to}}{End of the time range as a \code{Date} or \code{POSIXct}. Defaults
+to \code{Sys.Date() + 1}.}
 
-\item{\code{...}}{Additional query-string parameters appended to the URL
-(e.g. \code{scope = "hierarchy"}).}
+\item{\code{timespan}}{An ISO 8601 duration (e.g. \code{"PT12H"}) or start/end pair
+separated by \code{/} (e.g. \code{"2024-01-01/2024-01-02"}). Passed as a URL
+query parameter. Ignored when \code{date_from} and \code{date_to} are set.
+Defaults to \code{NULL}.}
+
+\item{\code{max_rows}}{Maximum number of rows to return. Defaults to \code{500001}.}
+
+\item{\code{options}}{A named list of query options. Defaults to
+\code{list(truncationMaxSize = 67108864)}.}
+
+\item{\code{workspace_filters}}{A named list of workspace filters. Defaults to
+\code{list(regions = list())}.}
+
+\item{\code{...}}{Additional URL query parameters. Override defaults (e.g.
+\code{scope = "resource"} to change from the default \code{"hierarchy"}).}
 
 \item{\code{raw}}{If \code{TRUE}, returns the parsed JSON response as a list. If
 \code{FALSE} (the default), returns a named list of \code{data.frame}s — one per
 table in the response — or the single table directly if only one is
 returned.}
+
+\item{\code{coerce_types}}{If \code{TRUE} (the default), columns are coerced to their
+native R types based on the Log Analytics schema (e.g. \code{datetime} →
+\code{POSIXct}, \code{bool} → \code{logical}). Set to \code{FALSE} to keep all values as
+character.}
 }
 \if{html}{\out{</div>}}
 }

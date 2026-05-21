@@ -148,25 +148,45 @@ api_log_analytics_client <- R6::R6Class(
     #' Issue a KQL query against the bound subscription and resource group.
     #'
     #' @param query A character string containing the KQL query to execute.
-    #' @param timespan An optional ISO 8601 duration (e.g. `"PT12H"`) or
-    #'   start/end pair separated by `/` (e.g. `"2024-01-01/2024-01-02"`).
-    #' @param workspaces An optional character vector of additional workspace IDs
-    #'   to include in a cross-workspace query.
-    #' @param ... Additional query-string parameters appended to the URL
-    #'   (e.g. `scope = "hierarchy"`).
+    #' @param date_from Start of the time range as a `Date` or `POSIXct`. When
+    #'   provided together with `date_to`, appends
+    #'   `| where TimeGenerated between(datetime(...), datetime(...))` to the
+    #'   query and sets `timespan` to `NULL`. Defaults to `Sys.Date() - 3`.
+    #' @param date_to End of the time range as a `Date` or `POSIXct`. Defaults
+    #'   to `Sys.Date() + 1`.
+    #' @param timespan An ISO 8601 duration (e.g. `"PT12H"`) or start/end pair
+    #'   separated by `/` (e.g. `"2024-01-01/2024-01-02"`). Passed as a URL
+    #'   query parameter. Ignored when `date_from` and `date_to` are set.
+    #'   Defaults to `NULL`.
+    #' @param max_rows Maximum number of rows to return. Defaults to `500001`.
+    #' @param options A named list of query options. Defaults to
+    #'   `list(truncationMaxSize = 67108864)`.
+    #' @param workspace_filters A named list of workspace filters. Defaults to
+    #'   `list(regions = list())`.
+    #' @param ... Additional URL query parameters. Override defaults (e.g.
+    #'   `scope = "resource"` to change from the default `"hierarchy"`).
     #' @param raw If `TRUE`, returns the parsed JSON response as a list. If
     #'   `FALSE` (the default), returns a named list of `data.frame`s — one per
     #'   table in the response — or the single table directly if only one is
     #'   returned.
+    #' @param coerce_types If `TRUE` (the default), columns are coerced to their
+    #'   native R types based on the Log Analytics schema (e.g. `datetime` →
+    #'   `POSIXct`, `bool` → `logical`). Set to `FALSE` to keep all values as
+    #'   character.
     #'
     #' @return Either a single `data.frame`, a named list of `data.frame`s, or
     #'   the raw parsed response (when `raw = TRUE`).
     query = function(
       query,
+      date_from = Sys.Date() - 3,
+      date_to = Sys.Date() + 1,
       timespan = NULL,
-      workspaces = NULL,
+      max_rows = 500001L,
+      options = list(truncationMaxSize = 67108864L),
+      workspace_filters = list(regions = list()),
       ...,
-      raw = FALSE
+      raw = FALSE,
+      coerce_types = TRUE
     ) {
       if (
         missing(query) ||
@@ -177,19 +197,30 @@ api_log_analytics_client <- R6::R6Class(
         cli::cli_abort("{.arg query} must be a non-empty character string.")
       }
 
-      body <- list(
-        query = query,
-        timespan = timespan,
-        workspaces = as.list(workspaces)
-      )
-      if (length(workspaces) == 0L) {
-        body$workspaces <- NULL
+      if (!is.null(date_from) && !is.null(date_to)) {
+        query <- paste0(
+          query,
+          "\n| where TimeGenerated between(datetime(",
+          date_from,
+          ") .. datetime(",
+          date_to,
+          "))"
+        )
+        timespan <- NULL
       }
 
-      query_params <- list(...)
-      if (length(query_params) == 0L) {
-        query_params <- NULL
-      }
+      body <- list(
+        query = query,
+        maxRows = max_rows,
+        options = options,
+        workspaceFilters = workspace_filters
+      )
+
+      query_params <- utils::modifyList(
+        list(timespan = timespan, scope = "hierarchy"),
+        list(...)
+      )
+      query_params <- Filter(Negate(is.null), query_params)
 
       resp <- self$.fetch(
         path = "query",
@@ -201,11 +232,15 @@ api_log_analytics_client <- R6::R6Class(
 
       parsed <- httr2::resp_body_json(resp, simplifyVector = FALSE)
 
+      if (!is.null(parsed$error)) {
+        cli::cli_abort(parsed$error$message)
+      }
+
       if (isTRUE(raw)) {
         return(parsed)
       }
 
-      log_analytics_parse_tables(parsed)
+      log_analytics_parse_tables(parsed, coerce_types = coerce_types)
     }
   )
 )
@@ -222,13 +257,17 @@ log_analytics_host_url <- function(endpoint) {
   paste0("https://", endpoint)
 }
 
-log_analytics_parse_tables <- function(parsed) {
+log_analytics_parse_tables <- function(parsed, coerce_types = TRUE) {
   tables <- parsed$tables
   if (is.null(tables) || length(tables) == 0L) {
     return(list())
   }
 
-  result <- lapply(tables, log_analytics_table_to_df)
+  result <- lapply(
+    tables,
+    log_analytics_table_to_df,
+    coerce_types = coerce_types
+  )
   names(result) <- vapply(
     tables,
     function(t) t$name %||% NA_character_,
@@ -241,24 +280,35 @@ log_analytics_parse_tables <- function(parsed) {
   result
 }
 
-log_analytics_table_to_df <- function(tbl) {
+log_analytics_table_to_df <- function(tbl, coerce_types = TRUE) {
   col_names <- vapply(tbl$columns, `[[`, character(1L), "name")
   col_types <- vapply(tbl$columns, `[[`, character(1L), "type")
 
   if (length(tbl$rows) == 0L) {
     cols <- lapply(col_types, function(t) {
-      log_analytics_coerce_column(list(), t)
+      log_analytics_coerce_column(list(), if (coerce_types) t else "string")
     })
     names(cols) <- col_names
-    return(as.data.frame(cols, stringsAsFactors = FALSE, check.names = FALSE))
+    df <- as.data.frame(cols, stringsAsFactors = FALSE, check.names = FALSE)
+    if (rlang::is_installed("data.table")) {
+      return(data.table::as.data.table(df))
+    }
+    return(df)
   }
 
   cols <- lapply(seq_along(col_names), function(j) {
     values <- lapply(tbl$rows, function(row) row[[j]])
-    log_analytics_coerce_column(values, col_types[[j]])
+    log_analytics_coerce_column(
+      values,
+      if (coerce_types) col_types[[j]] else "string"
+    )
   })
   names(cols) <- col_names
-  as.data.frame(cols, stringsAsFactors = FALSE, check.names = FALSE)
+  df <- as.data.frame(cols, stringsAsFactors = FALSE, check.names = FALSE)
+  if (rlang::is_installed("data.table")) {
+    return(data.table::as.data.table(df))
+  }
+  df
 }
 
 log_analytics_coerce_column <- function(values, type) {
