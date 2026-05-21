@@ -49,6 +49,9 @@ api_storage_client <- R6::R6Class(
     #'   a default credential chain will be created using [DefaultCredential].
     #' @param tenant_id A character string specifying the Azure tenant ID. Passed to
     #'   [DefaultCredential] when `chain` is `NULL`.
+    #' @param client_id A character string specifying the Azure client ID. Passed to
+    #'   [DefaultCredential] when `chain` is `NULL`. Defaults to
+    #'   [default_azure_cli_client_id()].
     #' @param ... Additional arguments passed to the parent [api_client] constructor.
     #'
     #' @return A new `api_storage_client` object
@@ -60,6 +63,7 @@ api_storage_client <- R6::R6Class(
       provider = NULL,
       chain = NULL,
       tenant_id = NULL,
+      client_id = default_azure_cli_client_id(),
       ...
     ) {
       if (missing(storageaccount) || is.null(storageaccount)) {
@@ -86,16 +90,15 @@ api_storage_client <- R6::R6Class(
         endpoint_suffix = endpoint_suffix
       )
 
-      if (length(scope) > 1) {
-        scope <- paste(scope, collapse = " ")
-      }
+      scope <- collapse_scope(scope)
 
       # Create credential provider
       if (is.null(provider)) {
         provider <- DefaultCredential$new(
           scope = scope,
           chain = chain,
-          tenant_id = tenant_id
+          tenant_id = tenant_id,
+          client_id = client_id
         )
       } else if (!is_credential(provider)) {
         cli::cli_abort(

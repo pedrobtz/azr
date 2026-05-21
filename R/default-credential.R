@@ -406,7 +406,7 @@ get_credential_auth <- function(
 #'   provided until `get_token` succeeds. If `NULL`, uses
 #'   [default_credential_chain()].
 #' @param interactive A logical value indicating whether interactive credentials
-#'   are allowed. Defaults to `TRUE`.
+#'   are allowed. Defaults to [rlang::is_interactive()].
 #' @param verbose A logical value indicating whether to print verbose messages
 #'   during credential discovery. Defaults to `azr_opt("chain_verbose")`, which
 #'   reads `options(azr.chain_verbose = ...)` or the `AZR_CHAIN_VERBOSE`
@@ -441,7 +441,7 @@ get_credential_provider <- function(
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL,
-  interactive = TRUE,
+  interactive = rlang::is_interactive(),
   verbose = azr_opt("chain_verbose")
 ) {
   if (is.null(chain) || length(chain) == 0L) {

@@ -54,7 +54,7 @@ coerce_env_value <- function(value, default) {
 #' |------|----------|--------------|---------|-------------|
 #' | `"chain_verbose"` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose credential-chain discovery |
 #' | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose api_client request/response |
-#' | `"cli_login_enable"` | `azr.cli_login_enable` | `AZR_CLI_LOGIN_ENABLE` | `FALSE` | Auto Azure CLI login |
+#' | `"cli_auto_login"` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Auto Azure CLI login |
 #'
 #' @export
 #' @examples
@@ -80,9 +80,9 @@ azr_options <- list(
     env_var = "AZR_API_VERBOSE",
     default = FALSE
   ),
-  cli_login_enable = list(
-    option = "azr.cli_login_enable",
-    env_var = "AZR_CLI_LOGIN_ENABLE",
+  cli_auto_login = list(
+    option = "azr.cli_auto_login",
+    env_var = "AZR_CLI_AUTO_LOGIN",
     default = FALSE
   )
 )

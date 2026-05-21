@@ -117,15 +117,14 @@ api_log_analytics_client <- R6::R6Class(
         )
       host_url <- base_req$url
 
-      if (length(scope) > 1L) {
-        scope <- paste(scope, collapse = " ")
-      }
+      scope <- collapse_scope(scope)
 
       if (is.null(provider)) {
         provider <- DefaultCredential$new(
           scope = scope,
           chain = chain,
-          tenant_id = tenant_id
+          tenant_id = tenant_id,
+          client_id = default_azure_cli_client_id()
         )
       } else if (!is_credential(provider)) {
         cli::cli_abort(

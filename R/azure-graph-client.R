@@ -67,15 +67,12 @@ azr_graph_client <- function(
 ) {
   graph_url <- paste0("https://", endpoint)
 
-  # Construct the full scope URL
-  if (length(scopes) > 1) {
-    scopes <- paste(scopes, collapse = " ")
-  }
-  scope <- paste0(graph_url, "/", scopes)
+  scope <- paste0(graph_url, "/", collapse_scope(scopes))
 
   provider <- DefaultCredential$new(
     scope = scope,
-    chain = chain
+    chain = chain,
+    client_id = default_azure_cli_client_id()
   )
 
   client <- api_client$new(

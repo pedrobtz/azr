@@ -34,9 +34,9 @@ AzureCLICredential <- R6::R6Class(
   classname = "AzureCLICredential",
   inherit = Credential,
   public = list(
-    #' @field interactive Logical indicating whether to check login status and
+    #' @field auto_login Logical indicating whether to check login status and
     #'   perform login if needed
-    interactive = azr_opt("cli_login_enable"),
+    auto_login = azr_opt("cli_auto_login"),
     #' @field use_bridge Logical indicating whether to use the device code bridge
     #'   webpage during interactive login
     use_bridge = TRUE,
@@ -52,22 +52,22 @@ AzureCLICredential <- R6::R6Class(
     #'   tenant ID. Defaults to `NULL`, which uses the default tenant from Azure CLI.
     #' @param process_timeout A numeric value specifying the timeout in seconds
     #'   for the Azure CLI process. Defaults to `10`.
-    #' @param interactive A logical value indicating whether to check if the user is
-    #'   logged in and perform login if needed. Defaults to `azr_opt("cli_login_enable")`.
+    #' @param auto_login A logical value indicating whether to check if the user is
+    #'   logged in and perform login if needed. Defaults to `azr_opt("cli_auto_login")`.
     #' @param use_bridge A logical value indicating whether to use the device code
     #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
     #'   that displays the device code and facilitates copy-pasting before redirecting
-    #'   to the Microsoft device login page. Only used when `interactive = TRUE`. Defaults to `TRUE`.
+    #'   to the Microsoft device login page. Only used when `auto_login = TRUE`. Defaults to `TRUE`.
     #'
     #' @return A new `AzureCLICredential` object
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
       process_timeout = NULL,
-      interactive = azr_opt("cli_login_enable"),
+      auto_login = azr_opt("cli_auto_login"),
       use_bridge = TRUE
     ) {
-      self$interactive <- interactive
+      self$auto_login <- auto_login
       self$use_bridge <- use_bridge
       super$initialize(
         scope = scope,
@@ -76,7 +76,7 @@ AzureCLICredential <- R6::R6Class(
       self$.process_timeout <- process_timeout %||% self$.process_timeout
 
       if (!az_cli_is_login(timeout = self$.process_timeout)) {
-        if (isTRUE(self$is_interactive())) {
+        if (isTRUE(self$auto_login)) {
           cli::cli_alert_info("User is not logged in to Azure CLI")
           az_cli_login(use_bridge = self$use_bridge)
         } else {
@@ -155,7 +155,7 @@ AzureCLICredential <- R6::R6Class(
     #'
     #' @return Logical indicating whether this credential is interactive
     is_interactive = function() {
-      self$interactive
+      self$auto_login
     },
     #' @description
     #' Log out from Azure CLI
@@ -720,7 +720,7 @@ extract_msal_token_fields <- function(token) {
     client_id = client_id,
     username = claims[["upn"]] %||% claims[["preferred_username"]],
     environment = environment,
-    scope_str = paste(token$scope %||% character(0L), collapse = " ")
+    scope_str = collapse_scope(token$scope %||% character(0L))
   )
 }
 

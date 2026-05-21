@@ -14,7 +14,7 @@ get_credential_provider(
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL,
-  interactive = TRUE,
+  interactive = rlang::is_interactive(),
   verbose = azr_opt("chain_verbose")
 )
 }
@@ -47,7 +47,7 @@ provided until \code{get_token} succeeds. If \code{NULL}, uses
 \code{\link[=default_credential_chain]{default_credential_chain()}}.}
 
 \item{interactive}{A logical value indicating whether interactive credentials
-are allowed. Defaults to \code{TRUE}.}
+are allowed. Defaults to \code{\link[rlang:is_interactive]{rlang::is_interactive()}}.}
 
 \item{verbose}{A logical value indicating whether to print verbose messages
 during credential discovery. Defaults to \code{azr_opt("chain_verbose")}, which

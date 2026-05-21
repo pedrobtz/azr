@@ -39,7 +39,7 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{interactive}}{Logical indicating whether to check login status and
+\item{\code{auto_login}}{Logical indicating whether to check login status and
 perform login if needed}
 
 \item{\code{use_bridge}}{Logical indicating whether to use the device code bridge
@@ -80,7 +80,7 @@ Create a new Azure CLI credential
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
-  interactive = azr_opt("cli_login_enable"),
+  auto_login = azr_opt("cli_auto_login"),
   use_bridge = TRUE
 )}\if{html}{\out{</div>}}
 }
@@ -97,13 +97,13 @@ tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI
 \item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
 for the Azure CLI process. Defaults to \code{10}.}
 
-\item{\code{interactive}}{A logical value indicating whether to check if the user is
-logged in and perform login if needed. Defaults to \code{azr_opt("cli_login_enable")}.}
+\item{\code{auto_login}}{A logical value indicating whether to check if the user is
+logged in and perform login if needed. Defaults to \code{azr_opt("cli_auto_login")}.}
 
 \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
-to the Microsoft device login page. Only used when \code{interactive = TRUE}. Defaults to \code{TRUE}.}
+to the Microsoft device login page. Only used when \code{auto_login = TRUE}. Defaults to \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }
