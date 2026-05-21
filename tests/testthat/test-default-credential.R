@@ -233,7 +233,7 @@ test_that("try_build_credential reports invalid credentials", {
   result <- try_build_credential(chain[[1]], "fake", envir = env)
 
   expect_null(result$obj)
-  expect_equal(result$error, "Invalid credential type")
+  expect_match(result$error, "not found")
 })
 
 test_that("try_build_credential passes env values to device code credential", {

@@ -553,6 +553,10 @@ try_build_credential <- function(crd_expr, crd_name, envir, verbose = FALSE) {
 
   crd <- try(rlang::eval_tidy(crd_expr), silent = TRUE)
 
+  if (inherits(crd, "try-error")) {
+    return(fail(conditionMessage(attr(crd, "condition"))))
+  }
+
   if (R6::is.R6Class(crd)) {
     if (verbose) {
       cli::cli_inform(c(
