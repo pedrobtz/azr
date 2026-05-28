@@ -16,3 +16,4 @@
 ^\.positai$
 ^\.claude$
 ^tests/testthat/_problems$
+^AGENTS\.md$
