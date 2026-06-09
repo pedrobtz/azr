@@ -69,7 +69,9 @@ DefaultCredential <- R6::R6Class(
     #'   from the `Credential` base class. Credentials are attempted in the order
     #'   provided until `get_token` succeeds.
     #' @param verbose Logical. If `TRUE`, prints the resolved credential provider
-    #'   on first access. Defaults to `azr_opt("chain_verbose")`.
+    #'   on first access. Defaults to the `chain_verbose` option
+    #'   (`options(azr.chain_verbose = ...)` or `AZR_CHAIN_VERBOSE`); see
+    #'   [azr_options()].
     #'
     #' @return A new `DefaultCredential` object
     initialize = function(
@@ -80,7 +82,7 @@ DefaultCredential <- R6::R6Class(
       use_cache = c("disk", "memory"),
       offline = TRUE,
       chain = default_credential_chain(),
-      verbose = azr_opt("chain_verbose")
+      verbose = opts$get("chain_verbose")
     ) {
       self$.scope <- scope
       self$.tenant_id <- tenant_id
@@ -418,9 +420,9 @@ get_credential_auth <- function(
 #' @param interactive A logical value indicating whether interactive credentials
 #'   are allowed. Defaults to [rlang::is_interactive()].
 #' @param verbose A logical value indicating whether to print verbose messages
-#'   during credential discovery. Defaults to `azr_opt("chain_verbose")`, which
+#'   during credential discovery. Defaults to the `chain_verbose` option, which
 #'   reads `options(azr.chain_verbose = ...)` or the `AZR_CHAIN_VERBOSE`
-#'   environment variable.
+#'   environment variable; see [azr_options()].
 #'
 #' @return A credential object that inherits from the `Credential` class and
 #'   has successfully authenticated.
@@ -452,7 +454,7 @@ get_credential_provider <- function(
   oauth_endpoint = NULL,
   chain = NULL,
   interactive = rlang::is_interactive(),
-  verbose = azr_opt("chain_verbose")
+  verbose = opts$get("chain_verbose")
 ) {
   if (is.null(chain) || length(chain) == 0L) {
     chain <- default_credential_chain()

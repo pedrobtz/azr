@@ -102,9 +102,9 @@ api_client <- R6::R6Class(
     #'   which converts data frames to data.table objects. Defaults to `NULL`.
     #' @param verbose A logical flag controlling request/response logging in
     #'   `.send_request()`. When `FALSE`, the `>>>` request and `<<<` response
-    #'   `cli` alerts are suppressed. Defaults to `azr_opt("api_verbose")`, which
+    #'   `cli` alerts are suppressed. Defaults to the `api_verbose` option, which
     #'   reads `options(azr.api_verbose = ...)` or the `AZR_API_VERBOSE`
-    #'   environment variable.
+    #'   environment variable; see [azr_options()].
     #'
     #' @return A new `api_client` object
     initialize = function(
@@ -115,7 +115,7 @@ api_client <- R6::R6Class(
       connecttimeout = 30L,
       max_tries = 5L,
       response_handler = NULL,
-      verbose = azr_opt("api_verbose")
+      verbose = opts$get("api_verbose")
     ) {
       if (!missing(host_url)) {
         self$.host_url <- host_url

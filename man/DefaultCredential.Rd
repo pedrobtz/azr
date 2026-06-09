@@ -84,7 +84,7 @@ Create a new DefaultCredential object
   use_cache = c("disk", "memory"),
   offline = TRUE,
   chain = default_credential_chain(),
-  verbose = azr_opt("chain_verbose")
+  verbose = opts$get("chain_verbose")
 )}\if{html}{\out{</div>}}
 }
 
@@ -114,7 +114,9 @@ from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
 
 \item{\code{verbose}}{Logical. If \code{TRUE}, prints the resolved credential provider
-on first access. Defaults to \code{azr_opt("chain_verbose")}.}
+on first access. Defaults to the \code{chain_verbose} option
+(\code{options(azr.chain_verbose = ...)} or \code{AZR_CHAIN_VERBOSE}); see
+\code{\link[=azr_options]{azr_options()}}.}
 }
 \if{html}{\out{</div>}}
 }

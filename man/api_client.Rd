@@ -108,7 +108,7 @@ Create a new API client instance
   connecttimeout = 30L,
   max_tries = 5L,
   response_handler = NULL,
-  verbose = azr_opt("api_verbose")
+  verbose = opts$get("api_verbose")
 )}\if{html}{\out{</div>}}
 }
 
@@ -144,9 +144,9 @@ which converts data frames to data.table objects. Defaults to \code{NULL}.}
 
 \item{\code{verbose}}{A logical flag controlling request/response logging in
 \code{.send_request()}. When \code{FALSE}, the \verb{>>>} request and \verb{<<<} response
-\code{cli} alerts are suppressed. Defaults to \code{azr_opt("api_verbose")}, which
+\code{cli} alerts are suppressed. Defaults to the \code{api_verbose} option, which
 reads \code{options(azr.api_verbose = ...)} or the \code{AZR_API_VERBOSE}
-environment variable.}
+environment variable; see \code{\link[=azr_options]{azr_options()}}.}
 }
 \if{html}{\out{</div>}}
 }
