@@ -53,7 +53,11 @@ InteractiveCredential <- R6::R6Class(
       interactive = NULL
     ) {
       if (!is.null(interactive)) {
-        deprecated_arg("interactive", "allow_prompt", "InteractiveCredential$new")
+        deprecated_arg(
+          "interactive",
+          "allow_prompt",
+          "InteractiveCredential$new"
+        )
         allow_prompt <- interactive
       }
 
@@ -297,7 +301,11 @@ DeviceCodeCredential <- R6::R6Class(
       interactive = NULL
     ) {
       if (!is.null(interactive)) {
-        deprecated_arg("interactive", "allow_prompt", "DeviceCodeCredential$new")
+        deprecated_arg(
+          "interactive",
+          "allow_prompt",
+          "DeviceCodeCredential$new"
+        )
         allow_prompt <- interactive
       }
 

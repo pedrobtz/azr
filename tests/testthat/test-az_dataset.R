@@ -56,7 +56,16 @@ test_that("az_dataset rejects path with leading/trailing slash", {
 })
 
 test_that("az_dataset accepts the full documented format vocabulary", {
-  for (fmt in c("delta", "parquet", "csv", "tsv", "json", "avro", "orc", "text")) {
+  for (fmt in c(
+    "delta",
+    "parquet",
+    "csv",
+    "tsv",
+    "json",
+    "avro",
+    "orc",
+    "text"
+  )) {
     ds <- az_dataset(
       name = "ds",
       scheme = "abfss",
@@ -389,7 +398,114 @@ test_that("az_catalog_read errors on missing required fields, naming the entry",
     json_file
   )
 
-  expect_error(az_catalog_read(json_file), "Dataset entry 1 is missing required fields")
+  expect_error(
+    az_catalog_read(json_file),
+    "Dataset entry 1 is missing required fields"
+  )
+})
+
+test_that("az_dataset_manifest validates and converts to a list", {
+  manifest <- az_dataset_manifest(
+    name = "orders",
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+    format = "delta"
+  )
+
+  expect_s7_class(manifest, az_dataset_manifest)
+  expect_equal(
+    as.list(manifest),
+    list(
+      name = "orders",
+      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+      format = "delta"
+    )
+  )
+
+  expect_error(
+    az_dataset_manifest(
+      name = "",
+      uri = "https://example.com",
+      format = "delta"
+    ),
+    "name"
+  )
+  expect_error(
+    az_dataset_manifest(name = "orders", uri = "", format = "delta"),
+    "uri"
+  )
+  expect_error(
+    az_dataset_manifest(
+      name = "orders",
+      uri = "https://example.com",
+      format = "bogus"
+    ),
+    "format"
+  )
+})
+
+test_that("dataset_manifest on az_dataset returns a typed manifest", {
+  ds <- az_dataset(
+    name = "orders",
+    scheme = "abfss",
+    container = "raw",
+    storage = list(prod = "stprod001"),
+    path = "sales/orders",
+    format = "delta"
+  )
+
+  manifest <- dataset_manifest(ds, tier = "prod")
+  expect_s7_class(manifest, az_dataset_manifest)
+  expect_equal(
+    as.list(manifest),
+    list(
+      name = "orders",
+      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+      format = "delta"
+    )
+  )
+})
+
+test_that("dataset_manifest on az_catalog looks up by name and lists all", {
+  ds1 <- az_dataset(
+    name = "orders",
+    scheme = "abfss",
+    container = "raw",
+    storage = list(prod = "stprod001"),
+    path = "sales/orders",
+    format = "delta"
+  )
+  ds2 <- az_dataset(
+    name = "products",
+    scheme = "wasbs",
+    container = "raw",
+    storage = list(prod = "stprod002"),
+    path = "ref/products",
+    format = "parquet"
+  )
+  catalog <- az_catalog(datasets = list(ds1, ds2))
+
+  orders <- dataset_manifest(catalog, tier = "prod", name = "orders")
+  expect_s7_class(orders, az_dataset_manifest)
+  expect_equal(
+    as.list(orders),
+    list(
+      name = "orders",
+      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+      format = "delta"
+    )
+  )
+
+  manifest <- dataset_manifest(catalog, tier = "prod", uri_type = "https")
+  expect_named(manifest, c("orders", "products"))
+  expect_s7_class(manifest$products, az_dataset_manifest)
+  expect_equal(
+    as.list(manifest$products),
+    list(
+      name = "products",
+      uri = "https://stprod002.blob.core.windows.net/raw/ref/products",
+      format = "parquet"
+    )
+  )
 })
 
 test_that("az_catalog_read errors with the entry index and name on invalid dataset", {
@@ -410,5 +526,8 @@ test_that("az_catalog_read errors with the entry index and name on invalid datas
     json_file
   )
 
-  expect_error(az_catalog_read(json_file), "Dataset entry 1 \\(\"orders\"\\) is invalid")
+  expect_error(
+    az_catalog_read(json_file),
+    "Dataset entry 1 \\(\"orders\"\\) is invalid"
+  )
 })

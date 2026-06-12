@@ -261,7 +261,11 @@ test_that("get_credential_provider does not leak interactive into AzureCLICreden
   chain <- credential_chain(azure_cli = AzureCLICredential)
 
   err <- tryCatch(
-    get_credential_provider(chain = chain, allow_interactive = TRUE, verbose = FALSE),
+    get_credential_provider(
+      chain = chain,
+      allow_interactive = TRUE,
+      verbose = FALSE
+    ),
     error = function(e) e
   )
 
@@ -705,7 +709,11 @@ test_that("allow_interactive = FALSE prevents interactive credentials from being
   chain <- credential_chain(device_code = DeviceCodeCredential)
 
   err <- tryCatch(
-    get_credential_provider(chain = chain, allow_interactive = FALSE, verbose = FALSE),
+    get_credential_provider(
+      chain = chain,
+      allow_interactive = FALSE,
+      verbose = FALSE
+    ),
     error = function(e) e
   )
 

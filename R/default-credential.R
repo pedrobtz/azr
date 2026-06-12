@@ -459,7 +459,11 @@ get_credential_provider <- function(
   interactive = NULL
 ) {
   if (!is.null(interactive)) {
-    deprecated_arg("interactive", "allow_interactive", "get_credential_provider")
+    deprecated_arg(
+      "interactive",
+      "allow_interactive",
+      "get_credential_provider"
+    )
     allow_interactive <- interactive
   }
 
