@@ -52,45 +52,37 @@ AzureCLICredential <- R6::R6Class(
     #'   tenant ID. Defaults to `NULL`, which uses the default tenant from Azure CLI.
     #' @param process_timeout A numeric value specifying the timeout in seconds
     #'   for the Azure CLI process. Defaults to `10`.
-    #' @param interactive A logical value indicating whether to check if the user is
-    #'   logged in and perform login if needed. Defaults to the `cli_auto_login`
-    #'   option (`options(azr.cli_auto_login = ...)` or `AZR_CLI_AUTO_LOGIN`); see
-    #'   [azr_options()].
+    #' @param auto_login A logical value indicating whether `get_token()` may
+    #'   launch `az login` when the user is not logged in. Defaults to the
+    #'   `cli_auto_login` option (`options(azr.cli_auto_login = ...)` or
+    #'   `AZR_CLI_AUTO_LOGIN`); see [azr_options()].
     #' @param use_bridge A logical value indicating whether to use the device code
     #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
     #'   that displays the device code and facilitates copy-pasting before redirecting
-    #'   to the Microsoft device login page. Only used when `interactive = TRUE`. Defaults to `TRUE`.
+    #'   to the Microsoft device login page. Only used when `auto_login = TRUE`. Defaults to `TRUE`.
+    #' @param interactive Deprecated. Use `auto_login` instead.
     #'
     #' @return A new `AzureCLICredential` object
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
       process_timeout = NULL,
-      interactive = opts$get("cli_auto_login"),
-      use_bridge = TRUE
+      auto_login = opts$get("cli_auto_login"),
+      use_bridge = TRUE,
+      interactive = NULL
     ) {
-      self$auto_login <- interactive
+      if (!is.null(interactive)) {
+        deprecated_arg("interactive", "auto_login", "AzureCLICredential$new")
+        auto_login <- interactive
+      }
+
+      self$auto_login <- auto_login
       self$use_bridge <- use_bridge
       super$initialize(
         scope = scope,
         tenant_id = tenant_id
       )
       self$.process_timeout <- process_timeout %||% self$.process_timeout
-
-      if (!az_cli_is_login(timeout = self$.process_timeout)) {
-        if (isTRUE(self$auto_login)) {
-          cli::cli_alert_info("User is not logged in to Azure CLI")
-          az_cli_login(use_bridge = self$use_bridge)
-        } else {
-          cli::cli_abort(
-            c(
-              "User is not logged in to Azure CLI",
-              "i" = "Please run {.code $login()} or use {.code az login} in your terminal"
-            ),
-            class = "azr_cli_not_logged_in"
-          )
-        }
-      }
     },
     #' @description
     #' Get an access token from Azure CLI
@@ -100,6 +92,7 @@ AzureCLICredential <- R6::R6Class(
     #'
     #' @return An [httr2::oauth_token()] object containing the access token
     get_token = function(scope = NULL) {
+      private$ensure_login()
       rlang::try_fetch(
         az_cli_get_token(
           scope = scope %||% self$.scope,
@@ -120,17 +113,6 @@ AzureCLICredential <- R6::R6Class(
     #'
     #' @return The request object with authentication header added
     req_auth = function(req, scope = NULL) {
-      # Check if user is logged in
-      if (!az_cli_is_login(timeout = self$.process_timeout)) {
-        cli::cli_abort(
-          c(
-            "User is not logged in to Azure CLI",
-            "i" = "Please run {.code $login()} or use {.code az login} in your terminal"
-          ),
-          class = "azr_cli_not_logged_in"
-        )
-      }
-
       token <- self$get_token(scope)
       httr2::req_auth_bearer_token(req, token$access_token)
     },
@@ -165,6 +147,31 @@ AzureCLICredential <- R6::R6Class(
     #' @return Invisibly returns `NULL`
     logout = function() {
       az_cli_logout()
+    }
+  ),
+  private = list(
+    # Checks Azure CLI login state and, depending on `auto_login`, either
+    # launches `az login` or aborts. Called from `get_token()` so that
+    # constructing this credential has no authentication side effects.
+    ensure_login = function() {
+      if (az_cli_is_login(timeout = self$.process_timeout)) {
+        return(invisible(NULL))
+      }
+
+      if (isTRUE(self$auto_login)) {
+        cli::cli_alert_info("User is not logged in to Azure CLI")
+        az_cli_login(use_bridge = self$use_bridge)
+      } else {
+        cli::cli_abort(
+          c(
+            "User is not logged in to Azure CLI",
+            "i" = "Please run {.code $login()} or use {.code az login} in your terminal"
+          ),
+          class = "azr_cli_not_logged_in"
+        )
+      }
+
+      invisible(NULL)
     }
   )
 )

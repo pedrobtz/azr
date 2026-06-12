@@ -1,3 +1,15 @@
+# Warns that `old_name` is a deprecated alias for `new_name` on `fn_name`.
+deprecated_arg <- function(old_name, new_name, fn_name) {
+  cli::cli_warn(
+    c(
+      "The {.arg {old_name}} argument to {.fn {fn_name}} is deprecated.",
+      "i" = "Use {.arg {new_name}} instead."
+    ),
+    class = "azr_deprecated_argument"
+  )
+}
+
+
 validate_tenant_id <- function(x) {
   if (!rlang::is_string(x)) {
     cli::cli_abort(

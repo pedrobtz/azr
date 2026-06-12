@@ -2,22 +2,47 @@
 % Please edit documentation in R/az-dataset.R
 \name{dataset_uri}
 \alias{dataset_uri}
-\title{Build a URI for an \code{az_dataset}}
+\title{Build a URI for an \code{az_dataset} or look one up in an \code{az_catalog}}
 \usage{
 dataset_uri(x, ...)
 }
 \arguments{
-\item{x}{An \link{az_dataset} object.}
+\item{x}{An \link{az_dataset} or \link{az_catalog} object.}
 
-\item{tier}{Environment tier name (a key in \code{x@storage}).}
-
-\item{uri_type}{URI type: \code{"https"} or \code{"hadoop"} (the Hadoop ABFS URI
-form \verb{scheme://container@account.dfs.../path}, used by Spark, Flink,
-Trino, and any \code{hadoop-azure} consumer).}
+\item{...}{Additional arguments passed to methods:
+\describe{
+\item{\code{tier}}{Environment tier name (a key in the dataset's
+\code{storage}). Defaults to the \code{dataset_tier} option
+(\code{options(azr.dataset_tier = ...)} or \code{AZR_DATASET_TIER}, default
+\code{"prod"}); see \code{\link[=azr_options]{azr_options()}}.}
+\item{\code{uri_type}}{URI type: \code{"https"} or \code{"hadoop"} (the Hadoop ABFS
+URI form \verb{scheme://container@account.dfs.../path}, used by Spark,
+Flink, Trino, and any \code{hadoop-azure} consumer).}
+\item{\code{name}}{For an \link{az_catalog} only: an optional character scalar
+selecting a single dataset by name. If omitted, URIs for every
+dataset are returned.}
+}}
 }
 \value{
-A character scalar URI.
+For an \link{az_dataset}, or an \link{az_catalog} with \code{name} supplied, a
+character scalar URI. For an \link{az_catalog} without \code{name}, a named
+character vector of URIs keyed by dataset name.
 }
 \description{
-Build a URI for an \code{az_dataset}
+Build a URI for an \code{az_dataset} or look one up in an \code{az_catalog}
+}
+\examples{
+ds <- az_dataset(
+  name = "orders",
+  scheme = "abfss",
+  container = "raw",
+  storage = list(prod = "stprod001"),
+  path = "sales/orders",
+  format = "delta"
+)
+dataset_uri(ds, tier = "prod")
+
+catalog <- az_catalog(datasets = list(ds))
+dataset_uri(catalog, tier = "prod", name = "orders")
+dataset_uri(catalog, tier = "prod")
 }

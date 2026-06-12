@@ -52,21 +52,21 @@ test_that("credential_chain can contain credential instances", {
   expect_length(chain, 1)
 })
 
-test_that("credential_chain contains quosures", {
+test_that("credential_chain contains credential_spec entries", {
   chain <- credential_chain(
     client_secret = ClientSecretCredential,
     azure_cli = AzureCLICredential
   )
 
-  # Each element should be a quosure
-  expect_true(all(vapply(chain, rlang::is_quosure, logical(1))))
+  # Each element should be an azr_credential_spec
+  expect_true(all(vapply(chain, inherits, logical(1), "azr_credential_spec")))
 
   # Verify they are the expected types
-  expect_s3_class(chain[[1]], "quosure")
-  expect_s3_class(chain[[2]], "quosure")
+  expect_s3_class(chain[[1]], "azr_credential_spec")
+  expect_s3_class(chain[[2]], "azr_credential_spec")
 })
 
-test_that("credential_chain is a list of quosures", {
+test_that("credential_chain is a list of credential_spec entries", {
   custom_chain <- credential_chain(
     client_secret = ClientSecretCredential,
     azure_cli = AzureCLICredential
@@ -75,9 +75,9 @@ test_that("credential_chain is a list of quosures", {
   # Check it's a list
   expect_type(custom_chain, "list")
 
-  # Check all elements are quosures
+  # Check all elements are credential_spec entries
   for (i in seq_along(custom_chain)) {
-    expect_s3_class(custom_chain[[i]], "quosure")
+    expect_s3_class(custom_chain[[i]], "azr_credential_spec")
   }
 })
 
@@ -135,32 +135,52 @@ test_that("DefaultCredential accepts valid use_cache values", {
 # Tests for new_instance
 
 test_that("new_instance creates an instance from a class", {
-  env <- rlang::env(
+  context <- list(
     tenant_id = "test-tenant",
     client_id = "test-client",
     client_secret = "test-secret"
   )
 
-  instance <- new_instance(ClientSecretCredential, env = env)
+  instance <- new_instance(ClientSecretCredential, context = context)
 
   expect_s3_class(instance, "ClientSecretCredential")
   expect_equal(instance$.tenant_id, "test-tenant")
 })
 
-test_that("new_instance uses NULL for missing parameters", {
+test_that("new_instance only forwards context values accepted by initialize()", {
   testthat::local_mocked_bindings(
     az_cli_is_login = function(...) TRUE,
     .package = "azr"
   )
-  env <- rlang::env(
+  context <- list(
+    scope = "https://management.azure.com/.default",
     tenant_id = "test-tenant",
     client_id = "test-client"
   )
 
-  instance <- new_instance(AzureCLICredential, env = env)
+  # ManagedIdentityCredential$initialize() only accepts scope/client_id; if
+  # tenant_id were forwarded, this would error with "unused argument".
+  instance <- new_instance(ManagedIdentityCredential, context = context)
 
-  expect_s3_class(instance, "AzureCLICredential")
-  expect_equal(instance$.tenant_id, "test-tenant")
+  expect_s3_class(instance, "ManagedIdentityCredential")
+})
+
+test_that("new_instance ignores unmatched context values for classes with ... in initialize()", {
+  TestDotsClass <- R6::R6Class(
+    classname = "TestDotsClass",
+    public = list(
+      tenant_id = NULL,
+      initialize = function(tenant_id = NULL, ...) {
+        self$tenant_id <- tenant_id
+      }
+    )
+  )
+
+  context <- list(tenant_id = "test-tenant", client_secret = "test-secret")
+
+  instance <- new_instance(TestDotsClass, context = context)
+
+  expect_equal(instance$tenant_id, "test-tenant")
 })
 
 test_that("new_instance works with classes that have no initialize arguments", {
@@ -171,22 +191,101 @@ test_that("new_instance works with classes that have no initialize arguments", {
     )
   )
 
-  instance <- new_instance(TestClass)
+  instance <- new_instance(TestClass, context = list())
 
   expect_s3_class(instance, "TestClass")
   expect_equal(instance$value, 10)
 })
 
+# Tests for build_credential_context
+
+test_that("build_credential_context contains exactly the eight documented names", {
+  context <- build_credential_context(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "test-tenant",
+    client_id = "test-client",
+    client_secret = "test-secret",
+    use_cache = "memory",
+    offline = FALSE,
+    oauth_host = "https://login.microsoftonline.com",
+    oauth_endpoint = "token"
+  )
+
+  expect_named(
+    context,
+    c(
+      "scope",
+      "tenant_id",
+      "client_id",
+      "client_secret",
+      "use_cache",
+      "offline",
+      "oauth_host",
+      "oauth_endpoint"
+    )
+  )
+})
+
+test_that("build_credential_context drops NULL entries so constructor defaults apply", {
+  context <- build_credential_context()
+
+  expect_named(context, c("use_cache", "offline"))
+  expect_equal(context$use_cache, "disk")
+  expect_true(context$offline)
+})
+
+test_that("build_credential_context never includes interactive", {
+  context <- build_credential_context(
+    scope = "s",
+    tenant_id = "t",
+    client_id = "c",
+    client_secret = "x",
+    use_cache = "memory",
+    offline = FALSE,
+    oauth_host = "h",
+    oauth_endpoint = "e"
+  )
+
+  expect_false("interactive" %in% names(context))
+})
+
+# Tests for the AzureCLICredential cli_auto_login fix (review.md item 11)
+
+test_that("get_credential_provider does not leak interactive into AzureCLICredential", {
+  testthat::local_mocked_bindings(
+    az_cli_is_login = function(...) FALSE,
+    .package = "azr"
+  )
+  withr::local_options(azr.cli_auto_login = FALSE)
+
+  chain <- credential_chain(azure_cli = AzureCLICredential)
+
+  err <- tryCatch(
+    get_credential_provider(chain = chain, allow_interactive = TRUE, verbose = FALSE),
+    error = function(e) e
+  )
+
+  # With the cli_auto_login default (FALSE), AzureCLICredential should report
+  # that the user is not logged in, rather than attempting az_cli_login()
+  # because `allow_interactive = TRUE` leaked into its constructor.
+  expect_match(conditionMessage(err), "not logged in to Azure CLI")
+})
+
 
 test_that("try_build_credential skips interactive credentials in non-interactive sessions", {
   chain <- credential_chain(DeviceCodeCredential)
-  env <- rlang::env(
+  context <- list(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client"
   )
 
-  result <- try_build_credential(chain[[1]], "device_code", envir = env)
+  result <- try_build_credential(
+    chain[[1]],
+    "device_code",
+    context = context,
+    interactive = FALSE
+  )
 
   expect_null(result$obj)
   expect_match(result$error, "interactive session")
@@ -194,14 +293,14 @@ test_that("try_build_credential skips interactive credentials in non-interactive
 
 test_that("try_build_credential builds workload identity credential", {
   chain <- credential_chain(WorkloadIdentityCredential)
-  env <- rlang::env(
+  context <- list(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client",
     token_file_path = tempfile()
   )
 
-  result <- try_build_credential(chain[[1]], "workload", envir = env)
+  result <- try_build_credential(chain[[1]], "workload", context = context)
 
   expect_null(result$error)
   expect_s3_class(result$obj, "WorkloadIdentityCredential")
@@ -209,46 +308,60 @@ test_that("try_build_credential builds workload identity credential", {
 
 test_that("try_build_credential resolves namespace-qualified credential class", {
   chain <- credential_chain(azr::WorkloadIdentityCredential)
-  env <- rlang::env(
+  context <- list(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client",
     token_file_path = tempfile()
   )
 
-  result <- try_build_credential(chain[[1]], "workload", envir = env)
+  result <- try_build_credential(chain[[1]], "workload", context = context)
 
   expect_null(result$error)
   expect_s3_class(result$obj, "WorkloadIdentityCredential")
 })
 
-test_that("try_build_credential reports invalid credentials", {
-  chain <- credential_chain(FakeCredential)
-  env <- rlang::env(
+test_that("credential_chain errors for an undefined credential class", {
+  # Chain entries are validated/built eagerly, so an undefined class fails
+  # at definition time rather than later inside try_build_credential().
+  expect_error(
+    credential_chain(FakeCredential),
+    "not found"
+  )
+})
+
+test_that("try_build_credential reports credentials that do not inherit from Credential", {
+  NotACredential <- R6::R6Class(
+    classname = "NotACredential",
+    public = list(initialize = function(...) invisible(NULL))
+  )
+
+  chain <- credential_chain(NotACredential)
+  context <- list(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client"
   )
 
-  result <- try_build_credential(chain[[1]], "fake", envir = env)
+  result <- try_build_credential(chain[[1]], "fake", context = context)
 
   expect_null(result$obj)
-  expect_match(result$error, "not found")
+  expect_match(result$error, "does not inherit")
 })
 
-test_that("try_build_credential passes env values to device code credential", {
+test_that("try_build_credential passes context values to device code credential", {
   scope <- "https://graph.microsoft.com/.default"
   chain <- credential_chain(DeviceCodeCredential)
-  env <- rlang::env(
+  context <- list(
     scope = scope,
     tenant_id = "common",
     client_id = "test-client",
     use_cache = "memory",
     offline = FALSE,
-    interactive = FALSE
+    allow_prompt = FALSE
   )
 
-  result <- try_build_credential(chain[[1]], "device_code", envir = env)
+  result <- try_build_credential(chain[[1]], "device_code", context = context)
   cred <- result$obj
 
   expect_s3_class(cred, "DeviceCodeCredential")
@@ -259,17 +372,17 @@ test_that("try_build_credential passes env values to device code credential", {
   expect_false(cred$is_interactive())
 })
 
-test_that("try_build_credential passes env values to workload identity credential", {
+test_that("try_build_credential passes context values to workload identity credential", {
   token_file_path <- tempfile()
   chain <- credential_chain(WorkloadIdentityCredential)
-  env <- rlang::env(
+  context <- list(
     scope = "https://management.azure.com/.default",
     tenant_id = "common",
     client_id = "test-client",
     token_file_path = token_file_path
   )
 
-  result <- try_build_credential(chain[[1]], "workload", envir = env)
+  result <- try_build_credential(chain[[1]], "workload", context = context)
   cred <- result$obj
 
   expect_s3_class(cred, "WorkloadIdentityCredential")
@@ -424,4 +537,177 @@ test_that("custom credential chain workflow", {
 
   expect_s3_class(custom_chain, "credential_chain")
   expect_length(custom_chain, 2)
+})
+
+# Tests for credential_spec()
+
+test_that("credential_spec errors when class is not an R6 generator", {
+  expect_error(
+    credential_spec("not-a-class"),
+    "must be an R6 credential class generator"
+  )
+})
+
+test_that("credential_spec errors on unnamed arguments", {
+  expect_error(
+    credential_spec(ClientSecretCredential, "unnamed-value"),
+    "must be named"
+  )
+})
+
+test_that("credential_spec errors on unknown arguments", {
+  expect_error(
+    credential_spec(ClientSecretCredential, bogus_arg = "x"),
+    "Unknown argument"
+  )
+})
+
+test_that("credential_spec accepts known initialize() arguments", {
+  spec <- credential_spec(ClientSecretCredential, client_id = "my-client-id")
+
+  expect_s3_class(spec, "azr_credential_spec")
+  expect_identical(spec$class, ClientSecretCredential)
+  expect_equal(spec$args, list(client_id = "my-client-id"))
+})
+
+# Tests for format/print redaction (review.md item 11, Phase 2)
+
+test_that("format.azr_credential_spec redacts sensitive arguments", {
+  spec <- credential_spec(
+    ClientSecretCredential,
+    client_id = "my-client-id",
+    client_secret = "super-secret-value"
+  )
+
+  out <- format(spec)
+
+  expect_match(out, "my-client-id", fixed = TRUE)
+  expect_false(grepl("super-secret-value", out, fixed = TRUE))
+  expect_match(out, "<hidden>", fixed = TRUE)
+})
+
+test_that("print.azr_credential_spec never reveals secrets", {
+  spec <- credential_spec(
+    ClientSecretCredential,
+    client_secret = "super-secret-value"
+  )
+
+  out <- capture.output(print(spec))
+
+  expect_false(any(grepl("super-secret-value", out, fixed = TRUE)))
+})
+
+test_that("print.credential_chain never reveals secrets", {
+  chain <- credential_chain(
+    client_secret = credential_spec(
+      ClientSecretCredential,
+      client_secret = "super-secret-value"
+    )
+  )
+
+  out <- capture.output(print(chain))
+
+  expect_false(any(grepl("super-secret-value", out, fixed = TRUE)))
+})
+
+# Tests for build_credential() merge precedence (review.md item 11, Phase 2)
+
+test_that("build_credential: entry argument overrides context value", {
+  context <- list(
+    tenant_id = "context-tenant",
+    client_id = "context-client",
+    client_secret = "context-secret"
+  )
+  spec <- credential_spec(ClientSecretCredential, tenant_id = "spec-tenant")
+
+  cred <- build_credential(spec, context = context)
+
+  expect_equal(cred$.tenant_id, "spec-tenant")
+  expect_equal(cred$.client_id, "context-client")
+})
+
+test_that("build_credential: omitted argument falls through to constructor default", {
+  context <- list(tenant_id = "test-tenant")
+  spec <- credential_spec(AzureCLICredential)
+
+  cred <- build_credential(spec, context = context)
+
+  expect_true(cred$use_bridge)
+})
+
+test_that("build_credential: explicit NULL entry argument reaches the constructor (regression guard for modifyList)", {
+  TestNullClass <- R6::R6Class(
+    classname = "TestNullClass",
+    public = list(
+      client_id = NULL,
+      initialize = function(client_id = "default-client-id") {
+        self$client_id <- client_id
+      }
+    )
+  )
+
+  spec <- credential_spec(TestNullClass, client_id = NULL)
+  context <- list(client_id = "context-client-id")
+
+  cred <- build_credential(spec, context = context)
+
+  expect_null(cred$client_id)
+})
+
+test_that("build_credential: pre-built instance receives no context merge", {
+  cred_instance <- ClientSecretCredential$new(
+    tenant_id = "instance-tenant",
+    client_id = "instance-client",
+    client_secret = "instance-secret"
+  )
+  context <- list(tenant_id = "context-tenant", client_id = "context-client")
+
+  result <- build_credential(cred_instance, context = context)
+
+  expect_identical(result, cred_instance)
+  expect_equal(result$.tenant_id, "instance-tenant")
+})
+
+# Tests for side-effect-free chain definition and construction
+# (review.md item 11, Phase 2)
+
+test_that("defining a chain performs no authentication side effects", {
+  testthat::local_mocked_bindings(
+    az_cli_is_login = function(...) {
+      stop("az_cli_is_login should not be called when defining a chain")
+    },
+    az_cli_login = function(...) {
+      stop("az_cli_login should not be called when defining a chain")
+    },
+    .package = "azr"
+  )
+
+  chain <- default_credential_chain()
+
+  expect_s3_class(chain, "credential_chain")
+})
+
+test_that("constructing AzureCLICredential performs no login check", {
+  testthat::local_mocked_bindings(
+    az_cli_is_login = function(...) {
+      stop("az_cli_is_login should not be called at construction time")
+    },
+    .package = "azr"
+  )
+
+  spec <- credential_spec(AzureCLICredential)
+  cred <- build_credential(spec, context = list(tenant_id = "test-tenant"))
+
+  expect_s3_class(cred, "AzureCLICredential")
+})
+
+test_that("allow_interactive = FALSE prevents interactive credentials from being used", {
+  chain <- credential_chain(device_code = DeviceCodeCredential)
+
+  err <- tryCatch(
+    get_credential_provider(chain = chain, allow_interactive = FALSE, verbose = FALSE),
+    error = function(e) e
+  )
+
+  expect_match(conditionMessage(err), "interactive session")
 })

@@ -55,6 +55,20 @@ test_that("az_dataset rejects path with leading/trailing slash", {
   )
 })
 
+test_that("az_dataset accepts the full documented format vocabulary", {
+  for (fmt in c("delta", "parquet", "csv", "tsv", "json", "avro", "orc", "text")) {
+    ds <- az_dataset(
+      name = "ds",
+      scheme = "abfss",
+      container = "raw",
+      storage = list(prod = "stprod001"),
+      path = "sales/orders",
+      format = fmt
+    )
+    expect_equal(ds@format, fmt)
+  }
+})
+
 test_that("az_dataset rejects unknown format", {
   expect_error(
     az_dataset(
@@ -63,7 +77,7 @@ test_that("az_dataset rejects unknown format", {
       container = "raw",
       storage = list(prod = "stprod001"),
       path = "sales/orders",
-      format = "avro"
+      format = "bogus"
     ),
     "format"
   )
@@ -71,32 +85,32 @@ test_that("az_dataset rejects unknown format", {
 
 test_that("az_dataset_from_uri parses abfss URI", {
   ds <- az_dataset_from_uri(
-    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
-    name = "sales_orders",
-    format = "delta"
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders.parquet",
+    name = "sales_orders"
   )
 
   expect_equal(ds@scheme, "abfss")
   expect_equal(ds@container, "raw")
-  expect_equal(ds@path, "sales/orders")
+  expect_equal(ds@path, "sales/orders.parquet")
   expect_equal(ds@storage$prod, "stprod001")
+  expect_equal(ds@format, "parquet")
 })
 
 test_that("az_dataset_from_uri parses https URI to abfss", {
   ds <- az_dataset_from_uri(
-    uri = "https://stprod001.dfs.core.windows.net/raw/sales/orders",
-    name = "sales_orders",
-    format = "delta"
+    uri = "https://stprod001.dfs.core.windows.net/raw/sales/orders.csv",
+    name = "sales_orders"
   )
 
   expect_equal(ds@scheme, "abfss")
   expect_equal(ds@container, "raw")
-  expect_equal(ds@path, "sales/orders")
+  expect_equal(ds@path, "sales/orders.csv")
+  expect_equal(ds@format, "csv")
 })
 
 test_that("az_dataset_from_uri keeps existing storage entries", {
   ds <- az_dataset_from_uri(
-    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders.delta/_delta_log",
     name = "sales_orders",
     format = "delta",
     tier = "prod",
@@ -104,6 +118,48 @@ test_that("az_dataset_from_uri keeps existing storage entries", {
   )
 
   expect_equal(ds@storage$prod, "explicit_prod")
+  expect_equal(ds@storage$preprod, "stpreprod001")
+})
+
+test_that("az_dataset_from_uri infers delta format from _delta_log path", {
+  ds <- az_dataset_from_uri(
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders/_delta_log",
+    name = "sales_orders"
+  )
+
+  expect_equal(ds@format, "delta")
+})
+
+test_that("az_dataset_from_uri errors on directory URI without explicit format", {
+  expect_error(
+    az_dataset_from_uri(
+      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+      name = "sales_orders"
+    ),
+    "Cannot infer dataset format"
+  )
+})
+
+test_that("az_dataset_from_uri directory URI works with explicit format", {
+  ds <- az_dataset_from_uri(
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+    name = "sales_orders",
+    format = "delta"
+  )
+
+  expect_equal(ds@format, "delta")
+  expect_equal(ds@path, "sales/orders")
+})
+
+test_that("az_dataset_from_uri uses the dataset_tier option as the default tier", {
+  withr::local_options(azr.dataset_tier = "preprod")
+
+  ds <- az_dataset_from_uri(
+    uri = "abfss://raw@stpreprod001.dfs.core.windows.net/sales/orders.parquet",
+    name = "sales_orders"
+  )
+
+  expect_named(ds@storage, "preprod")
   expect_equal(ds@storage$preprod, "stpreprod001")
 })
 
@@ -127,6 +183,24 @@ test_that("dataset_uri builds hadoop (default) and https URIs", {
   )
 })
 
+test_that("dataset_uri defaults tier to the dataset_tier option", {
+  withr::local_options(azr.dataset_tier = "preprod")
+
+  ds <- az_dataset(
+    name = "ds",
+    scheme = "abfss",
+    container = "raw",
+    storage = list(prod = "stprod001", preprod = "stpreprod001"),
+    path = "sales/orders",
+    format = "delta"
+  )
+
+  expect_equal(
+    dataset_uri(ds),
+    "abfss://raw@stpreprod001.dfs.core.windows.net/sales/orders"
+  )
+})
+
 test_that("dataset_uri errors on unknown tier", {
   ds <- az_dataset(
     name = "ds",
@@ -143,7 +217,7 @@ test_that("dataset_uri errors on unknown tier", {
   )
 })
 
-test_that("az_data_catalog rejects duplicate dataset names", {
+test_that("az_catalog rejects duplicate dataset names", {
   ds1 <- az_dataset(
     name = "ds",
     scheme = "abfss",
@@ -161,10 +235,10 @@ test_that("az_data_catalog rejects duplicate dataset names", {
     format = "delta"
   )
 
-  expect_error(az_data_catalog(datasets = list(ds1, ds2)), "unique")
+  expect_error(az_catalog(datasets = list(ds1, ds2)), "unique")
 })
 
-test_that("lookup_dataset_uri and catalog_dataset_uris work", {
+test_that("az_catalog supports `[[`, names(), and length()", {
   ds1 <- az_dataset(
     name = "orders",
     scheme = "abfss",
@@ -181,14 +255,53 @@ test_that("lookup_dataset_uri and catalog_dataset_uris work", {
     path = "ref/products",
     format = "parquet"
   )
-  catalog <- az_data_catalog(datasets = list(ds1, ds2))
+  catalog <- az_catalog(datasets = list(ds1, ds2))
+
+  expect_equal(names(catalog), c("orders", "products"))
+  expect_equal(length(catalog), 2L)
+  expect_true(S7::S7_inherits(catalog[["orders"]], az_dataset))
+  expect_equal(catalog[["orders"]]@name, "orders")
+})
+
+test_that("az_catalog `[[` errors on unknown dataset and lists available names", {
+  ds1 <- az_dataset(
+    name = "orders",
+    scheme = "abfss",
+    container = "raw",
+    storage = list(prod = "stprod001"),
+    path = "sales/orders",
+    format = "delta"
+  )
+  catalog <- az_catalog(datasets = list(ds1))
+
+  expect_error(catalog[["missing"]], "orders")
+})
+
+test_that("dataset_uri on az_catalog looks up by name and lists all", {
+  ds1 <- az_dataset(
+    name = "orders",
+    scheme = "abfss",
+    container = "raw",
+    storage = list(prod = "stprod001"),
+    path = "sales/orders",
+    format = "delta"
+  )
+  ds2 <- az_dataset(
+    name = "products",
+    scheme = "wasbs",
+    container = "raw",
+    storage = list(prod = "stprod002"),
+    path = "ref/products",
+    format = "parquet"
+  )
+  catalog <- az_catalog(datasets = list(ds1, ds2))
 
   expect_equal(
-    lookup_dataset_uri(catalog, "orders", tier = "prod", uri_type = "https"),
+    dataset_uri(catalog, tier = "prod", uri_type = "https", name = "orders"),
     "https://stprod001.dfs.core.windows.net/raw/sales/orders"
   )
 
-  uris <- catalog_dataset_uris(catalog, tier = "prod", uri_type = "https")
+  uris <- dataset_uri(catalog, tier = "prod", uri_type = "https")
   expect_named(uris, c("orders", "products"))
   expect_length(uris, 2L)
 })
@@ -202,7 +315,7 @@ test_that("as.list round-trips through jsonlite::toJSON", {
     path = "sales/orders",
     format = "delta"
   )
-  catalog <- az_data_catalog(datasets = list(ds))
+  catalog <- az_catalog(datasets = list(ds))
 
   json <- jsonlite::toJSON(as.list(catalog), auto_unbox = TRUE)
   parsed <- jsonlite::fromJSON(json, simplifyVector = FALSE)
@@ -210,7 +323,42 @@ test_that("as.list round-trips through jsonlite::toJSON", {
   expect_equal(parsed$datasets[[1]]$container, "raw")
 })
 
-test_that("load_dataset_catalog reads JSON file", {
+test_that("az_catalog_write and az_catalog_read round-trip", {
+  ds1 <- az_dataset(
+    name = "orders",
+    scheme = "abfss",
+    container = "raw",
+    storage = list(prod = "stprod001", preprod = "stpreprod001"),
+    path = "sales/orders",
+    format = "delta"
+  )
+  ds2 <- az_dataset(
+    name = "products",
+    scheme = "wasbs",
+    container = "raw",
+    storage = list(prod = "stprod002"),
+    path = "ref/products",
+    format = "parquet"
+  )
+  catalog <- az_catalog(datasets = list(ds1, ds2))
+
+  json_file <- withr::local_tempfile(fileext = ".json")
+  az_catalog_write(catalog, json_file)
+
+  roundtripped <- az_catalog_read(json_file)
+  expect_equal(names(roundtripped), names(catalog))
+  expect_equal(roundtripped[["orders"]]@storage, ds1@storage)
+  expect_equal(roundtripped[["products"]]@format, "parquet")
+})
+
+test_that("az_catalog_write errors on non-catalog input", {
+  expect_error(
+    az_catalog_write(list(), tempfile(fileext = ".json")),
+    "az_catalog"
+  )
+})
+
+test_that("az_catalog_read reads JSON file", {
   json_file <- withr::local_tempfile(fileext = ".json")
   writeLines(
     '{
@@ -228,18 +376,39 @@ test_that("load_dataset_catalog reads JSON file", {
     json_file
   )
 
-  catalog <- load_dataset_catalog(json_file)
-  expect_true(S7::S7_inherits(catalog, az_data_catalog))
-  expect_length(catalog@datasets, 1L)
-  expect_equal(catalog@datasets[[1]]@name, "orders")
+  catalog <- az_catalog_read(json_file)
+  expect_true(S7::S7_inherits(catalog, az_catalog))
+  expect_length(catalog, 1L)
+  expect_equal(catalog[["orders"]]@name, "orders")
 })
 
-test_that("load_dataset_catalog errors on missing required fields", {
+test_that("az_catalog_read errors on missing required fields, naming the entry", {
   json_file <- withr::local_tempfile(fileext = ".json")
   writeLines(
     '{"datasets":[{"name":"orders"}]}',
     json_file
   )
 
-  expect_error(load_dataset_catalog(json_file), "missing required fields")
+  expect_error(az_catalog_read(json_file), "Dataset entry 1 is missing required fields")
+})
+
+test_that("az_catalog_read errors with the entry index and name on invalid dataset", {
+  json_file <- withr::local_tempfile(fileext = ".json")
+  writeLines(
+    '{
+      "datasets": [
+        {
+          "name": "orders",
+          "scheme": "abfss",
+          "container": "raw",
+          "storage": { "prod": "stprod001" },
+          "path": "sales/orders",
+          "format": "bogus"
+        }
+      ]
+    }',
+    json_file
+  )
+
+  expect_error(az_catalog_read(json_file), "Dataset entry 1 \\(\"orders\"\\) is invalid")
 })

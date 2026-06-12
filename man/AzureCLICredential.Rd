@@ -80,8 +80,9 @@ Create a new Azure CLI credential
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
-  interactive = opts$get("cli_auto_login"),
-  use_bridge = TRUE
+  auto_login = opts$get("cli_auto_login"),
+  use_bridge = TRUE,
+  interactive = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -97,15 +98,17 @@ tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI
 \item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
 for the Azure CLI process. Defaults to \code{10}.}
 
-\item{\code{interactive}}{A logical value indicating whether to check if the user is
-logged in and perform login if needed. Defaults to the \code{cli_auto_login}
-option (\code{options(azr.cli_auto_login = ...)} or \code{AZR_CLI_AUTO_LOGIN}); see
-\code{\link[=azr_options]{azr_options()}}.}
+\item{\code{auto_login}}{A logical value indicating whether \code{get_token()} may
+launch \verb{az login} when the user is not logged in. Defaults to the
+\code{cli_auto_login} option (\code{options(azr.cli_auto_login = ...)} or
+\code{AZR_CLI_AUTO_LOGIN}); see \code{\link[=azr_options]{azr_options()}}.}
 
 \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
-to the Microsoft device login page. Only used when \code{interactive = TRUE}. Defaults to \code{TRUE}.}
+to the Microsoft device login page. Only used when \code{auto_login = TRUE}. Defaults to \code{TRUE}.}
+
+\item{\code{interactive}}{Deprecated. Use \code{auto_login} instead.}
 }
 \if{html}{\out{</div>}}
 }

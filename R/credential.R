@@ -27,12 +27,6 @@ Credential <- R6::R6Class(
       oauth_endpoint = NULL,
       name = NULL
     ) {
-      if (!rlang::is_interactive() && self$is_interactive()) {
-        cli::cli_abort(
-          "Credential {.cls {class(self)[[1]]}} requires an interactive session"
-        )
-      }
-
       self$.classname <- paste(class(self), collapse = "/")
 
       self$.scope <- scope %||% default_azure_scope(resource = "azure_arm")

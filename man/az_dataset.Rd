@@ -25,7 +25,8 @@ az_dataset(
 
 \item{path}{Path within the container, without leading or trailing \code{/}.}
 
-\item{format}{Dataset format: \code{"delta"}, \code{"parquet"}, \code{"csv"}, or \code{"json"}.}
+\item{format}{Dataset format: \code{"delta"}, \code{"parquet"}, \code{"csv"}, \code{"tsv"},
+\code{"json"}, \code{"avro"}, \code{"orc"}, or \code{"text"}.}
 
 \item{endpoint_suffix}{Storage endpoint suffix. Defaults to
 \code{"core.windows.net"}.}
@@ -36,4 +37,12 @@ An \code{az_dataset} S7 object.
 \description{
 An S7 class representing an Azure Storage dataset bound to one or more
 storage accounts keyed by environment tier (e.g. \code{"prod"}, \code{"preprod"}).
+}
+\details{
+Only the storage account varies by tier: \code{container}, \code{path},
+\code{endpoint_suffix}, and \code{scheme} are shared across all tiers in \code{storage}.
+If an environment also needs a different container, path, or sovereign
+cloud, model it as a separate \link{az_dataset}.
+
+\code{path} must be non-empty, so a dataset cannot point at a container root.
 }

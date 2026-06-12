@@ -4,7 +4,13 @@
 \alias{az_dataset_from_uri}
 \title{Create an \code{az_dataset} from a full Azure Storage URI}
 \usage{
-az_dataset_from_uri(uri, name, format = NULL, tier = "prod", storage = NULL)
+az_dataset_from_uri(
+  uri,
+  name,
+  format = NULL,
+  tier = opts$get("dataset_tier"),
+  storage = NULL
+)
 }
 \arguments{
 \item{uri}{Full Azure Storage URI, such as
@@ -13,10 +19,14 @@ az_dataset_from_uri(uri, name, format = NULL, tier = "prod", storage = NULL)
 
 \item{name}{Dataset name.}
 
-\item{format}{Dataset format. If \code{NULL}, inferred from the URI.}
+\item{format}{Dataset format. If \code{NULL}, inferred from the URI's file
+extension (e.g. \code{.parquet}, \code{.csv}) or \verb{_delta_log} segment. Errors if
+\code{uri} looks like a directory, since the format cannot be inferred from a
+directory path; pass \code{format} explicitly in that case.}
 
 \item{tier}{Environment tier for the storage account parsed from \code{uri}.
-Defaults to \code{"prod"}.}
+Defaults to the \code{dataset_tier} option (\code{options(azr.dataset_tier = ...)}
+or \code{AZR_DATASET_TIER}, default \code{"prod"}); see \code{\link[=azr_options]{azr_options()}}.}
 
 \item{storage}{Optional named list mapping additional tiers to storage
 accounts. The account from \code{uri} is bound to \code{tier} unless that key is

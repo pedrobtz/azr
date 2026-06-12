@@ -27,11 +27,12 @@ test_that("AzureCLICredential$is_interactive returns FALSE", {
   expect_false(cred$is_interactive())
 })
 
-test_that("AzureCLICredential$new fails when not logged in to Azure CLI", {
+test_that("AzureCLICredential$get_token fails when not logged in to Azure CLI", {
   testthat::local_mocked_bindings(az_cli_is_login = function(...) FALSE)
+  cred <- AzureCLICredential$new()
 
   expect_error(
-    AzureCLICredential$new(),
+    cred$get_token(),
     "User is not logged in to Azure CLI",
     class = "azr_cli_not_logged_in"
   )

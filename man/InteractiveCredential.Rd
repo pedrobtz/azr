@@ -18,8 +18,8 @@ instead.
 \item{\code{use_refresh_token}}{Logical indicating whether to use the login flow (acquire
 tokens via refresh token exchange).}
 
-\item{\code{interactive}}{Logical indicating whether this credential requires
-user interaction.}
+\item{\code{allow_prompt}}{Logical indicating whether this credential may
+prompt the user (vs. only reading cached/refresh tokens).}
 }
 \if{html}{\out{</div>}}
 }
@@ -53,13 +53,14 @@ Shared initializer for interactive credentials
   client_id = default_azure_cli_client_id(),
   use_cache = "disk",
   offline = TRUE,
-  interactive = TRUE,
+  allow_prompt = TRUE,
   use_refresh_token = TRUE,
   flow_fun,
   req_auth_fun,
   oauth_endpoint,
   name,
-  extra_flow_params = list()
+  extra_flow_params = list(),
+  interactive = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -77,7 +78,8 @@ public client ID.}
 
 \item{\code{offline}}{Whether to request offline access (refresh tokens).}
 
-\item{\code{interactive}}{Whether this credential requires user interaction.}
+\item{\code{allow_prompt}}{Whether this credential may prompt the user (vs.
+only reading cached/refresh tokens).}
 
 \item{\code{use_refresh_token}}{Whether to use the login flow (acquire tokens via refresh token
 exchange). Set to \code{FALSE} to use the access token flow directly.}
@@ -92,6 +94,8 @@ exchange). Set to \code{FALSE} to use the access token flow directly.}
 
 \item{\code{extra_flow_params}}{A named list of additional parameters merged into
 \code{private$.flow_params} after \code{scope} and \code{auth_url}.}
+
+\item{\code{interactive}}{Deprecated. Use \code{allow_prompt} instead.}
 }
 \if{html}{\out{</div>}}
 }

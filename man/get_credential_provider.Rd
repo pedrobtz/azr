@@ -14,8 +14,9 @@ get_credential_provider(
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL,
-  interactive = rlang::is_interactive(),
-  verbose = opts$get("chain_verbose")
+  allow_interactive = rlang::is_interactive(),
+  verbose = opts$get("chain_verbose"),
+  interactive = NULL
 )
 }
 \arguments{
@@ -46,13 +47,15 @@ from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds. If \code{NULL}, uses
 \code{\link[=default_credential_chain]{default_credential_chain()}}.}
 
-\item{interactive}{A logical value indicating whether interactive credentials
-are allowed. Defaults to \code{\link[rlang:is_interactive]{rlang::is_interactive()}}.}
+\item{allow_interactive}{A logical value indicating whether interactive
+credentials are allowed. Defaults to \code{\link[rlang:is_interactive]{rlang::is_interactive()}}.}
 
 \item{verbose}{A logical value indicating whether to print verbose messages
 during credential discovery. Defaults to the \code{chain_verbose} option, which
 reads \code{options(azr.chain_verbose = ...)} or the \code{AZR_CHAIN_VERBOSE}
 environment variable; see \code{\link[=azr_options]{azr_options()}}.}
+
+\item{interactive}{Deprecated. Use \code{allow_interactive} instead.}
 }
 \value{
 A credential object that inherits from the \code{Credential} class and

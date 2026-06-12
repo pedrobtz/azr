@@ -4,12 +4,21 @@
 #' An S7 class representing an Azure Storage dataset bound to one or more
 #' storage accounts keyed by environment tier (e.g. `"prod"`, `"preprod"`).
 #'
+#' @details
+#' Only the storage account varies by tier: `container`, `path`,
+#' `endpoint_suffix`, and `scheme` are shared across all tiers in `storage`.
+#' If an environment also needs a different container, path, or sovereign
+#' cloud, model it as a separate [az_dataset].
+#'
+#' `path` must be non-empty, so a dataset cannot point at a container root.
+#'
 #' @param name Dataset name. Must match `^[a-z][a-z0-9_]*$`.
 #' @param scheme Hadoop filesystem scheme: `"abfss"` or `"wasbs"`.
 #' @param container Container (filesystem) name.
 #' @param storage Non-empty named list mapping tier name to storage account.
 #' @param path Path within the container, without leading or trailing `/`.
-#' @param format Dataset format: `"delta"`, `"parquet"`, `"csv"`, or `"json"`.
+#' @param format Dataset format: `"delta"`, `"parquet"`, `"csv"`, `"tsv"`,
+#'   `"json"`, `"avro"`, `"orc"`, or `"text"`.
 #' @param endpoint_suffix Storage endpoint suffix. Defaults to
 #'   `"core.windows.net"`.
 #'
@@ -59,8 +68,11 @@ az_dataset <- S7::new_class(
     if (grepl("\\?", self@path)) {
       return("path must not contain query string components")
     }
-    if (!self@format %in% c("delta", "parquet", "csv", "json")) {
-      return("format must be one of: delta, parquet, csv, json")
+    if (!self@format %in% dataset_formats) {
+      return(paste0(
+        "format must be one of: ",
+        paste(dataset_formats, collapse = ", ")
+      ))
     }
     if (length(self@storage) == 0L || is.null(names(self@storage))) {
       return("storage must be a non-empty named list")
@@ -78,6 +90,20 @@ az_dataset <- S7::new_class(
   }
 )
 
+# Recognised dataset formats. Purely descriptive metadata: compute_dataset_uri()
+# does not branch on it. Kept in sync with the file-extension cases handled by
+# storage_path_format().
+dataset_formats <- c(
+  "delta",
+  "parquet",
+  "csv",
+  "tsv",
+  "json",
+  "avro",
+  "orc",
+  "text"
+)
+
 
 #' Azure Storage dataset catalog
 #'
@@ -85,12 +111,29 @@ az_dataset <- S7::new_class(
 #' An S7 class holding an ordered collection of [az_dataset] objects with
 #' unique `name`s.
 #'
+#' A catalog can be indexed by dataset name with `[[`, and supports `names()`
+#' and `length()`.
+#'
 #' @param datasets A list of [az_dataset] objects.
 #'
-#' @return An `az_data_catalog` S7 object.
+#' @return An `az_catalog` S7 object.
 #' @export
-az_data_catalog <- S7::new_class(
-  "az_data_catalog",
+#' @examples
+#' ds <- az_dataset(
+#'   name = "orders",
+#'   scheme = "abfss",
+#'   container = "raw",
+#'   storage = list(prod = "stprod001"),
+#'   path = "sales/orders",
+#'   format = "delta"
+#' )
+#' catalog <- az_catalog(datasets = list(ds))
+#'
+#' catalog[["orders"]]
+#' names(catalog)
+#' length(catalog)
+az_catalog <- S7::new_class(
+  "az_catalog",
   properties = list(
     datasets = S7::class_list
   ),
@@ -127,9 +170,13 @@ az_data_catalog <- S7::new_class(
 #'   `abfss://raw@account.dfs.core.windows.net/path` or
 #'   `https://account.dfs.core.windows.net/raw/path`.
 #' @param name Dataset name.
-#' @param format Dataset format. If `NULL`, inferred from the URI.
+#' @param format Dataset format. If `NULL`, inferred from the URI's file
+#'   extension (e.g. `.parquet`, `.csv`) or `_delta_log` segment. Errors if
+#'   `uri` looks like a directory, since the format cannot be inferred from a
+#'   directory path; pass `format` explicitly in that case.
 #' @param tier Environment tier for the storage account parsed from `uri`.
-#'   Defaults to `"prod"`.
+#'   Defaults to the `dataset_tier` option (`options(azr.dataset_tier = ...)`
+#'   or `AZR_DATASET_TIER`, default `"prod"`); see [azr_options()].
 #' @param storage Optional named list mapping additional tiers to storage
 #'   accounts. The account from `uri` is bound to `tier` unless that key is
 #'   already present.
@@ -140,11 +187,23 @@ az_dataset_from_uri <- function(
   uri,
   name,
   format = NULL,
-  tier = "prod",
+  tier = opts$get("dataset_tier"),
   storage = NULL
 ) {
   parsed <- parse_storage_path(uri)
   scheme <- normalise_scheme(parsed$scheme, parsed$endpoint)
+
+  if (is.null(format)) {
+    inferred <- parsed$format
+    if (is.na(inferred) || identical(inferred, "folder")) {
+      cli::cli_abort(c(
+        "Cannot infer dataset format from {.val {uri}}.",
+        "i" = "A directory URI is ambiguous; pass {.arg format} explicitly,
+               e.g. {.code format = \"delta\"}."
+      ))
+    }
+    format <- inferred
+  }
 
   storage <- if (is.null(storage)) {
     stats::setNames(list(parsed$storage_account), tier)
@@ -160,17 +219,17 @@ az_dataset_from_uri <- function(
     container = parsed$container,
     storage = storage,
     path = parsed$path,
-    format = format %||% parsed$format,
+    format = format,
     endpoint_suffix = parsed$endpoint_suffix %||% "core.windows.net"
   )
 }
 
 
-#' Load a dataset catalog from JSON
+#' Read a dataset catalog from JSON
 #'
 #' @description
 #' Reads a JSON file describing a collection of datasets and returns an
-#' [az_data_catalog].
+#' [az_catalog].
 #'
 #' The expected JSON shape:
 #' \preformatted{
@@ -190,9 +249,10 @@ az_dataset_from_uri <- function(
 #'
 #' @param json_file Path to a JSON file.
 #'
-#' @return An [az_data_catalog] object.
+#' @return An [az_catalog] object.
+#' @seealso [az_catalog_write()]
 #' @export
-load_dataset_catalog <- function(json_file) {
+az_catalog_read <- function(json_file) {
   raw <- jsonlite::fromJSON(json_file, simplifyVector = FALSE)
   if (!is.list(raw$datasets) || length(raw$datasets) == 0L) {
     cli::cli_abort(
@@ -201,45 +261,107 @@ load_dataset_catalog <- function(json_file) {
   }
 
   required <- c("name", "scheme", "container", "storage", "path", "format")
-  datasets <- lapply(raw$datasets, function(x) {
+  datasets <- lapply(seq_along(raw$datasets), function(i) {
+    x <- raw$datasets[[i]]
     missing_fields <- setdiff(required, names(x))
     if (length(missing_fields) > 0L) {
       cli::cli_abort(c(
-        "Dataset entry is missing required fields:",
+        "Dataset entry {i} is missing required fields:",
         "*" = "{.field {missing_fields}}"
       ))
     }
 
-    az_dataset(
-      name = x$name,
-      scheme = x$scheme,
-      container = x$container,
-      storage = x$storage,
-      path = x$path,
-      format = x$format,
-      endpoint_suffix = x$endpoint_suffix %||% "core.windows.net"
+    tryCatch(
+      az_dataset(
+        name = x$name,
+        scheme = x$scheme,
+        container = x$container,
+        storage = x$storage,
+        path = x$path,
+        format = x$format,
+        endpoint_suffix = x$endpoint_suffix %||% "core.windows.net"
+      ),
+      error = function(e) {
+        cli::cli_abort(
+          "Dataset entry {i} ({.val {x$name}}) is invalid: {conditionMessage(e)}",
+          parent = e
+        )
+      }
     )
   })
 
-  az_data_catalog(datasets = datasets)
+  az_catalog(datasets = datasets)
 }
 
 
-#' Build a URI for an `az_dataset`
+#' Write a dataset catalog to JSON
 #'
-#' @param x An [az_dataset] object.
-#' @param tier Environment tier name (a key in `x@storage`).
-#' @param uri_type URI type: `"https"` or `"hadoop"` (the Hadoop ABFS URI
-#'   form `scheme://container@account.dfs.../path`, used by Spark, Flink,
-#'   Trino, and any `hadoop-azure` consumer).
+#' @description
+#' Writes an [az_catalog] to a JSON file in the shape expected by
+#' [az_catalog_read()].
 #'
-#' @return A character scalar URI.
+#' @param catalog An [az_catalog] object.
+#' @param json_file Path to write the JSON file to.
+#'
+#' @return `json_file`, invisibly.
+#' @seealso [az_catalog_read()]
 #' @export
+az_catalog_write <- function(catalog, json_file) {
+  if (!S7::S7_inherits(catalog, az_catalog)) {
+    cli::cli_abort("{.arg catalog} must be an {.cls az_catalog} object.")
+  }
+  jsonlite::write_json(
+    as.list(catalog),
+    path = json_file,
+    auto_unbox = TRUE,
+    pretty = TRUE
+  )
+  invisible(json_file)
+}
+
+
+#' Build a URI for an `az_dataset` or look one up in an `az_catalog`
+#'
+#' @param x An [az_dataset] or [az_catalog] object.
+#' @param ... Additional arguments passed to methods:
+#'   \describe{
+#'     \item{`tier`}{Environment tier name (a key in the dataset's
+#'       `storage`). Defaults to the `dataset_tier` option
+#'       (`options(azr.dataset_tier = ...)` or `AZR_DATASET_TIER`, default
+#'       `"prod"`); see [azr_options()].}
+#'     \item{`uri_type`}{URI type: `"https"` or `"hadoop"` (the Hadoop ABFS
+#'       URI form `scheme://container@account.dfs.../path`, used by Spark,
+#'       Flink, Trino, and any `hadoop-azure` consumer).}
+#'     \item{`name`}{For an [az_catalog] only: an optional character scalar
+#'       selecting a single dataset by name. If omitted, URIs for every
+#'       dataset are returned.}
+#'   }
+#'
+#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, a
+#'   character scalar URI. For an [az_catalog] without `name`, a named
+#'   character vector of URIs keyed by dataset name.
+#' @export
+#' @examples
+#' ds <- az_dataset(
+#'   name = "orders",
+#'   scheme = "abfss",
+#'   container = "raw",
+#'   storage = list(prod = "stprod001"),
+#'   path = "sales/orders",
+#'   format = "delta"
+#' )
+#' dataset_uri(ds, tier = "prod")
+#'
+#' catalog <- az_catalog(datasets = list(ds))
+#' dataset_uri(catalog, tier = "prod", name = "orders")
+#' dataset_uri(catalog, tier = "prod")
 dataset_uri <- S7::new_generic("dataset_uri", "x")
+
 S7::method(dataset_uri, az_dataset) <- function(
   x,
-  tier,
-  uri_type = c("hadoop", "https")
+  tier = opts$get("dataset_tier"),
+  uri_type = c("hadoop", "https"),
+  ...
 ) {
   uri_type <- rlang::arg_match(uri_type)
   if (!tier %in% names(x@storage)) {
@@ -258,63 +380,25 @@ S7::method(dataset_uri, az_dataset) <- function(
   )
 }
 
-
-#' Look up a dataset URI by name in a catalog
-#'
-#' @param catalog An [az_data_catalog] object.
-#' @param name Dataset name to look up.
-#' @param tier Environment tier name.
-#' @param uri_type URI type: `"https"` or `"hadoop"` (the Hadoop ABFS URI
-#'   form `scheme://container@account.dfs.../path`, used by Spark, Flink,
-#'   Trino, and any `hadoop-azure` consumer).
-#'
-#' @return A character scalar URI.
-#' @export
-lookup_dataset_uri <- function(
-  catalog,
-  name,
-  tier,
-  uri_type = c("hadoop", "https")
+S7::method(dataset_uri, az_catalog) <- function(
+  x,
+  tier = opts$get("dataset_tier"),
+  uri_type = c("hadoop", "https"),
+  ...,
+  name = NULL
 ) {
-  if (!S7::S7_inherits(catalog, az_data_catalog)) {
-    cli::cli_abort("{.arg catalog} must be an {.cls az_data_catalog} object.")
-  }
-  idx <- which(vapply(
-    catalog@datasets,
-    function(d) identical(d@name, name),
-    logical(1L)
-  ))
-  if (length(idx) != 1L) {
-    cli::cli_abort("Dataset {.val {name}} was not found in the catalog.")
-  }
-  dataset_uri(catalog@datasets[[idx]], tier = tier, uri_type = uri_type)
-}
+  uri_type <- rlang::arg_match(uri_type)
 
-
-#' Build URIs for every dataset in a catalog
-#'
-#' @param catalog An [az_data_catalog] object.
-#' @param tier Environment tier name.
-#' @param uri_type URI type: `"https"` or `"hadoop"` (the Hadoop ABFS URI
-#'   form `scheme://container@account.dfs.../path`, used by Spark, Flink,
-#'   Trino, and any `hadoop-azure` consumer).
-#'
-#' @return A named character vector of URIs keyed by dataset name.
-#' @export
-catalog_dataset_uris <- function(
-  catalog,
-  tier,
-  uri_type = c("hadoop", "https")
-) {
-  if (!S7::S7_inherits(catalog, az_data_catalog)) {
-    cli::cli_abort("{.arg catalog} must be an {.cls az_data_catalog} object.")
+  if (!is.null(name)) {
+    return(dataset_uri(x[[name]], tier = tier, uri_type = uri_type))
   }
+
   out <- vapply(
-    catalog@datasets,
+    x@datasets,
     function(d) dataset_uri(d, tier = tier, uri_type = uri_type),
     character(1L)
   )
-  names(out) <- vapply(catalog@datasets, function(d) d@name, character(1L))
+  names(out) <- names(x)
   out
 }
 
@@ -335,7 +419,7 @@ S7::method(as.list, az_dataset) <- function(x, ...) {
 }
 
 # nolint next: object_name_linter.
-S7::method(as.list, az_data_catalog) <- function(x, ...) {
+S7::method(as.list, az_catalog) <- function(x, ...) {
   list(datasets = lapply(x@datasets, as.list))
 }
 
@@ -356,13 +440,36 @@ S7::method(print, az_dataset) <- function(x, ...) {
   invisible(x)
 }
 
-S7::method(print, az_data_catalog) <- function(x, ...) {
-  n <- length(x@datasets)
-  cli::cli_text(cli::style_bold("<az_data_catalog>"), " ({n} dataset{?s})")
-  for (d in x@datasets) {
-    cli::cli_text("  ", d@name)
+S7::method(print, az_catalog) <- function(x, ...) {
+  n <- length(x)
+  cli::cli_text(cli::style_bold("<az_catalog>"), " ({n} dataset{?s})")
+  for (nm in names(x)) {
+    cli::cli_text("  ", nm)
   }
   invisible(x)
+}
+
+S7::method(names, az_catalog) <- function(x) {
+  vapply(x@datasets, function(d) d@name, character(1L))
+}
+
+S7::method(length, az_catalog) <- function(x) {
+  length(x@datasets)
+}
+
+S7::method(`[[`, az_catalog) <- function(x, i) {
+  idx <- which(vapply(
+    x@datasets,
+    function(d) identical(d@name, i),
+    logical(1L)
+  ))
+  if (length(idx) != 1L) {
+    cli::cli_abort(c(
+      "Dataset {.val {i}} was not found in the catalog.",
+      "i" = "Available: {.val {names(x)}}."
+    ))
+  }
+  x@datasets[[idx]]
 }
 
 

@@ -93,14 +93,14 @@ CachedTokenCredential <- R6::R6Class(
     #' @field provider Lazily initialized credential provider
     provider = function() {
       if (is.null(private$.provider_cache)) {
-        # Run in fake interactive session and offline mode to only get cached tokens
+        # Disallow interactive credentials so only cached tokens are used.
         private$.provider_cache <-
           get_credential_provider(
             scope = self$.scope,
             tenant_id = self$.tenant_id,
             client_id = self$.client_id,
             chain = self$.chain,
-            interactive = FALSE
+            allow_interactive = FALSE
           )
       }
       private$.provider_cache
@@ -131,8 +131,8 @@ CachedTokenCredential <- R6::R6Class(
 #' @export
 cached_token_credential_chain <- function() {
   credential_chain(
-    auth_code = AuthCodeCredential,
-    device_code = DeviceCodeCredential,
-    az_cli = AzureCLICredential
+    auth_code = credential_spec(AuthCodeCredential, allow_prompt = FALSE),
+    device_code = credential_spec(DeviceCodeCredential, allow_prompt = FALSE),
+    az_cli = credential_spec(AzureCLICredential, auto_login = FALSE)
   )
 }
