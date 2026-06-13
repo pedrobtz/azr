@@ -172,7 +172,7 @@ test_that("az_dataset_from_uri uses the dataset_tier option as the default tier"
   expect_equal(ds@storage$preprod, "stpreprod001")
 })
 
-test_that("dataset_uri builds hadoop (default) and https URIs", {
+test_that("az_dataset_uri builds hadoop (default) and https URIs", {
   ds <- az_dataset(
     name = "ds",
     scheme = "abfss",
@@ -183,16 +183,16 @@ test_that("dataset_uri builds hadoop (default) and https URIs", {
   )
 
   expect_equal(
-    dataset_uri(ds, tier = "prod"),
+    az_dataset_uri(ds, tier = "prod"),
     "abfss://raw@stprod001.dfs.core.windows.net/sales/orders"
   )
   expect_equal(
-    dataset_uri(ds, tier = "prod", uri_type = "https"),
+    az_dataset_uri(ds, tier = "prod", uri_type = "https"),
     "https://stprod001.dfs.core.windows.net/raw/sales/orders"
   )
 })
 
-test_that("dataset_uri defaults tier to the dataset_tier option", {
+test_that("az_dataset_uri defaults tier to the dataset_tier option", {
   withr::local_options(azr.dataset_tier = "preprod")
 
   ds <- az_dataset(
@@ -205,12 +205,12 @@ test_that("dataset_uri defaults tier to the dataset_tier option", {
   )
 
   expect_equal(
-    dataset_uri(ds),
+    az_dataset_uri(ds),
     "abfss://raw@stpreprod001.dfs.core.windows.net/sales/orders"
   )
 })
 
-test_that("dataset_uri errors on unknown tier", {
+test_that("az_dataset_uri errors on unknown tier", {
   ds <- az_dataset(
     name = "ds",
     scheme = "abfss",
@@ -221,7 +221,7 @@ test_that("dataset_uri errors on unknown tier", {
   )
 
   expect_error(
-    dataset_uri(ds, tier = "uat", uri_type = "https"),
+    az_dataset_uri(ds, tier = "uat", uri_type = "https"),
     "Unknown tier"
   )
 })
@@ -286,7 +286,7 @@ test_that("az_catalog `[[` errors on unknown dataset and lists available names",
   expect_error(catalog[["missing"]], "orders")
 })
 
-test_that("dataset_uri on az_catalog looks up by name and lists all", {
+test_that("az_dataset_uri on az_catalog looks up by name and lists all", {
   ds1 <- az_dataset(
     name = "orders",
     scheme = "abfss",
@@ -306,11 +306,11 @@ test_that("dataset_uri on az_catalog looks up by name and lists all", {
   catalog <- az_catalog(datasets = list(ds1, ds2))
 
   expect_equal(
-    dataset_uri(catalog, tier = "prod", uri_type = "https", name = "orders"),
+    az_dataset_uri(catalog, tier = "prod", uri_type = "https", name = "orders"),
     "https://stprod001.dfs.core.windows.net/raw/sales/orders"
   )
 
-  uris <- dataset_uri(catalog, tier = "prod", uri_type = "https")
+  uris <- az_dataset_uri(catalog, tier = "prod", uri_type = "https")
   expect_named(uris, c("orders", "products"))
   expect_length(uris, 2L)
 })
@@ -443,7 +443,7 @@ test_that("az_dataset_manifest validates and converts to a list", {
   )
 })
 
-test_that("dataset_manifest on az_dataset returns a typed manifest", {
+test_that("az_dataset_resolve on az_dataset returns a typed manifest", {
   ds <- az_dataset(
     name = "orders",
     scheme = "abfss",
@@ -453,7 +453,7 @@ test_that("dataset_manifest on az_dataset returns a typed manifest", {
     format = "delta"
   )
 
-  manifest <- dataset_manifest(ds, tier = "prod")
+  manifest <- az_dataset_resolve(ds, tier = "prod")
   expect_s7_class(manifest, az_dataset_manifest)
   expect_equal(
     as.list(manifest),
@@ -465,7 +465,7 @@ test_that("dataset_manifest on az_dataset returns a typed manifest", {
   )
 })
 
-test_that("dataset_manifest on az_catalog looks up by name and lists all", {
+test_that("az_dataset_resolve on az_catalog looks up by name and lists all", {
   ds1 <- az_dataset(
     name = "orders",
     scheme = "abfss",
@@ -484,7 +484,7 @@ test_that("dataset_manifest on az_catalog looks up by name and lists all", {
   )
   catalog <- az_catalog(datasets = list(ds1, ds2))
 
-  orders <- dataset_manifest(catalog, tier = "prod", name = "orders")
+  orders <- az_dataset_resolve(catalog, tier = "prod", name = "orders")
   expect_s7_class(orders, az_dataset_manifest)
   expect_equal(
     as.list(orders),
@@ -495,7 +495,7 @@ test_that("dataset_manifest on az_catalog looks up by name and lists all", {
     )
   )
 
-  manifest <- dataset_manifest(catalog, tier = "prod", uri_type = "https")
+  manifest <- az_dataset_resolve(catalog, tier = "prod", uri_type = "https")
   expect_named(manifest, c("orders", "products"))
   expect_s7_class(manifest$products, az_dataset_manifest)
   expect_equal(

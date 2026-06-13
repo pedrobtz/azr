@@ -243,7 +243,7 @@ print.azr_opts <- function(x, mask = TRUE, ...) {
 #' | `"chain_verbose"` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose credential-chain discovery |
 #' | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose api_client request/response |
 #' | `"cli_auto_login"` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Auto Azure CLI login |
-#' | `"dataset_tier"` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for [dataset_uri()] |
+#' | `"dataset_tier"` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for [az_dataset_uri()] |
 #'
 #' @param mask Logical. When `TRUE` (default), sensitive option values are
 #'   shown as `"<hidden>"` when set.

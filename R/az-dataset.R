@@ -166,7 +166,7 @@ az_catalog <- S7::new_class(
 #' An S7 class representing the resolved information required by an external
 #' reader to load an Azure Storage dataset.
 #'
-#' @param name Dataset name. Must match `^[a-z][a-z0-9_]*$`.
+#' @param name Dataset name, carried over from the source [az_dataset].
 #' @param uri Resolved Azure Storage URI.
 #' @param format Dataset format. See [az_dataset] for supported values.
 #'
@@ -182,9 +182,6 @@ az_dataset_manifest <- S7::new_class(
   validator = function(self) {
     if (!is_scalar_string(self@name)) {
       return("name must be a non-empty character scalar")
-    }
-    if (!grepl("^[a-z][a-z0-9_]*$", self@name)) {
-      return("name must match ^[a-z][a-z0-9_]*$ for stable lookups")
     }
     if (!is_scalar_string(self@uri)) {
       return("uri must be a non-empty character scalar")
@@ -390,14 +387,14 @@ az_catalog_write <- function(catalog, json_file) {
 #'   path = "sales/orders",
 #'   format = "delta"
 #' )
-#' dataset_uri(ds, tier = "prod")
+#' az_dataset_uri(ds, tier = "prod")
 #'
 #' catalog <- az_catalog(datasets = list(ds))
-#' dataset_uri(catalog, tier = "prod", name = "orders")
-#' dataset_uri(catalog, tier = "prod")
-dataset_uri <- S7::new_generic("dataset_uri", "x")
+#' az_dataset_uri(catalog, tier = "prod", name = "orders")
+#' az_dataset_uri(catalog, tier = "prod")
+az_dataset_uri <- S7::new_generic("az_dataset_uri", "x")
 
-S7::method(dataset_uri, az_dataset) <- function(
+S7::method(az_dataset_uri, az_dataset) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -420,7 +417,7 @@ S7::method(dataset_uri, az_dataset) <- function(
   )
 }
 
-S7::method(dataset_uri, az_catalog) <- function(
+S7::method(az_dataset_uri, az_catalog) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -430,12 +427,12 @@ S7::method(dataset_uri, az_catalog) <- function(
   uri_type <- rlang::arg_match(uri_type)
 
   if (!is.null(name)) {
-    return(dataset_uri(x[[name]], tier = tier, uri_type = uri_type))
+    return(az_dataset_uri(x[[name]], tier = tier, uri_type = uri_type))
   }
 
   out <- vapply(
     x@datasets,
-    function(d) dataset_uri(d, tier = tier, uri_type = uri_type),
+    function(d) az_dataset_uri(d, tier = tier, uri_type = uri_type),
     character(1L)
   )
   names(out) <- names(x)
@@ -446,11 +443,11 @@ S7::method(dataset_uri, az_catalog) <- function(
 #' Build a URI + format manifest for an `az_dataset` or `az_catalog`
 #'
 #' @description
-#' Like [dataset_uri()], but each entry also carries the dataset's `format`,
+#' Like [az_dataset_uri()], but each entry also carries the dataset's `format`,
 #' which together are what a reader (e.g. `sparklyr::spark_read_source()`)
 #' needs to load a dataset.
 #'
-#' @inheritParams dataset_uri
+#' @inheritParams az_dataset_uri
 #'
 #' @return For an [az_dataset], or an [az_catalog] with `name` supplied, an
 #'   [az_dataset_manifest]. For an [az_catalog] without `name`, a named list
@@ -465,13 +462,13 @@ S7::method(dataset_uri, az_catalog) <- function(
 #'   path = "sales/orders",
 #'   format = "delta"
 #' )
-#' dataset_manifest(ds, tier = "prod")
+#' az_dataset_resolve(ds, tier = "prod")
 #'
 #' catalog <- az_catalog(datasets = list(ds))
-#' dataset_manifest(catalog, tier = "prod")
-dataset_manifest <- S7::new_generic("dataset_manifest", "x")
+#' az_dataset_resolve(catalog, tier = "prod")
+az_dataset_resolve <- S7::new_generic("az_dataset_resolve", "x")
 
-S7::method(dataset_manifest, az_dataset) <- function(
+S7::method(az_dataset_resolve, az_dataset) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -480,12 +477,12 @@ S7::method(dataset_manifest, az_dataset) <- function(
   uri_type <- rlang::arg_match(uri_type)
   az_dataset_manifest(
     name = x@name,
-    uri = dataset_uri(x, tier = tier, uri_type = uri_type),
+    uri = az_dataset_uri(x, tier = tier, uri_type = uri_type),
     format = x@format
   )
 }
 
-S7::method(dataset_manifest, az_catalog) <- function(
+S7::method(az_dataset_resolve, az_catalog) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -495,12 +492,12 @@ S7::method(dataset_manifest, az_catalog) <- function(
   uri_type <- rlang::arg_match(uri_type)
 
   if (!is.null(name)) {
-    return(dataset_manifest(x[[name]], tier = tier, uri_type = uri_type))
+    return(az_dataset_resolve(x[[name]], tier = tier, uri_type = uri_type))
   }
 
   out <- lapply(
     x@datasets,
-    function(d) dataset_manifest(d, tier = tier, uri_type = uri_type)
+    function(d) az_dataset_resolve(d, tier = tier, uri_type = uri_type)
   )
   names(out) <- names(x)
   out

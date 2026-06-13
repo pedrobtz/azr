@@ -11,7 +11,7 @@ az_dataset_manifest(
 )
 }
 \arguments{
-\item{name}{Dataset name. Must match \verb{^[a-z][a-z0-9_]*$}.}
+\item{name}{Dataset name, carried over from the source \link{az_dataset}.}
 
 \item{uri}{Resolved Azure Storage URI.}
 
