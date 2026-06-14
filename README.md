@@ -24,6 +24,7 @@ The package supports creating Credential chains for Authentication with:
 
 * **Client Secret Credential**: Service principal authentication with client ID and secret
 * **Workload Identity Credential**: Federated token exchange for Kubernetes/AKS workloads
+* **Managed Identity Credential**: System- or user-assigned managed identity via the IMDS endpoint
 * **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
 * **Authorization Code Flow**: Interactive browser-based authentication
 * **Device Code Flow**: Authentication for headless or CLI environments
@@ -72,24 +73,22 @@ resp <- request("https://graph.microsoft.com/v1.0/me") |>
 You can customize which authentication methods are tried and in what order:
 
 ``` r
-# Define a custom credential chain with specific credential instances
+# Define a custom credential chain: try a service principal first, then fall
+# back to the developer's Azure CLI login ('az login')
 custom_chain <- credential_chain(
-  ClientSecretCredential$new(
-    # e.g. app://mycompany.onmicrosoft.com/MyAppId/DEV/my-api/.default
-    scope = Sys.getenv("APP_SCOPE"),
-    # the 'Application Id' used in production/batch mode
-    client_id = Sys.getenv("APP_CLIENT_ID"),
-    client_secret = Sys.getenv("APP_CLIENT_SECRET")
-  ),
-  # during development the developer authenticates via 'az login --use-device-code'
-  AzureCLICredential
+  client_secret = ClientSecretCredential,
+  azure_cli     = AzureCLICredential
 )
 
-# Use the custom chain
+# Use the custom chain - scope, tenant_id, client_id, and client_secret are
+# forwarded to whichever entry ends up succeeding
 token <- get_token(
-  tenant_id = "mycompany-tenant-id",
-  scope = "https://management.azure.com/.default",
-  .chain = custom_chain
+  scope         = "https://management.azure.com/.default",
+  tenant_id     = "mycompany-tenant-id",
+  # the 'Application Id' and secret used in production/batch mode
+  client_id     = Sys.getenv("APP_CLIENT_ID"),
+  client_secret = Sys.getenv("APP_CLIENT_SECRET"),
+  chain         = custom_chain
 )
 ```
 
