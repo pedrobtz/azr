@@ -28,8 +28,11 @@ Suggests:
     data.table,
     httpuv,
     clipr,
+    knitr,
     processx,
+    rmarkdown,
     testthat (>= 3.0.0),
     vcr (>= 2.0.0)
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/Needs/website: tidyverse/tidytemplate
