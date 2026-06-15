@@ -14,6 +14,5 @@
 }
 
 .onLoad <- function(libname, pkgname) {
-  S7::S7_on_load()
+  S7::methods_register()
 }
-S7::S7_on_build()
