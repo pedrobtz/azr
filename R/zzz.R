@@ -1,9 +1,5 @@
 .login_cache <- new.env(parent = emptyenv())
 
-.onLoad <- function(libname, pkgname) {
-  S7::methods_register()
-}
-
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage(cli::format_inline(
     "{.pkg azr} {utils::packageVersion('azr')} | Azure OAuth 2.0 credential chain"
@@ -16,3 +12,8 @@
     packageStartupMessage(bullet)
   }
 }
+
+.onLoad <- function(libname, pkgname) {
+  S7::S7_on_load()
+}
+S7::S7_on_build()
