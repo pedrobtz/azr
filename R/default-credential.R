@@ -488,6 +488,19 @@ get_credential_provider <- function(
     oauth_endpoint = oauth_endpoint
   )
 
+  if (verbose) {
+    ctx_lines <- vapply(names(context), function(nm) {
+      val <- context[[nm]]
+      if (nm == "client_secret") {
+        paste0(nm, ": ", cli::col_grey("<<REDACTED>>"))
+      } else {
+        cli::format_inline("{nm}: {.val {val}}")
+      }
+    }, character(1))
+    names(ctx_lines) <- rep(" ", length(ctx_lines))
+    cli::cli_inform(c("i" = "Credential context:", ctx_lines))
+  }
+
   errors <- list()
 
   for (i in seq_along(chain)) {
@@ -498,8 +511,7 @@ get_credential_provider <- function(
 
     if (verbose) {
       cli::cli_inform(c(
-        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})...",
-        " " = "client_id: {.val {client_id}}, scope: {.val {scope}}"
+        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
       ))
     }
 
@@ -520,7 +532,8 @@ get_credential_provider <- function(
 
     if (verbose) {
       cli::cli_inform(c(
-        " " = "Attempting to get token from {.strong {crd_name}}..."
+        " " = "Attempting to get token from {.strong {crd_name}}...",
+        " " = "client_id: {.val {obj$.client_id}}, scope: {.val {obj$.scope}}"
       ))
     }
 
