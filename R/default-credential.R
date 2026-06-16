@@ -498,7 +498,8 @@ get_credential_provider <- function(
 
     if (verbose) {
       cli::cli_inform(c(
-        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
+        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})...",
+        " " = "client_id: {.val {client_id}}, scope: {.val {scope}}"
       ))
     }
 

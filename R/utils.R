@@ -144,10 +144,20 @@ get_env_config <- function() {
       default_val = azure_authority_hosts$azure_public_cloud
     ),
     "*" = if (nzchar(config_dir_env)) {
-      cli::format_inline("AZURE_CONFIG_DIR: {.val {config_dir_env}}")
+      paste0(
+        cli::format_inline("AZURE_CONFIG_DIR: {.val {config_dir_env}}"),
+        " ",
+        cli::col_grey("(env)"),
+        " ",
+        cli::col_green("✓")
+      )
     } else {
-      cli::format_inline(
-        "AZURE_CONFIG_DIR: {.val {default_azure_config_dir()}} (default)"
+      paste0(
+        cli::format_inline(
+          "AZURE_CONFIG_DIR: {.val {default_azure_config_dir()}}"
+        ),
+        " ",
+        cli::col_grey("(default)")
       )
     },
     "*" = if (nzchar(federated_token_file_env)) {
@@ -177,7 +187,11 @@ env_override_entry <- function(var_name, env_val, default_val) {
   check <- paste0(" ", cli::col_green("\u2713"))
 
   c(
-    "*" = paste0(var_name, ":"),
-    " " = paste0(cli::format_inline("  env: {.val {env_val}}"), check)
+    "*" = paste0(
+      cli::format_inline("{var_name}: {.val {env_val}}"),
+      " ",
+      cli::col_grey("(env)"),
+      check
+    )
   )
 }
