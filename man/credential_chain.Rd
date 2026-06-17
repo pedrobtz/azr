@@ -7,18 +7,13 @@
 credential_chain(...)
 }
 \arguments{
-\item{...}{Named chain entries. Each entry must be one of:
-\itemize{
-\item a credential class (e.g., \code{ClientSecretCredential}), equivalent to
-\code{credential_spec(ClientSecretCredential)};
-\item a \code{\link[=credential_spec]{credential_spec()}}, for entries that need per-entry constructor
-arguments;
-\item an already-constructed object that inherits from the \code{Credential} base
-class, used as-is with no context merge.
-}
+\item{...}{Named chain entries. Each entry must be either a credential class
+(e.g., \code{ClientSecretCredential}) or an already-constructed object that
+inherits from the \code{Credential} base class. Class entries receive the context
+passed to \code{\link[=get_credential_provider]{get_credential_provider()}}. Constructed instances are used as-is.
 
-The names are used for identification purposes. Entries are validated and
-normalized immediately; constructing a chain performs no authentication.}
+The names are used for identification purposes. Constructing a chain
+performs no authentication.}
 }
 \value{
 A \code{credential_chain} object containing the specified sequence
@@ -47,6 +42,5 @@ token <- get_token(
 
 }
 \seealso{
-\code{\link[=default_credential_chain]{default_credential_chain()}}, \code{\link[=credential_spec]{credential_spec()}},
-\code{\link[=get_token_provider]{get_token_provider()}}
+\code{\link[=default_credential_chain]{default_credential_chain()}}, \code{\link[=get_token_provider]{get_token_provider()}}
 }

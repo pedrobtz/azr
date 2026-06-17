@@ -63,11 +63,17 @@ CachedTokenCredential <- R6::R6Class(
       scope = NULL,
       tenant_id = NULL,
       client_id = NULL,
-      chain = cached_token_credential_chain()
+      chain = NULL
     ) {
       self$.scope <- scope
       self$.tenant_id <- tenant_id
       self$.client_id <- client_id
+      chain <- chain %||%
+        cached_token_credential_chain(
+          scope = scope,
+          tenant_id = tenant_id,
+          client_id = client_id
+        )
       self$.chain <- chain
     },
 
@@ -123,16 +129,40 @@ CachedTokenCredential <- R6::R6Class(
 #'   \item Azure CLI Credential - Cached tokens from Azure CLI authentication
 #' }
 #'
+#' @param scope Optional character string specifying the authentication scope.
+#' @param tenant_id Optional character string specifying the tenant ID for
+#'   authentication.
+#' @param client_id Optional character string specifying the client ID for
+#'   authentication.
+#'
 #' @return A `credential_chain` object containing the sequence of
 #'   credential providers to check for cached tokens.
 #'
 #' @seealso [CachedTokenCredential], [credential_chain()]
 #'
 #' @export
-cached_token_credential_chain <- function() {
+cached_token_credential_chain <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL
+) {
   credential_chain(
-    auth_code = credential_spec(AuthCodeCredential, allow_prompt = FALSE),
-    device_code = credential_spec(DeviceCodeCredential, allow_prompt = FALSE),
-    az_cli = credential_spec(AzureCLICredential, auto_login = FALSE)
+    auth_code = AuthCodeCredential$new(
+      scope = scope,
+      tenant_id = tenant_id,
+      client_id = client_id,
+      allow_prompt = FALSE
+    ),
+    device_code = DeviceCodeCredential$new(
+      scope = scope,
+      tenant_id = tenant_id,
+      client_id = client_id,
+      allow_prompt = FALSE
+    ),
+    az_cli = AzureCLICredential$new(
+      scope = scope,
+      tenant_id = tenant_id,
+      auto_login = FALSE
+    )
   )
 }

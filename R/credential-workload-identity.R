@@ -75,21 +75,11 @@ WorkloadIdentityCredential <- R6::R6Class(
       ),
       token_file_path = default_federated_token_file()
     ) {
-      tenant_id <- wi_required_value(
-        tenant_id,
-        envvar = environment_variables$azure_tenant_id,
-        arg = "tenant_id"
-      )
-      client_id <- wi_required_value(
-        client_id,
-        envvar = environment_variables$azure_client_id,
-        arg = "client_id"
-      )
       self$.token_file_path <- token_file_path
       super$initialize(
         scope = scope,
-        tenant_id = tenant_id,
-        client_id = client_id
+        tenant_id = tenant_id %||% NA_character_,
+        client_id = client_id %||% NA_character_
       )
       lockBinding(".token_file_path", self)
     },
@@ -101,7 +91,17 @@ WorkloadIdentityCredential <- R6::R6Class(
     #' Checks that `token_file_path` is provided and not NA. Calls the parent
     #' class validation method.
     validate = function() {
-      super$validate()
+      wi_required_value(
+        self$.tenant_id,
+        envvar = environment_variables$azure_tenant_id,
+        arg = "tenant_id"
+      )
+      wi_required_value(
+        self$.client_id,
+        envvar = environment_variables$azure_client_id,
+        arg = "client_id"
+      )
+      private$validate_base()
 
       if (
         is.null(self$.token_file_path) || rlang::is_na(self$.token_file_path)
@@ -115,6 +115,8 @@ WorkloadIdentityCredential <- R6::R6Class(
           class = "azr_workload_identity_missing_token_file"
         )
       }
+
+      invisible(self)
     },
 
     #' @description

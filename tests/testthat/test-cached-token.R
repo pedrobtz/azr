@@ -6,11 +6,17 @@ test_that("cached_token_credential_chain returns the expected entries", {
 
   expect_s3_class(chain, "credential_chain")
   expect_named(chain, c("auth_code", "device_code", "az_cli"))
-  expect_true(all(vapply(chain, inherits, logical(1), "azr_credential_spec")))
 
-  expect_equal(chain$auth_code$args, list(allow_prompt = FALSE))
-  expect_equal(chain$device_code$args, list(allow_prompt = FALSE))
-  expect_equal(chain$az_cli$args, list(auto_login = FALSE))
+  auth_code <- rlang::eval_tidy(chain$auth_code)
+  device_code <- rlang::eval_tidy(chain$device_code)
+  az_cli <- rlang::eval_tidy(chain$az_cli)
+
+  expect_s3_class(auth_code, "AuthCodeCredential")
+  expect_s3_class(device_code, "DeviceCodeCredential")
+  expect_s3_class(az_cli, "AzureCLICredential")
+  expect_false(auth_code$allow_prompt)
+  expect_false(device_code$allow_prompt)
+  expect_false(az_cli$auto_login)
 })
 
 test_that("CachedTokenCredential construction performs no authentication side effects", {

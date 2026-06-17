@@ -51,12 +51,6 @@ test_that("format.redacted returns grey REDACTED text", {
   expect_match(formatted, "REDACTED")
 })
 
-test_that("print.redacted prints REDACTED", {
-  r <- redacted()
-  output <- capture.output(print(r))
-  expect_match(output, "REDACTED")
-})
-
 test_that("list_redact redacts specified names (case sensitive)", {
   x <- list(password = "secret123", username = "user", data = "public")
   result <- list_redact(x, c("password", "username"))

@@ -111,13 +111,6 @@ format.redacted <- function(x, ...) {
   cli::col_grey("<REDACTED>")
 }
 
-
-#' @exportS3Method print redacted
-print.redacted <- function(x, ...) {
-  cat(format(x, ...), "\n", sep = "")
-  invisible(x)
-}
-
 is_port_available <- function(port, host = "127.0.0.1") {
   # Try to connect to the port (if something is listening, connection succeeds)
   suppressWarnings(

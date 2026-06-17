@@ -200,15 +200,3 @@ test_that("handles DNS-zone endpoints without warning", {
   expect_equal(x$container, "mycontainer")
   expect_equal(x$path, "data/file.parquet")
 })
-
-test_that("print method redacts SAS signature", {
-  x <- parse_storage_path(
-    "https://a.blob.core.windows.net/c/f.parquet?sv=2021-06-08&sig=SECRETSIG&skoid=ID1&sktid=ID2"
-  )
-  out <- paste(cli::cli_format_method(print(x)), collapse = "\n")
-  expect_false(grepl("SECRETSIG", out))
-  expect_false(grepl("ID1", out))
-  expect_false(grepl("ID2", out))
-  expect_match(out, "<redacted>")
-  expect_match(out, "2021-06-08")
-})

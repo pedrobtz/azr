@@ -50,7 +50,7 @@ test_that("AzureCLICredential$req_auth adds bearer token to request", {
 })
 
 
-test_that("AzureCLICredential validates tenant_id", {
+test_that("AzureCLICredential validates tenant_id at construction", {
   expect_error(
     AzureCLICredential$new(tenant_id = "invalid!tenant"),
     "not valid"

@@ -489,14 +489,18 @@ get_credential_provider <- function(
   )
 
   if (verbose) {
-    ctx_lines <- vapply(names(context), function(nm) {
-      val <- context[[nm]]
-      if (nm == "client_secret") {
-        paste0(nm, ": ", cli::col_grey("<<REDACTED>>"))
-      } else {
-        cli::format_inline("{nm}: {.val {val}}")
-      }
-    }, character(1))
+    ctx_lines <- vapply(
+      names(context),
+      function(nm) {
+        val <- context[[nm]]
+        if (nm == "client_secret") {
+          paste0(nm, ": ", cli::col_grey("<<REDACTED>>"))
+        } else {
+          cli::format_inline("{nm}: {.val {val}}")
+        }
+      },
+      character(1)
+    )
     names(ctx_lines) <- rep(" ", length(ctx_lines))
     cli::cli_inform(c("i" = "Credential context:", ctx_lines))
   }
@@ -625,19 +629,25 @@ try_build_credential <- function(
     list(obj = NULL, error = error)
   }
 
+  crd <- try(eval_chain_entry(entry), silent = TRUE)
+
+  if (inherits(crd, "try-error")) {
+    return(fail(conditionMessage(attr(crd, "condition"))))
+  }
+
   if (verbose) {
-    if (inherits(entry, "azr_credential_spec")) {
+    if (R6::is.R6Class(crd)) {
       cli::cli_inform(c(
-        " " = "Instantiating R6 class {.cls {entry$class$classname}}."
+        " " = "Instantiating R6 class {.cls {crd$classname}}."
       ))
-    } else {
+    } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
       cli::cli_inform(c(
-        " " = "Using existing R6 instance of class {.cls {class(entry)[1]}}."
+        " " = "Using existing R6 instance of class {.cls {class(crd)[1]}}."
       ))
     }
   }
 
-  obj <- try(build_credential(entry, context = context), silent = TRUE)
+  obj <- try(build_credential(crd, context = context), silent = TRUE)
 
   if (inherits(obj, "try-error")) {
     return(fail(conditionMessage(attr(obj, "condition"))))
@@ -692,22 +702,18 @@ default_credential_chain <- function() {
 #' until one successfully authenticates. This allows you to customize
 #' the authentication flow beyond the default credential chain.
 #'
-#' @param ... Named chain entries. Each entry must be one of:
-#'   * a credential class (e.g., `ClientSecretCredential`), equivalent to
-#'     `credential_spec(ClientSecretCredential)`;
-#'   * a [credential_spec()], for entries that need per-entry constructor
-#'     arguments;
-#'   * an already-constructed object that inherits from the `Credential` base
-#'     class, used as-is with no context merge.
+#' @param ... Named chain entries. Each entry must be either a credential class
+#'   (e.g., `ClientSecretCredential`) or an already-constructed object that
+#'   inherits from the `Credential` base class. Class entries receive the context
+#'   passed to [get_credential_provider()]. Constructed instances are used as-is.
 #'
-#'   The names are used for identification purposes. Entries are validated and
-#'   normalized immediately; constructing a chain performs no authentication.
+#'   The names are used for identification purposes. Constructing a chain
+#'   performs no authentication.
 #'
 #' @return A `credential_chain` object containing the specified sequence
 #'   of credential providers.
 #'
-#' @seealso [default_credential_chain()], [credential_spec()],
-#'   [get_token_provider()]
+#' @seealso [default_credential_chain()], [get_token_provider()]
 #'
 #' @examples
 #' # Create a custom chain with only non-interactive credentials
@@ -726,159 +732,34 @@ default_credential_chain <- function() {
 #'
 #' @export
 credential_chain <- function(...) {
-  entries <- rlang::list2(...)
+  res <- rlang::enquos(...)
 
-  if (length(entries) == 0L) {
+  if (length(res) == 0L) {
     cli::cli_abort(
       c(
         "Credential chain cannot be empty.",
-        "i" = "Provide at least one credential class, spec, or instance.",
+        "i" = "Provide at least one credential class or instance.",
         "i" = "Use {.fn default_credential_chain} for a pre-configured chain."
       )
     )
   }
 
-  entries <- lapply(entries, function(entry) {
-    if (R6::is.R6Class(entry)) {
-      return(credential_spec(entry))
-    }
-    if (inherits(entry, "azr_credential_spec")) {
-      return(entry)
-    }
-    if (R6::is.R6(entry) && inherits(entry, "Credential")) {
-      return(entry)
-    }
-    cli::cli_abort(
-      "Chain entries must be a credential class, {.fn credential_spec}, or a {.cls Credential} instance."
+  class(res) <- c("credential_chain", class(res))
+  res
+}
+
+# Resolves a chain entry quosure to a credential class or instance. The data
+# mask clones the azr namespace so bare class names (e.g. ClientSecretCredential)
+# resolve even when the package is not attached, while constructor-argument
+# references still resolve against the quosure's own environment.
+eval_chain_entry <- function(entry) {
+  mask <- rlang::new_data_mask(
+    rlang::env_clone(
+      asNamespace("azr"),
+      parent = rlang::quo_get_env(entry)
     )
-  })
-
-  structure(entries, class = "credential_chain")
-}
-
-#' Print a credential chain
-#'
-#' @param x A `credential_chain` object.
-#' @param ... Unused.
-#' @return Invisibly returns `x`.
-#' @exportS3Method print credential_chain
-print.credential_chain <- function(x, ...) {
-  cli::cli_h1("credential_chain")
-
-  nms <- names(x) %||% rep("", length(x))
-
-  for (i in seq_along(x)) {
-    entry <- x[[i]]
-    nm <- nms[[i]]
-    if (!nzchar(nm)) {
-      nm <- paste0("[[", i, "]]")
-    }
-
-    label <- if (inherits(entry, "azr_credential_spec")) {
-      format(entry)
-    } else {
-      cli::format_inline("<{class(entry)[[1]]}> (instance)")
-    }
-
-    cli::cli_text("{.field {nm}}: {label}")
-  }
-
-  invisible(x)
-}
-
-#' Specify a credential chain entry
-#'
-#' @description
-#' Creates a chain entry that pairs a credential class with constructor
-#' arguments to use for that entry, overriding the values that
-#' [get_credential_provider()] would otherwise pass from its own context.
-#'
-#' @param class A `Credential` R6 class generator (e.g.,
-#'   `ClientSecretCredential`).
-#' @param ... Named arguments forwarded to `class$new()`. Each name must match
-#'   a named argument of `class`'s `initialize()` method (excluding `...`).
-#'   Validated immediately, so unknown or unnamed arguments fail when the spec
-#'   is created.
-#'
-#' @return An object of class `azr_credential_spec`.
-#'
-#' @seealso [credential_chain()]
-#' @export
-credential_spec <- function(class, ...) {
-  args <- rlang::list2(...)
-
-  if (!R6::is.R6Class(class)) {
-    cli::cli_abort(
-      "{.arg class} must be an R6 credential class generator, not {.obj_type_friendly {class}}."
-    )
-  }
-
-  if (length(args) > 0L && !rlang::is_named(args)) {
-    cli::cli_abort("All arguments to {.fn credential_spec} must be named.")
-  }
-
-  accepted <- setdiff(r6_get_initialize_arguments(class), "...")
-  unknown <- setdiff(names(args), accepted)
-  if (length(unknown) > 0L) {
-    cli::cli_abort(c(
-      "{cli::qty(length(unknown))}Unknown argument{?s} {.arg {unknown}} for {.cls {class$classname}}.",
-      "i" = "Accepted: {.arg {accepted}}."
-    ))
-  }
-
-  structure(
-    list(class = class, args = args),
-    class = "azr_credential_spec"
   )
-}
-
-# Pattern used to redact sensitive constructor arguments in
-# format.azr_credential_spec(); matches names like client_secret,
-# refresh_token, password, api_key, etc.
-spec_sensitive_pattern <- "secret|token|password|key"
-
-#' @param x An `azr_credential_spec` object.
-#' @param ... Unused.
-#' @rdname credential_spec
-#' @exportS3Method format azr_credential_spec
-format.azr_credential_spec <- function(x, ...) {
-  shown <- x$args
-
-  if (length(shown) == 0L) {
-    return(cli::format_inline("<credential_spec: {x$class$classname}>"))
-  }
-
-  redact <- grepl(spec_sensitive_pattern, names(shown), ignore.case = TRUE)
-  shown[redact] <- "<hidden>"
-
-  args_str <- vapply(
-    seq_along(shown),
-    function(i) paste0(names(shown)[[i]], " = ", format_spec_value(shown[[i]])),
-    character(1)
-  )
-
-  cli::format_inline(
-    "<credential_spec: {x$class$classname}({paste(args_str, collapse = ', ')})>"
-  )
-}
-
-#' @rdname credential_spec
-#' @exportS3Method print azr_credential_spec
-print.azr_credential_spec <- function(x, ...) {
-  cat(format(x, ...), sep = "\n")
-  invisible(x)
-}
-
-# Formats a single credential_spec argument value for display. Strings are
-# quoted; NULL renders as "NULL"; other values use format().
-format_spec_value <- function(x) {
-  if (is.null(x)) {
-    return("NULL")
-  }
-  if (is.character(x)) {
-    return(paste0("\"", x, "\""))
-  }
-  paste(format(x), collapse = ", ")
+  rlang::eval_tidy(entry, data = mask)
 }
 
 new_instance <- function(cls, context) {
@@ -887,19 +768,18 @@ new_instance <- function(cls, context) {
   rlang::exec(cls$new, !!!args)
 }
 
-# Builds a chain entry (a credential_spec() or pre-built instance) into a
-# Credential object, merging the provider's context with the entry's own
-# arguments. Entry arguments take precedence; pre-built instances are
-# returned unchanged (no context merge: they are authoritative).
+# Builds a chain entry into a Credential object. Class entries receive the
+# provider context; pre-built instances are returned unchanged.
 build_credential <- function(entry, context) {
   if (R6::is.R6(entry) && inherits(entry, "Credential")) {
     return(entry)
   }
 
-  args <- context
-  # List-RHS `[<-` preserves explicit NULL entry args. modifyList() would
-  # *delete* them, silently re-enabling the constructor default.
-  args[names(entry$args)] <- entry$args
+  if (R6::is.R6Class(entry)) {
+    return(new_instance(entry, context = context))
+  }
 
-  new_instance(entry$class, context = args)
+  cli::cli_abort(
+    "Chain entries must be a credential class or a {.cls Credential} instance."
+  )
 }

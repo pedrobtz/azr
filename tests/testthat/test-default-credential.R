@@ -52,33 +52,26 @@ test_that("credential_chain can contain credential instances", {
   expect_length(chain, 1)
 })
 
-test_that("credential_chain contains credential_spec entries", {
+test_that("credential_chain captures entries lazily as quosures", {
   chain <- credential_chain(
     client_secret = ClientSecretCredential,
     azure_cli = AzureCLICredential
   )
 
-  # Each element should be an azr_credential_spec
-  expect_true(all(vapply(chain, inherits, logical(1), "azr_credential_spec")))
-
-  # Verify they are the expected types
-  expect_s3_class(chain[[1]], "azr_credential_spec")
-  expect_s3_class(chain[[2]], "azr_credential_spec")
+  expect_true(all(vapply(chain, rlang::is_quosure, logical(1))))
+  expect_identical(rlang::eval_tidy(chain[[1]]), ClientSecretCredential)
+  expect_identical(rlang::eval_tidy(chain[[2]]), AzureCLICredential)
 })
 
-test_that("credential_chain is a list of credential_spec entries", {
+test_that("credential_chain is a named list of quosures", {
   custom_chain <- credential_chain(
     client_secret = ClientSecretCredential,
     azure_cli = AzureCLICredential
   )
 
-  # Check it's a list
   expect_type(custom_chain, "list")
-
-  # Check all elements are credential_spec entries
-  for (i in seq_along(custom_chain)) {
-    expect_s3_class(custom_chain[[i]], "azr_credential_spec")
-  }
+  expect_true(rlang::is_quosure(custom_chain$client_secret))
+  expect_true(rlang::is_quosure(custom_chain$azure_cli))
 })
 
 # Tests for default_credential_chain
@@ -325,13 +318,20 @@ test_that("try_build_credential resolves namespace-qualified credential class", 
   expect_s3_class(result$obj, "WorkloadIdentityCredential")
 })
 
-test_that("credential_chain errors for an undefined credential class", {
-  # Chain entries are validated/built eagerly, so an undefined class fails
-  # at definition time rather than later inside try_build_credential().
-  expect_error(
-    credential_chain(FakeCredential),
-    "not found"
+test_that("try_build_credential errors for an undefined credential class", {
+  # Chain entries are captured lazily, so an undefined class is not resolved
+  # at definition time but later inside try_build_credential().
+  chain <- credential_chain(FakeCredential)
+  context <- list(
+    scope = "https://management.azure.com/.default",
+    tenant_id = "common",
+    client_id = "test-client"
   )
+
+  result <- try_build_credential(chain[[1]], "fake", context = context)
+
+  expect_null(result$obj)
+  expect_match(result$error, "not found")
 })
 
 test_that("try_build_credential reports credentials that do not inherit from Credential", {
@@ -543,119 +543,28 @@ test_that("custom credential chain workflow", {
   expect_length(custom_chain, 2)
 })
 
-# Tests for credential_spec()
+# Tests for build_credential()
 
-test_that("credential_spec errors when class is not an R6 generator", {
-  expect_error(
-    credential_spec("not-a-class"),
-    "must be an R6 credential class generator"
-  )
-})
-
-test_that("credential_spec errors on unnamed arguments", {
-  expect_error(
-    credential_spec(ClientSecretCredential, "unnamed-value"),
-    "must be named"
-  )
-})
-
-test_that("credential_spec errors on unknown arguments", {
-  expect_error(
-    credential_spec(ClientSecretCredential, bogus_arg = "x"),
-    "Unknown argument"
-  )
-})
-
-test_that("credential_spec accepts known initialize() arguments", {
-  spec <- credential_spec(ClientSecretCredential, client_id = "my-client-id")
-
-  expect_s3_class(spec, "azr_credential_spec")
-  expect_identical(spec$class, ClientSecretCredential)
-  expect_equal(spec$args, list(client_id = "my-client-id"))
-})
-
-# Tests for format/print redaction (review.md item 11, Phase 2)
-
-test_that("format.azr_credential_spec redacts sensitive arguments", {
-  spec <- credential_spec(
-    ClientSecretCredential,
-    client_id = "my-client-id",
-    client_secret = "super-secret-value"
-  )
-
-  out <- format(spec)
-
-  expect_match(out, "my-client-id", fixed = TRUE)
-  expect_false(grepl("super-secret-value", out, fixed = TRUE))
-  expect_match(out, "<hidden>", fixed = TRUE)
-})
-
-test_that("print.azr_credential_spec never reveals secrets", {
-  spec <- credential_spec(
-    ClientSecretCredential,
-    client_secret = "super-secret-value"
-  )
-
-  out <- capture.output(print(spec))
-
-  expect_false(any(grepl("super-secret-value", out, fixed = TRUE)))
-})
-
-test_that("print.credential_chain never reveals secrets", {
-  chain <- credential_chain(
-    client_secret = credential_spec(
-      ClientSecretCredential,
-      client_secret = "super-secret-value"
-    )
-  )
-
-  out <- capture.output(print(chain))
-
-  expect_false(any(grepl("super-secret-value", out, fixed = TRUE)))
-})
-
-# Tests for build_credential() merge precedence (review.md item 11, Phase 2)
-
-test_that("build_credential: entry argument overrides context value", {
+test_that("build_credential: class entry receives context", {
   context <- list(
     tenant_id = "context-tenant",
     client_id = "context-client",
     client_secret = "context-secret"
   )
-  spec <- credential_spec(ClientSecretCredential, tenant_id = "spec-tenant")
 
-  cred <- build_credential(spec, context = context)
+  cred <- build_credential(ClientSecretCredential, context = context)
 
-  expect_equal(cred$.tenant_id, "spec-tenant")
+  expect_equal(cred$.tenant_id, "context-tenant")
   expect_equal(cred$.client_id, "context-client")
+  expect_equal(cred$.client_secret, "context-secret")
 })
 
 test_that("build_credential: omitted argument falls through to constructor default", {
   context <- list(tenant_id = "test-tenant")
-  spec <- credential_spec(AzureCLICredential)
 
-  cred <- build_credential(spec, context = context)
+  cred <- build_credential(AzureCLICredential, context = context)
 
   expect_true(cred$use_bridge)
-})
-
-test_that("build_credential: explicit NULL entry argument reaches the constructor (regression guard for modifyList)", {
-  TestNullClass <- R6::R6Class(
-    classname = "TestNullClass",
-    public = list(
-      client_id = NULL,
-      initialize = function(client_id = "default-client-id") {
-        self$client_id <- client_id
-      }
-    )
-  )
-
-  spec <- credential_spec(TestNullClass, client_id = NULL)
-  context <- list(client_id = "context-client-id")
-
-  cred <- build_credential(spec, context = context)
-
-  expect_null(cred$client_id)
 })
 
 test_that("build_credential: pre-built instance receives no context merge", {
@@ -699,8 +608,10 @@ test_that("constructing AzureCLICredential performs no login check", {
     .package = "azr"
   )
 
-  spec <- credential_spec(AzureCLICredential)
-  cred <- build_credential(spec, context = list(tenant_id = "test-tenant"))
+  cred <- build_credential(
+    AzureCLICredential,
+    context = list(tenant_id = "test-tenant")
+  )
 
   expect_s3_class(cred, "AzureCLICredential")
 })

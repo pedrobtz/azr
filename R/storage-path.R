@@ -158,45 +158,6 @@ parse_storage_path <- function(path) {
 }
 
 
-#' @export
-print.azure_storage_path <- function(x, ...) {
-  cli::cli_text(cli::style_bold("<azure_storage_path>"))
-  cli::cli_dl(c(
-    scheme = x$scheme,
-    storage_account = x$storage_account,
-    endpoint = x$endpoint,
-    endpoint_suffix = x$endpoint_suffix %||% "(none)",
-    container = x$container %||% "(none)",
-    path = if (nzchar(x$path)) x$path else "(container root)",
-    format = x$format %||% "(unknown)"
-  ))
-  if (!is.null(x$query)) {
-    cli::cli_text("query:")
-    cli::cli_dl(unlist(lapply(redact_sas(x$query), as.character)))
-  }
-  invisible(x)
-}
-
-# Keys that carry SAS credentials or identity material; redacted on print.
-sas_sensitive_keys <- c(
-  "sig",
-  "skoid",
-  "sktid",
-  "skt",
-  "ske",
-  "sks",
-  "skv",
-  "signedoid",
-  "signedtid"
-)
-
-redact_sas <- function(query) {
-  hits <- intersect(names(query), sas_sensitive_keys)
-  query[hits] <- "<redacted>"
-  query
-}
-
-
 storage_path_format <- function(inner_path, raw_path) {
   if (grepl("_delta_log", inner_path, fixed = TRUE)) {
     return("delta")

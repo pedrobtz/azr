@@ -41,7 +41,42 @@ validate_scope <- function(x) {
 }
 
 
+validate_required_string <- function(x, arg) {
+  if (is.null(x) || length(x) == 0L || (length(x) == 1L && is.na(x))) {
+    cli::cli_abort("Argument {.arg {arg}} cannot be NULL or NA.")
+  }
+
+  if (!is.character(x) || length(x) != 1L) {
+    cli::cli_abort(
+      "Argument {.arg {arg}} must be a single string, not {.obj_type_friendly {x}}."
+    )
+  }
+
+  if (!nzchar(x)) {
+    cli::cli_abort("Argument {.arg {arg}} cannot be empty.")
+  }
+
+  invisible(TRUE)
+}
+
+
+validate_use_cache <- function(x) {
+  if (!is.character(x) || length(x) != 1L || is.na(x) ||
+    !x %in% c("disk", "memory")) {
+    cli::cli_abort(
+      "Argument {.arg use_cache} must be one of {.val disk} or {.val memory}."
+    )
+  }
+
+  invisible(TRUE)
+}
+
+
 get_scope_resource <- function(scope) {
+  if (!is.character(scope)) {
+    return(NULL)
+  }
+
   x <- grep("^http", scope, value = TRUE, ignore.case = TRUE)
 
   if (length(x) != 1L) {

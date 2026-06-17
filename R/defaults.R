@@ -252,6 +252,22 @@ default_azure_host <- function() {
   normalize_authority_host(host)
 }
 
+
+default_azure_host_unchecked <- function() {
+  host <- Sys.getenv(
+    environment_variables$azure_authority_host,
+    unset = azure_authority_hosts$azure_public_cloud
+  )
+
+  if (
+    !is.character(host) || length(host) != 1L || is.na(host) || !nzchar(host)
+  ) {
+    host <- azure_authority_hosts$azure_public_cloud
+  }
+
+  normalize_authority_host_unchecked(host)
+}
+
 # Single source of truth for authority-host normalization: strip an optional
 # `https?://` scheme and any trailing slashes, returning a bare host string.
 # Callers that want a URL prepend `https://` themselves.
@@ -263,6 +279,53 @@ normalize_authority_host <- function(host, arg = rlang::caller_arg(host)) {
   }
   host <- sub("/+$", "", host)
   sub("^https?://", "", host)
+}
+
+
+normalize_authority_host_unchecked <- function(host) {
+  if (!is.character(host) || length(host) != 1L || is.na(host)) {
+    return("")
+  }
+
+  host <- sub("/+$", "", host)
+  sub("^https?://", "", host)
+}
+
+
+default_azure_url_unchecked <- function(
+  endpoint = NULL,
+  oauth_host = default_azure_host_unchecked(),
+  tenant_id = default_azure_tenant_id()
+) {
+  oauth_host <- normalize_authority_host_unchecked(oauth_host)
+  if (!nzchar(oauth_host)) {
+    oauth_host <- azure_authority_hosts$azure_public_cloud
+  }
+
+  if (
+    !is.character(tenant_id) ||
+      length(tenant_id) != 1L ||
+      is.na(tenant_id) ||
+      !nzchar(tenant_id)
+  ) {
+    tenant_id <- azure_client$tenant_id
+  }
+
+  oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
+  urls <- c(
+    authorize = paste0(oauth_base, "/authorize"),
+    token = paste0(oauth_base, "/token"),
+    devicecode = paste0(oauth_base, "/devicecode")
+  )
+
+  if (!is.null(endpoint)) {
+    if (!endpoint %in% names(urls)) {
+      return(NA_character_)
+    }
+    return(urls[[endpoint]])
+  }
+
+  as.list(urls)
 }
 
 #' Get default Azure Storage DFS endpoint suffix
