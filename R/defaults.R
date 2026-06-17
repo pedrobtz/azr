@@ -265,7 +265,7 @@ default_azure_host_unchecked <- function() {
     host <- azure_authority_hosts$azure_public_cloud
   }
 
-  normalize_authority_host_unchecked(host)
+  normalized_auth_host(host)
 }
 
 # Single source of truth for authority-host normalization: strip an optional
@@ -282,7 +282,7 @@ normalize_authority_host <- function(host, arg = rlang::caller_arg(host)) {
 }
 
 
-normalize_authority_host_unchecked <- function(host) {
+normalized_auth_host <- function(host) {
   if (!is.character(host) || length(host) != 1L || is.na(host)) {
     return("")
   }
@@ -297,7 +297,7 @@ default_azure_url_unchecked <- function(
   oauth_host = default_azure_host_unchecked(),
   tenant_id = default_azure_tenant_id()
 ) {
-  oauth_host <- normalize_authority_host_unchecked(oauth_host)
+  oauth_host <- normalized_auth_host(oauth_host)
   if (!nzchar(oauth_host)) {
     oauth_host <- azure_authority_hosts$azure_public_cloud
   }

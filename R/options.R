@@ -152,15 +152,12 @@ opts <- local({
     )
   }
 
-  structure(
-    list(
-      get = get,
-      set = set,
-      reset = reset,
-      list = list_all,
-      .names = ls(.spec)
-    ),
-    class = "azr_opts"
+  list(
+    get = get,
+    set = set,
+    reset = reset,
+    list = list_all,
+    .names = ls(.spec)
   )
 })
 
@@ -177,19 +174,7 @@ mask_azr_opts <- function(tbl, mask) {
   tbl
 }
 
-#' Print the azr option registry
-#'
-#' Renders one row per option with its current (resolved) value, the source
-#' that value came from, the environment variable that can override it (and
-#' whether it is set), and the built-in default.
-#'
-#' @param x An `azr_opts` object (the internal `opts` registry).
-#' @param ... Additional arguments. A `mask` logical (default `TRUE`) may be
-#'   supplied to show sensitive option values as `"<hidden>"` when set.
-#' @return Invisibly returns `x`.
-#' @export
-print.azr_opts <- function(x, ...) {
-  mask <- list(...)[["mask"]] %||% TRUE
+print_azr_opts <- function(x, mask = TRUE) {
   out <- mask_azr_opts(x$list(), mask)
 
   # Unset values render as a grey "(not set)"; set values are styled as {.val}.
@@ -233,7 +218,7 @@ print.azr_opts <- function(x, ...) {
 #' List all azr options and their current values
 #'
 #' @description
-#' Prints every azr option (via [print.azr_opts()]) and invisibly returns a
+#' Prints every azr option and invisibly returns a
 #' [data.frame] of the same information. The resolution order is: a value set
 #' for the session -> `options(azr.*)` -> the option's environment variable ->
 #' a built-in default.
@@ -262,6 +247,6 @@ azr_options <- function(mask = TRUE) {
   if (!rlang::is_bool(mask)) {
     cli::cli_abort("{.arg mask} must be `TRUE` or `FALSE`.")
   }
-  print(opts, mask = mask)
+  print_azr_opts(opts, mask = mask)
   invisible(mask_azr_opts(opts$list(), mask))
 }

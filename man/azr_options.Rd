@@ -15,7 +15,7 @@ Invisibly, a \link{data.frame} with columns \code{option}, \code{value}, \code{s
 \code{env_var}, \code{env_value}, and \code{default}.
 }
 \description{
-Prints every azr option (via \code{\link[=print.azr_opts]{print.azr_opts()}}) and invisibly returns a
+Prints every azr option and invisibly returns a
 \link{data.frame} of the same information. The resolution order is: a value set
 for the session -> \verb{options(azr.*)} -> the option's environment variable ->
 a built-in default.\tabular{lllll}{
