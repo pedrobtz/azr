@@ -187,7 +187,7 @@ mask_azr_opts <- function(tbl, mask) {
 #' @param ... Additional arguments. A `mask` logical (default `TRUE`) may be
 #'   supplied to show sensitive option values as `"<hidden>"` when set.
 #' @return Invisibly returns `x`.
-#' @exportS3Method print azr_opts
+#' @export
 print.azr_opts <- function(x, ...) {
   mask <- list(...)[["mask"]] %||% TRUE
   out <- mask_azr_opts(x$list(), mask)
