@@ -4,15 +4,13 @@
 \alias{print.azr_opts}
 \title{Print the azr option registry}
 \usage{
-\method{print}{azr_opts}(x, mask = TRUE, ...)
+\method{print}{azr_opts}(x, ...)
 }
 \arguments{
 \item{x}{An \code{azr_opts} object (the internal \code{opts} registry).}
 
-\item{mask}{Logical. When \code{TRUE} (default), sensitive option values are
-shown as \code{"<hidden>"} when set.}
-
-\item{...}{Unused.}
+\item{...}{Additional arguments. A \code{mask} logical (default \code{TRUE}) may be
+supplied to show sensitive option values as \code{"<hidden>"} when set.}
 }
 \value{
 Invisibly returns \code{x}.

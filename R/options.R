@@ -184,12 +184,12 @@ mask_azr_opts <- function(tbl, mask) {
 #' whether it is set), and the built-in default.
 #'
 #' @param x An `azr_opts` object (the internal `opts` registry).
-#' @param mask Logical. When `TRUE` (default), sensitive option values are
-#'   shown as `"<hidden>"` when set.
-#' @param ... Unused.
+#' @param ... Additional arguments. A `mask` logical (default `TRUE`) may be
+#'   supplied to show sensitive option values as `"<hidden>"` when set.
 #' @return Invisibly returns `x`.
 #' @exportS3Method print azr_opts
-print.azr_opts <- function(x, mask = TRUE, ...) {
+print.azr_opts <- function(x, ...) {
+  mask <- list(...)[["mask"]] %||% TRUE
   out <- mask_azr_opts(x$list(), mask)
 
   # Unset values render as a grey "(not set)"; set values are styled as {.val}.
