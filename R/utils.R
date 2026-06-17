@@ -184,7 +184,7 @@ get_env_config <- function() {
         " ",
         cli::col_grey("(env)"),
         " ",
-        cli::col_green("✓")
+        cli::col_green("\u2713")
       )
     } else {
       paste0(
