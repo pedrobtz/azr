@@ -1,6 +1,6 @@
 # azr (development version)
 
-* Added S7 classes `az_dataset` and `az_catalog`, plus `az_dataset_uri()`, `az_resolve_dataset()`, `az_dataset_from_uri()`, `az_catalog_read()`, and `az_catalog_write()` for declaring and resolving Azure Storage datasets across tiers. `az_resolve_dataset()` returns a plain list with `name`, `uri`, and `format`.
+* Added S7 classes `az_dataset`, `az_catalog`, and `az_dataset_manifest`, plus `az_dataset_uri()`, `az_resolve_dataset()`, `az_dataset_from_uri()`, `az_catalog_read()`, and `az_catalog_write()` for declaring and resolving Azure Storage datasets across tiers. `az_resolve_dataset()` returns an `az_dataset_manifest` (use `as.list()` for a plain list with `name`, `uri`, and `format`).
 * Added the `azr.*` option registry (`azr_options()`, `opts$get`/`opts$set`) backing the new `chain_verbose`, `api_verbose`, `cli_auto_login`, and `dataset_tier` options.
 * `api_client$new()` gained a `verbose` argument, defaulting to the `api_verbose` option, that gates the `>>>`/`<<<` request and response logging.
 * Added `default_graph_endpoint()` and an `endpoint` argument to `azr_graph_client()` so the Microsoft Graph host is no longer hardcoded.

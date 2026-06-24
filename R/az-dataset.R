@@ -160,6 +160,44 @@ az_catalog <- S7::new_class(
 )
 
 
+#' Azure Storage dataset manifest
+#'
+#' @description
+#' An S7 class representing the resolved information required by an external
+#' reader to load an Azure Storage dataset. Use [as.list()][base::as.list] to
+#' convert it to a plain R list.
+#'
+#' @param name Dataset name, carried over from the source [az_dataset].
+#' @param uri Resolved Azure Storage URI.
+#' @param format Dataset format. See [az_dataset] for supported values.
+#'
+#' @return An `az_dataset_manifest` S7 object.
+#' @export
+az_dataset_manifest <- S7::new_class(
+  "az_dataset_manifest",
+  properties = list(
+    name = S7::class_character,
+    uri = S7::class_character,
+    format = S7::class_character
+  ),
+  validator = function(self) {
+    if (!is_scalar_string(self@name)) {
+      return("name must be a non-empty character scalar")
+    }
+    if (!is_scalar_string(self@uri)) {
+      return("uri must be a non-empty character scalar")
+    }
+    if (!self@format %in% dataset_formats) {
+      return(paste0(
+        "format must be one of: ",
+        paste(dataset_formats, collapse = ", ")
+      ))
+    }
+    NULL
+  }
+)
+
+
 #' Create an `az_dataset` from a full Azure Storage URI
 #'
 #' @description
@@ -421,9 +459,9 @@ S7::method(az_dataset_uri, az_catalog) <- function(
 #'
 #' @inheritParams az_dataset_uri
 #'
-#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, a named
-#'   list with elements `name`, `uri`, and `format`. For an [az_catalog]
-#'   without `name`, a named list of such lists, keyed by dataset name.
+#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, an
+#'   [az_dataset_manifest]. For an [az_catalog] without `name`, a named list
+#'   of `az_dataset_manifest` objects, keyed by dataset name.
 #' @export
 #' @examples
 #' ds <- az_dataset(
@@ -447,7 +485,7 @@ S7::method(az_resolve_dataset, az_dataset) <- function(
   ...
 ) {
   uri_type <- rlang::arg_match(uri_type)
-  list(
+  az_dataset_manifest(
     name = x@name,
     uri = az_dataset_uri(x, tier = tier, uri_type = uri_type),
     format = x@format
@@ -496,6 +534,15 @@ S7::method(as.list, az_catalog) <- function(x, ...) {
   list(datasets = lapply(x@datasets, as.list))
 }
 
+# nolint next: object_name_linter.
+S7::method(as.list, az_dataset_manifest) <- function(x, ...) {
+  list(
+    name = x@name,
+    uri = x@uri,
+    format = x@format
+  )
+}
+
 S7::method(print, az_dataset) <- function(x, ...) {
   cli::cli_text(cli::style_bold("<az_dataset:{x@name}>"))
   cli::cli_dl(c(
@@ -509,6 +556,15 @@ S7::method(print, az_dataset) <- function(x, ...) {
       unlist(x@storage),
       collapse = ", "
     )
+  ))
+  invisible(x)
+}
+
+S7::method(print, az_dataset_manifest) <- function(x, ...) {
+  cli::cli_text(cli::style_bold("<az_dataset_manifest:{x@name}>"))
+  cli::cli_dl(c(
+    uri = x@uri,
+    format = x@format
   ))
   invisible(x)
 }

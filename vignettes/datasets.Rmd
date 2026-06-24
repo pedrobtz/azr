@@ -86,27 +86,22 @@ pre-production job can export `AZR_DATASET_TIER=preprod` and every
 ## Resolving to a manifest
 
 A URI alone isn't enough to *load* data — a reader also needs the format.
-`az_resolve_dataset()` returns a list carrying the `name`, `uri`, and `format`
-together:
+`az_resolve_dataset()` returns an `az_dataset_manifest` carrying the `name`,
+`uri`, and `format` together (call `as.list()` for a plain R list):
 
 ```{r}
 m <- az_resolve_dataset(orders, tier = "prod")
 m
-#> $name
-#> [1] "orders"
-#>
-#> $uri
-#> [1] "abfss://raw@stprod001.dfs.core.windows.net/sales/orders"
-#>
-#> $format
-#> [1] "delta"
+#> <az_dataset_manifest:orders>
+#> uri: abfss://raw@stprod001.dfs.core.windows.net/sales/orders
+#> format: delta
 ```
 
 This is exactly the shape a reader like `sparklyr::spark_read_source()` wants:
 
 ```{r}
 m <- az_resolve_dataset(orders, tier = "prod")
-spark_read_source(sc, name = m$name, source = m$format, path = m$uri)
+spark_read_source(sc, name = m@name, source = m@format, path = m@uri)
 ```
 
 ## Creating a dataset from a URI
@@ -228,7 +223,7 @@ resolve the dataset you need for the current tier.
 catalog <- az_catalog_read("datasets.json")
 
 m <- az_resolve_dataset(catalog, name = "orders")  # tier from AZR_DATASET_TIER
-df <- spark_read_source(sc, name = m$name, source = m$format, path = m$uri)
+df <- spark_read_source(sc, name = m@name, source = m@format, path = m@uri)
 ```
 
 The same code runs unchanged in every environment; only the `dataset_tier`

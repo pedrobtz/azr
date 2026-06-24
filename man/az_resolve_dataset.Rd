@@ -24,9 +24,9 @@ dataset are returned.}
 }}
 }
 \value{
-For an \link{az_dataset}, or an \link{az_catalog} with \code{name} supplied, a named
-list with elements \code{name}, \code{uri}, and \code{format}. For an \link{az_catalog}
-without \code{name}, a named list of such lists, keyed by dataset name.
+For an \link{az_dataset}, or an \link{az_catalog} with \code{name} supplied, an
+\link{az_dataset_manifest}. For an \link{az_catalog} without \code{name}, a named list
+of \code{az_dataset_manifest} objects, keyed by dataset name.
 }
 \description{
 Like \code{\link[=az_dataset_uri]{az_dataset_uri()}}, but each entry also carries the dataset's \code{format},
