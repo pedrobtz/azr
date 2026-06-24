@@ -160,43 +160,6 @@ az_catalog <- S7::new_class(
 )
 
 
-#' Azure Storage dataset manifest
-#'
-#' @description
-#' An S7 class representing the resolved information required by an external
-#' reader to load an Azure Storage dataset.
-#'
-#' @param name Dataset name, carried over from the source [az_dataset].
-#' @param uri Resolved Azure Storage URI.
-#' @param format Dataset format. See [az_dataset] for supported values.
-#'
-#' @return An `az_dataset_manifest` S7 object.
-#' @export
-az_dataset_manifest <- S7::new_class(
-  "az_dataset_manifest",
-  properties = list(
-    name = S7::class_character,
-    uri = S7::class_character,
-    format = S7::class_character
-  ),
-  validator = function(self) {
-    if (!is_scalar_string(self@name)) {
-      return("name must be a non-empty character scalar")
-    }
-    if (!is_scalar_string(self@uri)) {
-      return("uri must be a non-empty character scalar")
-    }
-    if (!self@format %in% dataset_formats) {
-      return(paste0(
-        "format must be one of: ",
-        paste(dataset_formats, collapse = ", ")
-      ))
-    }
-    NULL
-  }
-)
-
-
 #' Create an `az_dataset` from a full Azure Storage URI
 #'
 #' @description
@@ -206,11 +169,13 @@ az_dataset_manifest <- S7::new_class(
 #' @param uri Full Azure Storage URI, such as
 #'   `abfss://raw@account.dfs.core.windows.net/path` or
 #'   `https://account.dfs.core.windows.net/raw/path`.
-#' @param name Dataset name.
+#' @param name Dataset name. If `NULL` (the default), derived from the last
+#'   segment of the URI's path with any file extension removed, e.g. `"orders"`
+#'   for `.../sales/orders` or `.../sales/orders.parquet`.
 #' @param format Dataset format. If `NULL`, inferred from the URI's file
-#'   extension (e.g. `.parquet`, `.csv`) or `_delta_log` segment. Errors if
-#'   `uri` looks like a directory, since the format cannot be inferred from a
-#'   directory path; pass `format` explicitly in that case.
+#'   extension (e.g. `.parquet`, `.csv`) or `_delta_log` segment. Defaults to
+#'   `"delta"` when `uri` looks like a directory. Errors only when `uri` has a
+#'   file extension that maps to no known format; pass `format` explicitly then.
 #' @param tier Environment tier for the storage account parsed from `uri`.
 #'   Defaults to the `dataset_tier` option (`options(azr.dataset_tier = ...)`
 #'   or `AZR_DATASET_TIER`, default `"prod"`); see [azr_options()].
@@ -222,7 +187,7 @@ az_dataset_manifest <- S7::new_class(
 #' @export
 az_dataset_from_uri <- function(
   uri,
-  name,
+  name = NULL,
   format = NULL,
   tier = opts$get("dataset_tier"),
   storage = NULL
@@ -230,16 +195,23 @@ az_dataset_from_uri <- function(
   parsed <- parse_storage_path(uri)
   scheme <- normalise_scheme(parsed$scheme, parsed$endpoint)
 
+  if (is.null(name)) {
+    name <- tools::file_path_sans_ext(basename(parsed$path))
+  }
+
   if (is.null(format)) {
     inferred <- parsed$format
-    if (is.na(inferred) || identical(inferred, "folder")) {
+    format <- if (identical(inferred, "folder")) {
+      "delta"
+    } else if (is.na(inferred)) {
       cli::cli_abort(c(
         "Cannot infer dataset format from {.val {uri}}.",
-        "i" = "A directory URI is ambiguous; pass {.arg format} explicitly,
-               e.g. {.code format = \"delta\"}."
+        "i" = "The path has an unrecognised file extension; pass {.arg format}
+               explicitly, e.g. {.code format = \"parquet\"}."
       ))
+    } else {
+      inferred
     }
-    format <- inferred
   }
 
   storage <- if (is.null(storage)) {
@@ -449,9 +421,9 @@ S7::method(az_dataset_uri, az_catalog) <- function(
 #'
 #' @inheritParams az_dataset_uri
 #'
-#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, an
-#'   [az_dataset_manifest]. For an [az_catalog] without `name`, a named list
-#'   of `az_dataset_manifest` objects, keyed by dataset name.
+#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, a named
+#'   list with elements `name`, `uri`, and `format`. For an [az_catalog]
+#'   without `name`, a named list of such lists, keyed by dataset name.
 #' @export
 #' @examples
 #' ds <- az_dataset(
@@ -462,27 +434,27 @@ S7::method(az_dataset_uri, az_catalog) <- function(
 #'   path = "sales/orders",
 #'   format = "delta"
 #' )
-#' az_dataset_resolve(ds, tier = "prod")
+#' az_resolve_dataset(ds, tier = "prod")
 #'
 #' catalog <- az_catalog(datasets = list(ds))
-#' az_dataset_resolve(catalog, tier = "prod")
-az_dataset_resolve <- S7::new_generic("az_dataset_resolve", "x")
+#' az_resolve_dataset(catalog, tier = "prod")
+az_resolve_dataset <- S7::new_generic("az_resolve_dataset", "x")
 
-S7::method(az_dataset_resolve, az_dataset) <- function(
+S7::method(az_resolve_dataset, az_dataset) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
   ...
 ) {
   uri_type <- rlang::arg_match(uri_type)
-  az_dataset_manifest(
+  list(
     name = x@name,
     uri = az_dataset_uri(x, tier = tier, uri_type = uri_type),
     format = x@format
   )
 }
 
-S7::method(az_dataset_resolve, az_catalog) <- function(
+S7::method(az_resolve_dataset, az_catalog) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -492,12 +464,12 @@ S7::method(az_dataset_resolve, az_catalog) <- function(
   uri_type <- rlang::arg_match(uri_type)
 
   if (!is.null(name)) {
-    return(az_dataset_resolve(x[[name]], tier = tier, uri_type = uri_type))
+    return(az_resolve_dataset(x[[name]], tier = tier, uri_type = uri_type))
   }
 
   out <- lapply(
     x@datasets,
-    function(d) az_dataset_resolve(d, tier = tier, uri_type = uri_type)
+    function(d) az_resolve_dataset(d, tier = tier, uri_type = uri_type)
   )
   names(out) <- names(x)
   out
@@ -524,15 +496,6 @@ S7::method(as.list, az_catalog) <- function(x, ...) {
   list(datasets = lapply(x@datasets, as.list))
 }
 
-# nolint next: object_name_linter.
-S7::method(as.list, az_dataset_manifest) <- function(x, ...) {
-  list(
-    name = x@name,
-    uri = x@uri,
-    format = x@format
-  )
-}
-
 S7::method(print, az_dataset) <- function(x, ...) {
   cli::cli_text(cli::style_bold("<az_dataset:{x@name}>"))
   cli::cli_dl(c(
@@ -546,15 +509,6 @@ S7::method(print, az_dataset) <- function(x, ...) {
       unlist(x@storage),
       collapse = ", "
     )
-  ))
-  invisible(x)
-}
-
-S7::method(print, az_dataset_manifest) <- function(x, ...) {
-  cli::cli_text(cli::style_bold("<az_dataset_manifest:{x@name}>"))
-  cli::cli_dl(c(
-    uri = x@uri,
-    format = x@format
   ))
   invisible(x)
 }

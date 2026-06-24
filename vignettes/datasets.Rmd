@@ -86,22 +86,27 @@ pre-production job can export `AZR_DATASET_TIER=preprod` and every
 ## Resolving to a manifest
 
 A URI alone isn't enough to *load* data — a reader also needs the format.
-`az_dataset_resolve()` returns an `az_dataset_manifest` carrying the `name`,
-`uri`, and `format` together:
+`az_resolve_dataset()` returns a list carrying the `name`, `uri`, and `format`
+together:
 
 ```{r}
-m <- az_dataset_resolve(orders, tier = "prod")
+m <- az_resolve_dataset(orders, tier = "prod")
 m
-#> <az_dataset_manifest:orders>
-#> uri: abfss://raw@stprod001.dfs.core.windows.net/sales/orders
-#> format: delta
+#> $name
+#> [1] "orders"
+#>
+#> $uri
+#> [1] "abfss://raw@stprod001.dfs.core.windows.net/sales/orders"
+#>
+#> $format
+#> [1] "delta"
 ```
 
 This is exactly the shape a reader like `sparklyr::spark_read_source()` wants:
 
 ```{r}
-m <- az_dataset_resolve(orders, tier = "prod")
-spark_read_source(sc, name = m@name, source = m@format, path = m@uri)
+m <- az_resolve_dataset(orders, tier = "prod")
+spark_read_source(sc, name = m$name, source = m$format, path = m$uri)
 ```
 
 ## Creating a dataset from a URI
@@ -165,7 +170,7 @@ length(catalog)
 catalog[["orders"]]
 ```
 
-`az_dataset_uri()` and `az_dataset_resolve()` both dispatch on a catalog. With no
+`az_dataset_uri()` and `az_resolve_dataset()` both dispatch on a catalog. With no
 `name`, they return one entry per dataset, keyed by name:
 
 ```{r}
@@ -178,7 +183,7 @@ Pass `name` to resolve a single dataset out of the catalog:
 
 ```{r}
 az_dataset_uri(catalog, tier = "prod", name = "orders")
-az_dataset_resolve(catalog, tier = "prod", name = "orders")
+az_resolve_dataset(catalog, tier = "prod", name = "orders")
 ```
 
 ## Storing a catalog as JSON
@@ -222,8 +227,8 @@ resolve the dataset you need for the current tier.
 ```{r}
 catalog <- az_catalog_read("datasets.json")
 
-m <- az_dataset_resolve(catalog, name = "orders")  # tier from AZR_DATASET_TIER
-df <- spark_read_source(sc, name = m@name, source = m@format, path = m@uri)
+m <- az_resolve_dataset(catalog, name = "orders")  # tier from AZR_DATASET_TIER
+df <- spark_read_source(sc, name = m$name, source = m$format, path = m$uri)
 ```
 
 The same code runs unchanged in every environment; only the `dataset_tier`

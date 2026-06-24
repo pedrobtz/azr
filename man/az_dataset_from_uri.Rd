@@ -6,7 +6,7 @@
 \usage{
 az_dataset_from_uri(
   uri,
-  name,
+  name = NULL,
   format = NULL,
   tier = opts$get("dataset_tier"),
   storage = NULL
@@ -17,12 +17,14 @@ az_dataset_from_uri(
 \verb{abfss://raw@account.dfs.core.windows.net/path} or
 \verb{https://account.dfs.core.windows.net/raw/path}.}
 
-\item{name}{Dataset name.}
+\item{name}{Dataset name. If \code{NULL} (the default), derived from the last
+segment of the URI's path with any file extension removed, e.g. \code{"orders"}
+for \code{.../sales/orders} or \code{.../sales/orders.parquet}.}
 
 \item{format}{Dataset format. If \code{NULL}, inferred from the URI's file
-extension (e.g. \code{.parquet}, \code{.csv}) or \verb{_delta_log} segment. Errors if
-\code{uri} looks like a directory, since the format cannot be inferred from a
-directory path; pass \code{format} explicitly in that case.}
+extension (e.g. \code{.parquet}, \code{.csv}) or \verb{_delta_log} segment. Defaults to
+\code{"delta"} when \code{uri} looks like a directory. Errors only when \code{uri} has a
+file extension that maps to no known format; pass \code{format} explicitly then.}
 
 \item{tier}{Environment tier for the storage account parsed from \code{uri}.
 Defaults to the \code{dataset_tier} option (\code{options(azr.dataset_tier = ...)}

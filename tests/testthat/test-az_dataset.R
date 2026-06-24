@@ -139,10 +139,20 @@ test_that("az_dataset_from_uri infers delta format from _delta_log path", {
   expect_equal(ds@format, "delta")
 })
 
-test_that("az_dataset_from_uri errors on directory URI without explicit format", {
+test_that("az_dataset_from_uri defaults to delta on a directory URI", {
+  ds <- az_dataset_from_uri(
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+    name = "sales_orders"
+  )
+
+  expect_equal(ds@format, "delta")
+  expect_equal(ds@path, "sales/orders")
+})
+
+test_that("az_dataset_from_uri errors on an unrecognised file extension", {
   expect_error(
     az_dataset_from_uri(
-      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders.xyz",
       name = "sales_orders"
     ),
     "Cannot infer dataset format"
@@ -158,6 +168,21 @@ test_that("az_dataset_from_uri directory URI works with explicit format", {
 
   expect_equal(ds@format, "delta")
   expect_equal(ds@path, "sales/orders")
+})
+
+test_that("az_dataset_from_uri derives name from the last path segment", {
+  ds <- az_dataset_from_uri(
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+    format = "delta"
+  )
+  expect_equal(ds@name, "orders")
+})
+
+test_that("az_dataset_from_uri derived name strips the file extension", {
+  ds <- az_dataset_from_uri(
+    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders.parquet"
+  )
+  expect_equal(ds@name, "orders")
 })
 
 test_that("az_dataset_from_uri uses the dataset_tier option as the default tier", {
@@ -404,46 +429,7 @@ test_that("az_catalog_read errors on missing required fields, naming the entry",
   )
 })
 
-test_that("az_dataset_manifest validates and converts to a list", {
-  manifest <- az_dataset_manifest(
-    name = "orders",
-    uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
-    format = "delta"
-  )
-
-  expect_s7_class(manifest, az_dataset_manifest)
-  expect_equal(
-    as.list(manifest),
-    list(
-      name = "orders",
-      uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
-      format = "delta"
-    )
-  )
-
-  expect_error(
-    az_dataset_manifest(
-      name = "",
-      uri = "https://example.com",
-      format = "delta"
-    ),
-    "name"
-  )
-  expect_error(
-    az_dataset_manifest(name = "orders", uri = "", format = "delta"),
-    "uri"
-  )
-  expect_error(
-    az_dataset_manifest(
-      name = "orders",
-      uri = "https://example.com",
-      format = "bogus"
-    ),
-    "format"
-  )
-})
-
-test_that("az_dataset_resolve on az_dataset returns a typed manifest", {
+test_that("az_resolve_dataset on az_dataset returns a list", {
   ds <- az_dataset(
     name = "orders",
     scheme = "abfss",
@@ -453,10 +439,9 @@ test_that("az_dataset_resolve on az_dataset returns a typed manifest", {
     format = "delta"
   )
 
-  manifest <- az_dataset_resolve(ds, tier = "prod")
-  expect_s7_class(manifest, az_dataset_manifest)
+  manifest <- az_resolve_dataset(ds, tier = "prod")
   expect_equal(
-    as.list(manifest),
+    manifest,
     list(
       name = "orders",
       uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
@@ -465,7 +450,7 @@ test_that("az_dataset_resolve on az_dataset returns a typed manifest", {
   )
 })
 
-test_that("az_dataset_resolve on az_catalog looks up by name and lists all", {
+test_that("az_resolve_dataset on az_catalog looks up by name and lists all", {
   ds1 <- az_dataset(
     name = "orders",
     scheme = "abfss",
@@ -484,10 +469,9 @@ test_that("az_dataset_resolve on az_catalog looks up by name and lists all", {
   )
   catalog <- az_catalog(datasets = list(ds1, ds2))
 
-  orders <- az_dataset_resolve(catalog, tier = "prod", name = "orders")
-  expect_s7_class(orders, az_dataset_manifest)
+  orders <- az_resolve_dataset(catalog, tier = "prod", name = "orders")
   expect_equal(
-    as.list(orders),
+    orders,
     list(
       name = "orders",
       uri = "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
@@ -495,11 +479,10 @@ test_that("az_dataset_resolve on az_catalog looks up by name and lists all", {
     )
   )
 
-  manifest <- az_dataset_resolve(catalog, tier = "prod", uri_type = "https")
+  manifest <- az_resolve_dataset(catalog, tier = "prod", uri_type = "https")
   expect_named(manifest, c("orders", "products"))
-  expect_s7_class(manifest$products, az_dataset_manifest)
   expect_equal(
-    as.list(manifest$products),
+    manifest$products,
     list(
       name = "products",
       uri = "https://stprod002.blob.core.windows.net/raw/ref/products",
