@@ -7,10 +7,13 @@
 credential_chain(...)
 }
 \arguments{
-\item{...}{Named credential objects or credential classes. Each element
-should be a credential class (e.g., \code{ClientSecretCredential}) or an
-instantiated credential object that inherits from the \code{Credential}
-base class. The names are used for identification purposes.}
+\item{...}{Named chain entries. Each entry must be either a credential class
+(e.g., \code{ClientSecretCredential}) or an already-constructed object that
+inherits from the \code{Credential} base class. Class entries receive the context
+passed to \code{\link[=get_credential_provider]{get_credential_provider()}}. Constructed instances are used as-is.
+
+The names are used for identification purposes. Constructing a chain
+performs no authentication.}
 }
 \value{
 A \code{credential_chain} object containing the specified sequence

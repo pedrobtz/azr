@@ -65,8 +65,9 @@ Create a new device code credential
   client_id = default_azure_cli_client_id(),
   use_cache = "disk",
   offline = TRUE,
-  interactive = TRUE,
-  use_refresh_token = TRUE
+  allow_prompt = TRUE,
+  use_refresh_token = TRUE,
+  interactive = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -87,11 +88,14 @@ for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \co
 \item{\code{offline}}{A logical value indicating whether to request offline access
 (refresh tokens). Defaults to \code{TRUE}.}
 
-\item{\code{interactive}}{A logical value indicating whether this credential
-requires user interaction. Defaults to \code{TRUE}.}
+\item{\code{allow_prompt}}{A logical value indicating whether this credential
+may prompt the user (vs. only reading cached/refresh tokens). Defaults
+to \code{TRUE}.}
 
 \item{\code{use_refresh_token}}{A logical value indicating whether to use the login flow
 (acquire tokens via refresh token exchange). Defaults to \code{TRUE}.}
+
+\item{\code{interactive}}{Deprecated. Use \code{allow_prompt} instead.}
 }
 \if{html}{\out{</div>}}
 }

@@ -14,6 +14,8 @@ access tokens. It will use the currently active Azure CLI account and
 subscription unless a specific tenant is specified.
 }
 \examples{
+# 'az login' must have been executed successfully for these examples to work.
+\dontrun{
 # Create credential with default settings
 cred <- AzureCLICredential$new()
 
@@ -23,9 +25,6 @@ cred <- AzureCLICredential$new(
   tenant_id = "your-tenant-id"
 )
 
-# To get a token or authenticate a request it is required that
-# 'az login' is successfully executed, otherwise it will return an error.
-\dontrun{
 # Get an access token
 token <- cred$get_token()
 
@@ -40,8 +39,11 @@ resp <- httr2::req_perform(cred$req_auth(req))
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{interactive}}{Logical indicating whether to check login status and
+\item{\code{auto_login}}{Logical indicating whether to check login status and
 perform login if needed}
+
+\item{\code{use_bridge}}{Logical indicating whether to use the device code bridge
+webpage during interactive login}
 
 \item{\code{.process_timeout}}{Timeout in seconds for Azure CLI command execution}
 }
@@ -78,8 +80,9 @@ Create a new Azure CLI credential
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
-  interactive = FALSE,
-  use_bridge = FALSE
+  auto_login = opts$get("cli_auto_login"),
+  use_bridge = TRUE,
+  interactive = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -95,13 +98,17 @@ tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI
 \item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
 for the Azure CLI process. Defaults to \code{10}.}
 
-\item{\code{interactive}}{A logical value indicating whether to check if the user is
-logged in and perform login if needed. Defaults to \code{FALSE}.}
+\item{\code{auto_login}}{A logical value indicating whether \code{get_token()} may
+launch \verb{az login} when the user is not logged in. Defaults to the
+\code{cli_auto_login} option (\code{options(azr.cli_auto_login = ...)} or
+\code{AZR_CLI_AUTO_LOGIN}); see \code{\link[=azr_options]{azr_options()}}.}
 
 \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
-to the Microsoft device login page. Only used when \code{interactive = TRUE}. Defaults to \code{FALSE}.}
+to the Microsoft device login page. Only used when \code{auto_login = TRUE}. Defaults to \code{TRUE}.}
+
+\item{\code{interactive}}{Deprecated. Use \code{auto_login} instead.}
 }
 \if{html}{\out{</div>}}
 }

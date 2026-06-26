@@ -22,28 +22,31 @@ azure_authority_hosts <- list(
   azure_public_cloud = "login.microsoftonline.com"
 )
 
-#' Azure Storage Endpoint Defaults
+#' Azure Service Definitions
 #'
 #' @description
-#' Default endpoint suffixes for Azure Storage services.
+#' Per-service metadata for common Azure services. Each entry holds the OAuth
+#' resource `host` (used to derive the `/.default` scope) and any additional
+#' data-plane endpoints where requests are sent. For most services the
+#' data-plane host is the same as the OAuth resource host; Azure Storage is the
+#' exception (resource host `storage.azure.com`, data-plane host
+#' `*.dfs.core.windows.net`).
 #'
 #' @keywords internal
-azure_storage_endpoints <- list(
-  dfs = "dfs.core.windows.net"
-)
-
-#' Common Azure OAuth Scopes
-#'
-#' @description
-#' Predefined OAuth scopes for common Azure services.
-#'
-#' @keywords internal
-azure_scopes <- list(
-  azure_arm = "https://management.azure.com/.default",
-  azure_graph = "https://graph.microsoft.com/.default",
-  azure_storage = "https://storage.azure.com/.default",
-  azure_key_vault = "https://vault.azure.net/.default",
-  azure_openai = "https://cognitiveservices.azure.com/.default"
+azure_services <- list(
+  azure_arm = list(host = "management.azure.com"),
+  azure_graph = list(host = "graph.microsoft.com"),
+  azure_storage = list(
+    host = "storage.azure.com",
+    dfs = "dfs.core.windows.net"
+  ),
+  azure_key_vault = list(host = "vault.azure.net"),
+  azure_openai = list(host = "cognitiveservices.azure.com"),
+  azure_log_analytics = list(host = "api.loganalytics.io"),
+  azure_app_insights = list(host = "api.applicationinsights.io"),
+  azure_databricks = list(host = "databricks.azure.com"),
+  azure_sql = list(host = "database.windows.net"),
+  azure_service_bus = list(host = "servicebus.azure.net")
 )
 
 #' Azure Environment Variable Names

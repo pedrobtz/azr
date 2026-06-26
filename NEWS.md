@@ -1,6 +1,32 @@
+# azr 0.3.5
+
+* Added `azr_dataset()`, `azr_catalog()`, and `azr_resolve_dataset()` for declaring and resolving Azure Storage datasets across environment tiers.
+* Added `azr_logs_client()` for running KQL queries against the Azure Log Analytics REST API.
+* Added `ManagedIdentityCredential` for managed identity authentication via the IMDS endpoint.
+* Added `azr_options()`, an option registry backing the new `azr.*` options.
+* Added `azure_spark_storage_conf()` for generating Spark/Hadoop storage configuration keys, with sovereign-cloud support.
+* Added `parse_storage_path()` for splitting Azure Storage URIs, including `az://`/`azure://` schemes and sovereign-cloud endpoints.
+* `api_client$new()` gained a `verbose` argument that gates request and response logging.
+* `azr_graph_client()` gained an `endpoint` argument so the Microsoft Graph host is no longer hardcoded.
+* `api_storage_client` gained a `client_id` argument, and `list_files()` now pages through all results automatically.
+* Breaking: `get_credential_provider()`'s `interactive` argument is renamed to `allow_interactive`, and `default_credential_chain()` now tries workload identity, managed identity, and Azure CLI ahead of interactive credentials.
+* The base `Credential` class no longer aborts at construction in non-interactive sessions (deferred to `get_token()`), and its shared configuration checks moved to a private `validate_base()` helper.
+* `AzureCLICredential`'s `interactive` argument is renamed to `auto_login`, with login checked lazily in `get_token()`.
+* `InteractiveCredential` (and `AuthCodeCredential`/`DeviceCodeCredential`) renamed its `interactive` argument to `allow_prompt`.
+* `cached_token_credential_chain()` was updated to the renamed `allow_prompt`/`auto_login` arguments.
+* Internal: `ClientSecretCredential`'s `$validate()` now delegates to the shared `validate_base()` helper.
+* Internal: `RefreshTokenCredential`'s `$validate()` now delegates to the shared `validate_base()` helper.
+* `WorkloadIdentityCredential` now performs its required `tenant_id`/`client_id` checks in `$validate()` rather than its constructor body.
+* `default_azure_scope()` now accepts short service names without the `azure_` prefix.
+* Internal `azure_services` replaces `azure_storage_endpoints`/`azure_scopes`, consolidating per-service OAuth hosts and data-plane endpoints.
+* Added internal `list_redact_pattern()` for redacting named list entries by pattern.
+* Added internal `validate_required_string()` and `deprecated_arg()` helpers.
+* Added an `.onLoad()` hook that registers S7 methods via `S7::methods_register()`.
+* Added namespace imports for the S7 `@` operator and rlang's `:=`.
 
 # azr 0.3.4
 
+* Removed `set_azr_defaults()` that was announced in 0.3.3 but never shipped. The corresponding `getOption()` reads in `default_azure_host()`, `default_azure_client_id()`, and `default_azure_tenant_id()` were also not implemented; use environment variables (`AZURE_AUTHORITY_HOST`, `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`) instead.
 * `WorkloadIdentityCredential` now maintains an in-object token cache. Repeated calls to `get_token()` return the cached token immediately without re-reading the federated token file or exchanging it, until the token expires.
 * `AZURE_AUTHORITY_HOST` values with an `https://` scheme prefix (as recommended by the Azure SDK documentation) are now handled correctly. Previously, setting `AZURE_AUTHORITY_HOST=https://login.microsoftonline.com` would produce malformed token URLs (#16).
 

@@ -1,0 +1,110 @@
+---
+title: "Configuring azr options"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Configuring azr options}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(azr)
+```
+
+`azr` reads a small set of package options that control verbosity and default
+behaviour. Each one can be set three different ways, checked in this order:
+
+1. an in-session value set via R's `options()`,
+2. an environment variable, or
+3. a built-in default.
+
+## Available options
+
+| Name | R option | Env variable | Default | Controls |
+|------|----------|--------------|---------|----------|
+| `chain_verbose` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose credential-chain discovery (see the credential chains vignette) |
+| `api_verbose` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | `>>>`/`<<<` request and response logging in `api_client` |
+| `cli_auto_login` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Whether `AzureCLICredential` runs `az login` automatically |
+| `dataset_tier` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for `azr_dataset_uri()` / `azr_resolve_dataset()` (see the datasets vignette) |
+
+## Setting an option
+
+Use base R's `options()` with the `azr.` prefix:
+
+```{r}
+options(azr.chain_verbose = TRUE)
+```
+
+or set the corresponding environment variable before starting R (handy for CI
+and containers, since it doesn't require any R code):
+
+```{sh}
+export AZR_DATASET_TIER=preprod
+```
+
+A value set via `options()` takes priority over the environment variable, which
+in turn takes priority over the built-in default.
+
+## Inspecting the current configuration
+
+`azr_options()` prints every option, its resolved value, where that value came
+from (`[default]`, `[envvar]`, or `[option]`), and the underlying environment
+variable:
+
+```{r}
+azr_options()
+#> ── azr options ──────────────────────────────────────
+#> api_verbose = "FALSE" (default)
+#>   `AZR_API_VERBOSE`: (not set)
+#> chain_verbose = "FALSE" (default)
+#>   `AZR_CHAIN_VERBOSE`: (not set)
+#> cli_auto_login = "FALSE" (default)
+#>   `AZR_CLI_AUTO_LOGIN`: (not set)
+#> dataset_tier = "prod" (default)
+#>   `AZR_DATASET_TIER`: (not set)
+```
+
+After setting `options(azr.dataset_tier = "preprod")`, the same call shows where
+the new value came from:
+
+```{r}
+options(azr.dataset_tier = "preprod")
+azr_options()
+#> dataset_tier = "preprod" [option]
+#>   `AZR_DATASET_TIER`: (not set)
+```
+
+`azr_options()` also returns this information invisibly as a `data.frame`, for
+use in scripts or diagnostics:
+
+```{r}
+df <- azr_options()
+df
+#>           option   value  source            env_var env_value default
+#> 1    api_verbose   FALSE default    AZR_API_VERBOSE      <NA>   FALSE
+#> 2  chain_verbose   FALSE default  AZR_CHAIN_VERBOSE      <NA>   FALSE
+#> 3 cli_auto_login   FALSE default AZR_CLI_AUTO_LOGIN      <NA>   FALSE
+#> 4   dataset_tier preprod  option   AZR_DATASET_TIER      <NA>    prod
+```
+
+If any option held a sensitive value, `azr_options()` would redact it as
+`"<hidden>"`; pass `mask = FALSE` to see raw values.
+
+## Reading an option from code
+
+Internally (and in your own code, if you build on `azr`), an option's resolved
+value is read with `opts$get()`, following the same
+value → `options()` → env var → default precedence:
+
+```{r}
+azr:::opts$get("dataset_tier")
+#> "preprod"
+```
