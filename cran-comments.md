@@ -1,8 +1,11 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 note
+0 errors | 0 warnings | 0 notes
 
-## Resubmission
-This is a resubmission. In this version I have:
+## revdepcheck results
 
-* Fix critical bug (https://github.com/pedrobtz/azr/issues/16) when AZURE_AUTHORITY_HOST is set with full URL (standard) causes the package not to work correctly.
+We checked 1 reverse dependency, comparing R CMD check results across CRAN and
+dev versions of this package.
+
+ * We saw 0 new problems
+ * We failed to check 0 packages
