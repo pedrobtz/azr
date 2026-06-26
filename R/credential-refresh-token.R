@@ -79,11 +79,13 @@ RefreshTokenCredential <- R6::R6Class(
     #' Checks that the refresh token is provided and not NA or NULL. Calls the
     #' parent class validation method.
     validate = function() {
-      super$validate()
+      private$validate_base()
 
       if (is.null(self$.refresh_token) || rlang::is_na(self$.refresh_token)) {
         cli::cli_abort("Argument {.arg refresh_token} cannot be NULL or NA.")
       }
+
+      invisible(self)
     },
 
     #' @description

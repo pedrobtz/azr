@@ -75,6 +75,7 @@ Create a new Azure Storage API client instance
   provider = NULL,
   chain = NULL,
   tenant_id = NULL,
+  client_id = default_azure_cli_client_id(),
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -101,6 +102,10 @@ a default credential chain will be created using \link{DefaultCredential}.}
 
 \item{\code{tenant_id}}{A character string specifying the Azure tenant ID. Passed to
 \link{DefaultCredential} when \code{chain} is \code{NULL}.}
+
+\item{\code{client_id}}{A character string specifying the Azure client ID. Passed to
+\link{DefaultCredential} when \code{chain} is \code{NULL}. Defaults to
+\code{\link[=default_azure_cli_client_id]{default_azure_cli_client_id()}}.}
 
 \item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
 }
@@ -182,8 +187,9 @@ Defaults to \code{FALSE}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A data.frame (or data.table if available) containing file and directory
-information with columns such as name, contentLength, lastModified, etc.
+A data.frame (or data.table if available) with one row per file or
+directory. Columns include \code{name}, \code{contentLength}, \code{lastModified}, etc.
+All pages are fetched transparently; the result is the complete listing.
 }
 }
 \if{html}{\out{<hr>}}

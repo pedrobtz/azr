@@ -4,6 +4,8 @@
 ^\.github$
 ^codecov\.yml$
 ^_pkgdown\.yml$
+^pkgdown$
+^vignettes$
 ^\..+$
 ^tests$
 ^docs$
@@ -15,3 +17,4 @@
 ^\.positai$
 ^\.claude$
 ^tests/testthat/_problems$
+^AGENTS\.md$

@@ -94,6 +94,13 @@ list_redact <- function(x, names, case_sensitive = TRUE) {
 }
 
 
+list_redact_pattern <- function(x, pattern, ...) {
+  i <- grepl(pattern, names(x), ...)
+  x[i] <- list(redacted())
+  x
+}
+
+
 redacted <- function() {
   structure(list(), class = "redacted")
 }
@@ -102,13 +109,6 @@ redacted <- function() {
 #' @exportS3Method format redacted
 format.redacted <- function(x, ...) {
   cli::col_grey("<REDACTED>")
-}
-
-
-#' @exportS3Method print redacted
-print.redacted <- function(x, ...) {
-  cat(format(x, ...), "\n", sep = "")
-  invisible(x)
 }
 
 is_port_available <- function(port, host = "127.0.0.1") {

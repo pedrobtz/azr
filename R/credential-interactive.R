@@ -14,9 +14,9 @@ InteractiveCredential <- R6::R6Class(
     #' @field use_refresh_token Logical indicating whether to use the login flow (acquire
     #'  tokens via refresh token exchange).
     use_refresh_token = TRUE,
-    #' @field interactive Logical indicating whether this credential requires
-    #'  user interaction.
-    interactive = TRUE,
+    #' @field allow_prompt Logical indicating whether this credential may
+    #'  prompt the user (vs. only reading cached/refresh tokens).
+    allow_prompt = TRUE,
     #' @description
     #' Shared initializer for interactive credentials
     #'
@@ -26,7 +26,8 @@ InteractiveCredential <- R6::R6Class(
     #'   public client ID.
     #' @param use_cache Cache type: `"disk"` or `"memory"`.
     #' @param offline Whether to request offline access (refresh tokens).
-    #' @param interactive Whether this credential requires user interaction.
+    #' @param allow_prompt Whether this credential may prompt the user (vs.
+    #'   only reading cached/refresh tokens).
     #' @param use_refresh_token Whether to use the login flow (acquire tokens via refresh token
     #'   exchange). Set to `FALSE` to use the access token flow directly.
     #' @param flow_fun The httr2 OAuth flow function (e.g. [httr2::oauth_flow_device]).
@@ -35,26 +36,33 @@ InteractiveCredential <- R6::R6Class(
     #' @param name The credential name passed to the parent credential.
     #' @param extra_flow_params A named list of additional parameters merged into
     #'   `private$.flow_params` after `scope` and `auth_url`.
+    #' @param interactive Deprecated. Use `allow_prompt` instead.
     initialize = function(
       scope = NULL,
       tenant_id = NULL,
       client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
-      interactive = TRUE,
+      allow_prompt = TRUE,
       use_refresh_token = TRUE,
       flow_fun,
       req_auth_fun,
       oauth_endpoint,
       name,
-      extra_flow_params = list()
+      extra_flow_params = list(),
+      interactive = NULL
     ) {
-      self$interactive <- interactive
-      private$.flow <- if (self$interactive) {
-        flow_fun
-      } else {
-        \(...) cli::cli_abort("non-interactive session")
+      if (!is.null(interactive)) {
+        deprecated_arg(
+          "interactive",
+          "allow_prompt",
+          "InteractiveCredential$new"
+        )
+        allow_prompt <- interactive
       }
+
+      self$allow_prompt <- allow_prompt
+      private$.flow <- flow_fun
       private$.req_auth_fun <- req_auth_fun
       self$use_refresh_token <- use_refresh_token
 
@@ -73,13 +81,15 @@ InteractiveCredential <- R6::R6Class(
         list(scope = self$.scope_str, auth_url = self$.oauth_url),
         extra_flow_params
       )
+      lockBinding("allow_prompt", self)
+      lockBinding("use_refresh_token", self)
     },
     #' @description
     #' Check if the credential requires user interaction
     #'
     #' @return Logical indicating whether this credential is interactive
     is_interactive = function() {
-      self$interactive
+      self$allow_prompt
     },
     #' @description
     #' Get an access token using the flow configured by the subclass.
@@ -141,14 +151,12 @@ InteractiveCredential <- R6::R6Class(
         token <- private$do_flow_refresh_token(scope = scope)
         if (inherits(token, "httr2_token")) {
           return(token)
-        } else {
-          cli::cli_abort("Failed to acquire token via login refresh flow.")
         }
       }
       private$do_flow_access_token(
         scope = NULL,
         reauth = reauth,
-        interactive = self$interactive
+        interactive = self$allow_prompt
       )
     },
     # runs access token flow
@@ -164,11 +172,20 @@ InteractiveCredential <- R6::R6Class(
         flow_params$scope <- collapse_scope(scope)
         cache_key$scope <- collapse_scope(scope)
       }
-      flow <- if (interactive) {
-        private$.flow
-      } else {
+
+      flow <- if (!interactive || !self$allow_prompt) {
         \(...) cli::cli_abort("non-interactive session")
+      } else if (!rlang::is_interactive()) {
+        \(...) {
+          cli::cli_abort(
+            "Credential {.cls {class(self)[[1]]}} requires an interactive session",
+            class = "azr_requires_interactive_session"
+          )
+        }
+      } else {
+        private$.flow
       }
+
       httr2::oauth_token_cached(
         client = self$.oauth_client,
         flow = flow,
@@ -265,10 +282,12 @@ DeviceCodeCredential <- R6::R6Class(
     #'   for disk-based caching or `"memory"` for in-memory caching. Defaults to `"disk"`.
     #' @param offline A logical value indicating whether to request offline access
     #'   (refresh tokens). Defaults to `TRUE`.
-    #' @param interactive A logical value indicating whether this credential
-    #'   requires user interaction. Defaults to `TRUE`.
+    #' @param allow_prompt A logical value indicating whether this credential
+    #'   may prompt the user (vs. only reading cached/refresh tokens). Defaults
+    #'   to `TRUE`.
     #' @param use_refresh_token A logical value indicating whether to use the login flow
     #'   (acquire tokens via refresh token exchange). Defaults to `TRUE`.
+    #' @param interactive Deprecated. Use `allow_prompt` instead.
     #'
     #' @return A new `DeviceCodeCredential` object
     initialize = function(
@@ -277,16 +296,26 @@ DeviceCodeCredential <- R6::R6Class(
       client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
-      interactive = TRUE,
-      use_refresh_token = TRUE
+      allow_prompt = TRUE,
+      use_refresh_token = TRUE,
+      interactive = NULL
     ) {
+      if (!is.null(interactive)) {
+        deprecated_arg(
+          "interactive",
+          "allow_prompt",
+          "DeviceCodeCredential$new"
+        )
+        allow_prompt <- interactive
+      }
+
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
         client_id = client_id,
         use_cache = use_cache,
         offline = offline,
-        interactive = interactive,
+        allow_prompt = allow_prompt,
         use_refresh_token = use_refresh_token,
         flow_fun = httr2::oauth_flow_device,
         req_auth_fun = httr2::req_oauth_device,
@@ -338,6 +367,8 @@ AuthCodeCredential <- R6::R6Class(
   classname = "AuthCodeCredential",
   inherit = InteractiveCredential,
   public = list(
+    #' @field .redirect_uri Character string specifying the redirect URI registered with the application.
+    .redirect_uri = NULL,
     #' @description
     #' Create a new authorization code credential
     #'
@@ -352,10 +383,12 @@ AuthCodeCredential <- R6::R6Class(
     #'   (refresh tokens). Defaults to `TRUE`.
     #' @param redirect_uri A character string specifying the redirect URI registered
     #'   with the application. Defaults to [default_redirect_uri()].
-    #' @param interactive A logical value indicating whether this credential
-    #'   requires user interaction. Defaults to `TRUE`.
+    #' @param allow_prompt A logical value indicating whether this credential
+    #'   may prompt the user (vs. only reading cached/refresh tokens). Defaults
+    #'   to `TRUE`.
     #' @param use_refresh_token A logical value indicating whether to use the login flow
     #'   (acquire tokens via refresh token exchange). Defaults to `TRUE`.
+    #' @param interactive Deprecated. Use `allow_prompt` instead.
     #'
     #' @return A new `AuthCodeCredential` object
     initialize = function(
@@ -365,16 +398,22 @@ AuthCodeCredential <- R6::R6Class(
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
-      interactive = TRUE,
-      use_refresh_token = TRUE
+      allow_prompt = TRUE,
+      use_refresh_token = TRUE,
+      interactive = NULL
     ) {
+      if (!is.null(interactive)) {
+        deprecated_arg("interactive", "allow_prompt", "AuthCodeCredential$new")
+        allow_prompt <- interactive
+      }
+
       super$initialize(
         scope = scope,
         tenant_id = tenant_id,
         client_id = client_id,
         use_cache = use_cache,
         offline = offline,
-        interactive = interactive,
+        allow_prompt = allow_prompt,
         use_refresh_token = use_refresh_token,
         flow_fun = httr2::oauth_flow_auth_code,
         req_auth_fun = httr2::req_oauth_auth_code,

@@ -51,12 +51,6 @@ test_that("format.redacted returns grey REDACTED text", {
   expect_match(formatted, "REDACTED")
 })
 
-test_that("print.redacted prints REDACTED", {
-  r <- redacted()
-  output <- capture.output(print(r))
-  expect_match(output, "REDACTED")
-})
-
 test_that("list_redact redacts specified names (case sensitive)", {
   x <- list(password = "secret123", username = "user", data = "public")
   result <- list_redact(x, c("password", "username"))
@@ -99,4 +93,32 @@ test_that("list_redact does not redact empty vectors", {
 
   expect_equal(result$password, list(), ignore_attr = TRUE)
   expect_equal(result$data, "public")
+})
+
+test_that("list_redact_pattern redacts names matching regex", {
+  x <- list(
+    `fs.azure.account.oauth2.client.secret` = "s3cr3t",
+    `fs.azure.account.oauth2.client.id` = "my-id",
+    `fs.azure.account.auth.type` = "OAuth"
+  )
+  result <- list_redact_pattern(x, "client\\.secret")
+
+  expect_s3_class(result[["fs.azure.account.oauth2.client.secret"]], "redacted")
+  expect_equal(result[["fs.azure.account.oauth2.client.id"]], "my-id")
+  expect_equal(result[["fs.azure.account.auth.type"]], "OAuth")
+})
+
+test_that("list_redact_pattern passes ... to grepl (e.g. ignore.case)", {
+  x <- list(Client_Secret = "s3cr3t", data = "public")
+  result <- list_redact_pattern(x, "client_secret", ignore.case = TRUE)
+
+  expect_s3_class(result$Client_Secret, "redacted")
+  expect_equal(result$data, "public")
+})
+
+test_that("list_redact_pattern returns x unchanged when pattern matches nothing", {
+  x <- list(a = "1", b = "2")
+  result <- list_redact_pattern(x, "zzz_no_match")
+
+  expect_equal(result, x)
 })
