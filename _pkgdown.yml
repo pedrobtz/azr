@@ -6,3 +6,11 @@ template:
 
 development:
   mode: auto
+
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - credential-chains
+  - datasets
+  - options

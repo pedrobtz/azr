@@ -37,6 +37,7 @@
 #' @field .use_cache Character string indicating the caching strategy.
 #' @field .offline Logical indicating whether to request offline access.
 #' @field .chain A credential chain object for authentication.
+#' @field .verbose Logical indicating whether to print the resolved provider class.
 DefaultCredential <- R6::R6Class(
   classname = "DefaultCredential",
   public = list(
@@ -47,6 +48,7 @@ DefaultCredential <- R6::R6Class(
     .use_cache = NULL,
     .offline = NULL,
     .chain = NULL,
+    .verbose = NULL,
 
     #' @description
     #' Create a new DefaultCredential object
@@ -66,6 +68,10 @@ DefaultCredential <- R6::R6Class(
     #' @param chain A list of credential objects, where each element must inherit
     #'   from the `Credential` base class. Credentials are attempted in the order
     #'   provided until `get_token` succeeds.
+    #' @param verbose Logical. If `TRUE`, prints the resolved credential provider
+    #'   on first access. Defaults to the `chain_verbose` option
+    #'   (`options(azr.chain_verbose = ...)` or `AZR_CHAIN_VERBOSE`); see
+    #'   [azr_options()].
     #'
     #' @return A new `DefaultCredential` object
     initialize = function(
@@ -73,17 +79,19 @@ DefaultCredential <- R6::R6Class(
       tenant_id = NULL,
       client_id = NULL,
       client_secret = NULL,
-      use_cache = "disk",
+      use_cache = c("disk", "memory"),
       offline = TRUE,
-      chain = default_credential_chain()
+      chain = default_credential_chain(),
+      verbose = opts$get("chain_verbose")
     ) {
       self$.scope <- scope
       self$.tenant_id <- tenant_id
       self$.client_id <- client_id
       self$.client_secret <- client_secret
-      self$.use_cache <- use_cache
+      self$.use_cache <- rlang::arg_match(use_cache)
       self$.offline <- offline
       self$.chain <- chain
+      self$.verbose <- verbose
     },
 
     #' @description
@@ -117,6 +125,10 @@ DefaultCredential <- R6::R6Class(
           offline = self$.offline,
           chain = self$.chain
         )
+        if (isTRUE(self$.verbose)) {
+          cli::cli_inform("Using provider:")
+          print(private$.provider_cache)
+        }
       }
       private$.provider_cache
     }
@@ -405,10 +417,13 @@ get_credential_auth <- function(
 #'   from the `Credential` base class. Credentials are attempted in the order
 #'   provided until `get_token` succeeds. If `NULL`, uses
 #'   [default_credential_chain()].
-#' @param interactive A logical value indicating whether interactive credentials
-#'   are allowed. Defaults to `TRUE`.
+#' @param allow_interactive A logical value indicating whether interactive
+#'   credentials are allowed. Defaults to [rlang::is_interactive()].
 #' @param verbose A logical value indicating whether to print verbose messages
-#'   during credential discovery. Defaults to `getOption("azr.verbose", FALSE)`.
+#'   during credential discovery. Defaults to the `chain_verbose` option, which
+#'   reads `options(azr.chain_verbose = ...)` or the `AZR_CHAIN_VERBOSE`
+#'   environment variable; see [azr_options()].
+#' @param interactive Deprecated. Use `allow_interactive` instead.
 #'
 #' @return A credential object that inherits from the `Credential` class and
 #'   has successfully authenticated.
@@ -439,9 +454,19 @@ get_credential_provider <- function(
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL,
-  interactive = TRUE,
-  verbose = getOption("azr.verbose", FALSE)
+  allow_interactive = rlang::is_interactive(),
+  verbose = opts$get("chain_verbose"),
+  interactive = NULL
 ) {
+  if (!is.null(interactive)) {
+    deprecated_arg(
+      "interactive",
+      "allow_interactive",
+      "get_credential_provider"
+    )
+    allow_interactive <- interactive
+  }
+
   if (is.null(chain) || length(chain) == 0L) {
     chain <- default_credential_chain()
   }
@@ -452,16 +477,67 @@ get_credential_provider <- function(
     )
   }
 
-  errors <- list()
-  attempt <- try_build_credential(chain, envir = rlang::current_env())
-  errors <- attempt$errors
+  context <- build_credential_context(
+    scope = scope,
+    tenant_id = tenant_id,
+    client_id = client_id,
+    client_secret = client_secret,
+    use_cache = use_cache,
+    offline = offline,
+    oauth_host = oauth_host,
+    oauth_endpoint = oauth_endpoint
+  )
 
-  for (crd_name in names(attempt$credentials)) {
-    obj <- attempt$credentials[[crd_name]]
+  if (verbose) {
+    ctx_lines <- vapply(
+      names(context),
+      function(nm) {
+        val <- context[[nm]]
+        if (nm == "client_secret") {
+          paste0(nm, ": ", cli::col_grey("<<REDACTED>>"))
+        } else {
+          cli::format_inline("{nm}: {.val {val}}")
+        }
+      },
+      character(1)
+    )
+    names(ctx_lines) <- rep(" ", length(ctx_lines))
+    cli::cli_inform(c("i" = "Credential context:", ctx_lines))
+  }
+
+  errors <- list()
+
+  for (i in seq_along(chain)) {
+    crd_name <- names(chain)[i]
+    if (is.null(crd_name) || !nzchar(crd_name)) {
+      crd_name <- paste0("credential_", i)
+    }
 
     if (verbose) {
       cli::cli_inform(c(
-        " " = "Attempting to get token from {.strong {crd_name}}..."
+        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
+      ))
+    }
+
+    built <- try_build_credential(
+      chain[[i]],
+      crd_name = crd_name,
+      context = context,
+      interactive = allow_interactive,
+      verbose = verbose
+    )
+
+    if (is.null(built$obj)) {
+      errors[[crd_name]] <- built$error
+      next
+    }
+
+    obj <- built$obj
+
+    if (verbose) {
+      cli::cli_inform(c(
+        " " = "Attempting to get token from {.strong {crd_name}}...",
+        " " = "client_id: {.val {obj$.client_id}}, scope: {.val {obj$.scope}}"
       ))
     }
 
@@ -509,102 +585,83 @@ get_credential_provider <- function(
   cli::cli_abort(error_msgs, class = "azr_credential_chain_failed")
 }
 
-try_build_credential <- function(chain, envir) {
-  verbose <- rlang::env_get(envir, "verbose", default = FALSE)
-  credentials <- list()
-  errors <- list()
+# Builds the explicit context passed to chain entries' constructors.
+# `interactive` is deliberately excluded: it is chain-runner policy
+# (see try_build_credential()), not a credential constructor argument, and
+# must not override a credential's own interactivity defaults (e.g.
+# AzureCLICredential's `cli_auto_login`).
+# At provider level, NULL means "not configured": dropped so the
+# constructor's own default applies.
+build_credential_context <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = NULL,
+  client_secret = NULL,
+  use_cache = "disk",
+  offline = TRUE,
+  oauth_host = NULL,
+  oauth_endpoint = NULL
+) {
+  context <- list(
+    scope = scope,
+    tenant_id = tenant_id,
+    client_id = client_id,
+    client_secret = client_secret,
+    use_cache = use_cache,
+    offline = offline,
+    oauth_host = oauth_host,
+    oauth_endpoint = oauth_endpoint
+  )
+  Filter(Negate(is.null), context)
+}
 
-  for (i in seq_along(chain)) {
-    crd_expr <- chain[[i]]
-    crd_name <- names(chain)[i]
-    if (is.null(crd_name) || !nzchar(crd_name)) {
-      crd_name <- paste0("credential_", i)
-    }
-
+try_build_credential <- function(
+  entry,
+  crd_name,
+  context,
+  interactive = rlang::is_interactive(),
+  verbose = FALSE
+) {
+  fail <- function(error) {
     if (verbose) {
-      cli::cli_inform(c(
-        "i" = "Trying credential {.strong {crd_name}} ({i}/{length(chain)})..."
-      ))
+      cli::cli_inform(c("x" = "{.strong {crd_name}}: {error}"))
     }
-
-    crd <- try(
-      {
-        mask <- rlang::new_data_mask(
-          rlang::env_clone(
-            asNamespace("azr"),
-            parent = rlang::quo_get_env(crd_expr)
-          )
-        )
-        rlang::eval_tidy(crd_expr, data = mask)
-      },
-      silent = TRUE
-    )
-
-    if (R6::is.R6Class(crd)) {
-      if (verbose) {
-        cli::cli_inform(c(
-          " " = "Instantiating R6 class {.cls {crd$classname}}."
-        ))
-      }
-
-      obj <- try(
-        new_instance(crd, env = envir),
-        silent = TRUE
-      )
-
-      if (inherits(obj, "try-error")) {
-        errors[[crd_name]] <- conditionMessage(attr(obj, "condition"))
-        if (verbose) {
-          cli::cli_inform(c(
-            "x" = "Failed to instantiate {.strong {crd_name}}: {errors[[crd_name]]}"
-          ))
-        }
-        next
-      }
-
-      if (!inherits(obj, "Credential")) {
-        errors[[crd_name]] <- "Object does not inherit from Credential class"
-        if (verbose) {
-          cli::cli_inform(c(
-            "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
-          ))
-        }
-        next
-      }
-    } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
-      if (verbose) {
-        cli::cli_inform(c(
-          " " = "Using existing R6 instance of class {.cls {class(crd)[1]}}."
-        ))
-      }
-      obj <- crd
-    } else {
-      errors[[crd_name]] <- "Invalid credential type"
-      if (verbose) {
-        cli::cli_inform(c(
-          "x" = "{.strong {crd_name}}: {errors[[crd_name]]}"
-        ))
-      }
-      next
-    }
-
-    if (obj$is_interactive() && !rlang::is_interactive()) {
-      errors[[crd_name]] <- "Credential requires interactive session"
-      if (verbose) {
-        cli::cli_inform(c(
-          "x" = "Skipping {.strong {crd_name}}: {errors[[crd_name]]}"
-        ))
-      }
-      next
-    }
-
-    credentials[[crd_name]] <- obj
+    list(obj = NULL, error = error)
   }
 
-  list(
-    credentials = credentials,
-    errors = errors
-  )
+  crd <- try(eval_chain_entry(entry), silent = TRUE)
+
+  if (inherits(crd, "try-error")) {
+    return(fail(conditionMessage(attr(crd, "condition"))))
+  }
+
+  if (verbose) {
+    if (R6::is.R6Class(crd)) {
+      cli::cli_inform(c(
+        " " = "Instantiating R6 class {.cls {crd$classname}}."
+      ))
+    } else if (R6::is.R6(crd) && inherits(crd, "Credential")) {
+      cli::cli_inform(c(
+        " " = "Using existing R6 instance of class {.cls {class(crd)[1]}}."
+      ))
+    }
+  }
+
+  obj <- try(build_credential(crd, context = context), silent = TRUE)
+
+  if (inherits(obj, "try-error")) {
+    return(fail(conditionMessage(attr(obj, "condition"))))
+  }
+
+  if (!inherits(obj, "Credential")) {
+    return(fail("Object does not inherit from Credential class"))
+  }
+
+  if (obj$is_interactive() && !interactive) {
+    return(fail("Credential requires an interactive session"))
+  }
+
+  list(obj = obj, error = NULL)
 }
 
 
@@ -629,9 +686,11 @@ try_build_credential <- function(chain, envir) {
 default_credential_chain <- function() {
   credential_chain(
     client_secret = ClientSecretCredential,
+    workload_identity = WorkloadIdentityCredential,
+    managed_identity = ManagedIdentityCredential,
+    azure_cli = AzureCLICredential,
     auth_code = AuthCodeCredential,
-    device_code = DeviceCodeCredential,
-    azure_cli = AzureCLICredential
+    device_code = DeviceCodeCredential
   )
 }
 
@@ -643,10 +702,13 @@ default_credential_chain <- function() {
 #' until one successfully authenticates. This allows you to customize
 #' the authentication flow beyond the default credential chain.
 #'
-#' @param ... Named credential objects or credential classes. Each element
-#'   should be a credential class (e.g., `ClientSecretCredential`) or an
-#'   instantiated credential object that inherits from the `Credential`
-#'   base class. The names are used for identification purposes.
+#' @param ... Named chain entries. Each entry must be either a credential class
+#'   (e.g., `ClientSecretCredential`) or an already-constructed object that
+#'   inherits from the `Credential` base class. Class entries receive the context
+#'   passed to [get_credential_provider()]. Constructed instances are used as-is.
+#'
+#'   The names are used for identification purposes. Constructing a chain
+#'   performs no authentication.
 #'
 #' @return A `credential_chain` object containing the specified sequence
 #'   of credential providers.
@@ -686,15 +748,38 @@ credential_chain <- function(...) {
   res
 }
 
-new_instance <- function(cls, env = rlang::caller_env()) {
-  cls_args <- r6_get_initialize_arguments(cls)
+# Resolves a chain entry quosure to a credential class or instance. The data
+# mask clones the azr namespace so bare class names (e.g. ClientSecretCredential)
+# resolve even when the package is not attached, while constructor-argument
+# references still resolve against the quosure's own environment.
+eval_chain_entry <- function(entry) {
+  mask <- rlang::new_data_mask(
+    rlang::env_clone(
+      asNamespace("azr"),
+      parent = rlang::quo_get_env(entry)
+    )
+  )
+  rlang::eval_tidy(entry, data = mask)
+}
 
-  if (is.null(cls_args)) {
-    return(cls$new())
+new_instance <- function(cls, context) {
+  accepted <- setdiff(r6_get_initialize_arguments(cls), "...")
+  args <- context[intersect(names(context), accepted)]
+  rlang::exec(cls$new, !!!args)
+}
+
+# Builds a chain entry into a Credential object. Class entries receive the
+# provider context; pre-built instances are returned unchanged.
+build_credential <- function(entry, context) {
+  if (R6::is.R6(entry) && inherits(entry, "Credential")) {
+    return(entry)
   }
 
-  cls_values <- rlang::env_get_list(nms = cls_args, default = NULL, env = env)
-  cls_values <- Filter(Negate(is.null), cls_values)
+  if (R6::is.R6Class(entry)) {
+    return(new_instance(entry, context = context))
+  }
 
-  eval(rlang::call2(cls$new, !!!cls_values))
+  cli::cli_abort(
+    "Chain entries must be a credential class or a {.cls Credential} instance."
+  )
 }

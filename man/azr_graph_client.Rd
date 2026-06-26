@@ -4,12 +4,20 @@
 \alias{azr_graph_client}
 \title{Create a Microsoft Graph API Client}
 \usage{
-azr_graph_client(scopes = ".default", ..., chain = NULL)
+azr_graph_client(
+  scopes = ".default",
+  endpoint = default_graph_endpoint(),
+  ...,
+  chain = NULL
+)
 }
 \arguments{
 \item{scopes}{A character string specifying the OAuth2 scope suffix to be appended
 to the Graph API URL. Defaults to \code{".default"}, which requests all permissions
 the app has been granted. The full scope will be \verb{https://graph.microsoft.com/\{scopes\}}.}
+
+\item{endpoint}{A character string specifying the Microsoft Graph endpoint
+host (e.g. \code{"graph.microsoft.com"}). Defaults to \code{\link[=default_graph_endpoint]{default_graph_endpoint()}}.}
 
 \item{...}{Additional arguments passed to the \link{api_client} constructor.}
 

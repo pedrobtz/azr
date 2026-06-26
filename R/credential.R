@@ -16,7 +16,6 @@ Credential <- R6::R6Class(
     .oauth_endpoint = NULL,
     .oauth_url = NULL,
     .token_url = NULL,
-    .redirect_uri = NULL,
     .classname = NULL,
     initialize = function(
       scope = NULL,
@@ -28,12 +27,6 @@ Credential <- R6::R6Class(
       oauth_endpoint = NULL,
       name = NULL
     ) {
-      if (!rlang::is_interactive() && self$is_interactive()) {
-        cli::cli_abort(
-          "Credential {.cls {class(self)[[1]]}} requires an interactive session"
-        )
-      }
-
       self$.classname <- paste(class(self), collapse = "/")
 
       self$.scope <- scope %||% default_azure_scope(resource = "azure_arm")
@@ -49,7 +42,7 @@ Credential <- R6::R6Class(
       self$.client_secret <- client_secret %||% default_azure_client_secret()
 
       self$.tenant_id <- tenant_id %||% default_azure_tenant_id()
-      self$.use_cache <- rlang::arg_match(use_cache)
+      self$.use_cache <- credential_default_use_cache(use_cache)
 
       self$.cache_key <- list(
         client_id = self$.client_id,
@@ -61,8 +54,8 @@ Credential <- R6::R6Class(
 
       self$.name <- name %||% self$.id
 
-      self$.oauth_host <- default_azure_host()
-      self$.token_url <- default_azure_url(
+      self$.oauth_host <- default_azure_host_unchecked()
+      self$.token_url <- default_azure_url_unchecked(
         endpoint = "token",
         oauth_host = self$.oauth_host,
         tenant_id = self$.tenant_id
@@ -71,7 +64,7 @@ Credential <- R6::R6Class(
       self$.oauth_endpoint <- oauth_endpoint %||% self$.oauth_endpoint
 
       if (!is.null(self$.oauth_endpoint)) {
-        self$.oauth_url <- default_azure_url(
+        self$.oauth_url <- default_azure_url_unchecked(
           endpoint = self$.oauth_endpoint,
           oauth_host = self$.oauth_host,
           tenant_id = self$.tenant_id
@@ -79,9 +72,9 @@ Credential <- R6::R6Class(
       }
 
       self$.oauth_client <- httr2::oauth_client(
-        name = self$.name,
-        id = self$.client_id,
-        secret = self$.client_secret,
+        name = credential_safe_string(self$.name),
+        id = credential_safe_string(self$.client_id),
+        secret = credential_safe_secret(self$.client_secret),
         token_url = self$.token_url,
         auth = "body"
       )
@@ -107,8 +100,7 @@ Credential <- R6::R6Class(
       lockBinding(".classname", self)
     },
     validate = function() {
-      validate_scope(self$.scope)
-      validate_tenant_id(self$.tenant_id)
+      private$validate_base()
       invisible(self)
     },
     is_interactive = function() {
@@ -138,17 +130,66 @@ Credential <- R6::R6Class(
       bullets(redacted)
       invisible(self)
     }
+  ),
+  private = list(
+    validate_base = function() {
+      validate_scope(self$.scope)
+      validate_tenant_id(self$.tenant_id)
+      validate_required_string(self$.client_id, "client_id")
+      validate_use_cache(self$.use_cache)
+
+      if (!is.null(self$.oauth_endpoint)) {
+        if (
+          !is.character(self$.oauth_endpoint) ||
+            length(self$.oauth_endpoint) != 1L ||
+            is.na(self$.oauth_endpoint) ||
+            !self$.oauth_endpoint %in% c("authorize", "token", "devicecode")
+        ) {
+          cli::cli_abort(
+            "Argument {.arg oauth_endpoint} must be one of {.val authorize}, {.val token}, or {.val devicecode}."
+          )
+        }
+      }
+
+      invisible(self)
+    }
   )
 )
 
 
-credential_chain <- function(...) {
-  res <- rlang::enquos(...)
-  class(res) <- c("credential_chain", class(res))
-  res
+is_credential <- function(x) {
+  R6::is.R6(x) &&
+    inherits(x, c("Credential", "DefaultCredential", "CachedTokenCredential"))
 }
 
 
 collapse_scope <- function(scope) {
   paste(scope, collapse = " ")
+}
+
+
+credential_default_use_cache <- function(use_cache) {
+  if (identical(use_cache, c("disk", "memory"))) {
+    return("disk")
+  }
+
+  use_cache
+}
+
+
+credential_safe_string <- function(x, default = "") {
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    return(default)
+  }
+
+  x
+}
+
+
+credential_safe_secret <- function(x) {
+  if (!is.character(x) || length(x) != 1L || is.na(x)) {
+    return(NULL)
+  }
+
+  x
 }

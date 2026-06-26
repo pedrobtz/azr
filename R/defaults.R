@@ -38,6 +38,19 @@ default_azure_client_id <- function() {
 }
 
 
+#' Get the Azure CLI public client ID
+#'
+#' @description
+#' Returns Microsoft's public Azure CLI client ID
+#' (`04b07795-8ddb-461a-bbee-02f9e1bf7b46`). This is the default `client_id`
+#' used by interactive credentials when no application-specific client ID is
+#' configured.
+#'
+#' @return A character string with the Azure CLI client ID
+#'
+#' @export
+#' @examples
+#' default_azure_cli_client_id()
 default_azure_cli_client_id <- function() {
   azure_client$client_id
 }
@@ -98,9 +111,19 @@ default_refresh_token <- function() {
 #' @description
 #' Returns the default OAuth scope for a specified Azure resource.
 #'
-#' @param resource A character string specifying the Azure resource. Must be one of:
-#'   `"azure_arm"` (Azure Resource Manager), `"azure_graph"` (Microsoft Graph),
-#'   `"azure_storage"` (Azure Storage), or `"azure_key_vault"` (Azure Key Vault).
+#' @param resource A character string specifying the Azure resource. Accepts
+#'   both the full name (e.g. `"azure_arm"`) and the short name without the
+#'   `azure_` prefix (e.g. `"arm"`). Must be one of:
+#'   `"azure_arm"` / `"arm"` (Azure Resource Manager),
+#'   `"azure_graph"` / `"graph"` (Microsoft Graph),
+#'   `"azure_storage"` / `"storage"` (Azure Storage),
+#'   `"azure_key_vault"` / `"key_vault"` (Azure Key Vault),
+#'   `"azure_openai"` / `"openai"` (Azure OpenAI),
+#'   `"azure_log_analytics"` / `"log_analytics"` (Azure Log Analytics),
+#'   `"azure_app_insights"` / `"app_insights"` (Azure Application Insights),
+#'   `"azure_databricks"` / `"databricks"` (Azure Databricks),
+#'   `"azure_sql"` / `"sql"` (Azure SQL / Synapse), or
+#'   `"azure_service_bus"` / `"service_bus"` (Azure Service Bus).
 #'   Defaults to `"azure_arm"`.
 #'
 #' @return A character string with the OAuth scope URL
@@ -109,9 +132,18 @@ default_refresh_token <- function() {
 #' @examples
 #' default_azure_scope()
 #' default_azure_scope("azure_graph")
+#' default_azure_scope("graph")
+#' default_azure_scope("storage")
 default_azure_scope <- function(resource = "azure_arm") {
-  resource <- rlang::arg_match(resource, values = names(azure_scopes))
-  azure_scopes[[resource]]
+  full_names <- names(azure_services)
+  short_names <- sub("^azure_", "", full_names)
+
+  if (resource %in% short_names && !resource %in% full_names) {
+    resource <- paste0("azure_", resource)
+  }
+
+  resource <- rlang::arg_match(resource, values = full_names)
+  paste0("https://", azure_services[[resource]]$host, "/.default")
 }
 
 
@@ -182,15 +214,7 @@ default_azure_url <- function(
   tenant_id = default_azure_tenant_id()
 ) {
   validate_tenant_id(tenant_id)
-
-  if (!rlang::is_string(oauth_host) || !nzchar(oauth_host)) {
-    cli::cli_abort(
-      "{.arg oauth_host} must be a non-empty string, not {.obj_type_friendly {oauth_host}}"
-    )
-  }
-
-  oauth_host <- sub("/+$", "", oauth_host)
-  oauth_host <- sub("^https?://", "", oauth_host)
+  oauth_host <- normalize_authority_host(oauth_host)
   oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
 
   urls <- c(
@@ -225,15 +249,83 @@ default_azure_host <- function() {
     environment_variables$azure_authority_host,
     unset = azure_authority_hosts$azure_public_cloud
   )
+  normalize_authority_host(host)
+}
 
+
+default_azure_host_unchecked <- function() {
+  host <- Sys.getenv(
+    environment_variables$azure_authority_host,
+    unset = azure_authority_hosts$azure_public_cloud
+  )
+
+  if (
+    !is.character(host) || length(host) != 1L || is.na(host) || !nzchar(host)
+  ) {
+    host <- azure_authority_hosts$azure_public_cloud
+  }
+
+  normalized_auth_host(host)
+}
+
+# Single source of truth for authority-host normalization: strip an optional
+# `https?://` scheme and any trailing slashes, returning a bare host string.
+# Callers that want a URL prepend `https://` themselves.
+normalize_authority_host <- function(host, arg = rlang::caller_arg(host)) {
   if (!rlang::is_string(host) || !nzchar(host)) {
     cli::cli_abort(
-      "{.arg host} must be a non-empty string, not {.obj_type_friendly {host}}"
+      "{.arg {arg}} must be a non-empty string, not {.obj_type_friendly {host}}"
     )
+  }
+  host <- sub("/+$", "", host)
+  sub("^https?://", "", host)
+}
+
+
+normalized_auth_host <- function(host) {
+  if (!is.character(host) || length(host) != 1L || is.na(host)) {
+    return("")
   }
 
   host <- sub("/+$", "", host)
   sub("^https?://", "", host)
+}
+
+
+default_azure_url_unchecked <- function(
+  endpoint = NULL,
+  oauth_host = default_azure_host_unchecked(),
+  tenant_id = default_azure_tenant_id()
+) {
+  oauth_host <- normalized_auth_host(oauth_host)
+  if (!nzchar(oauth_host)) {
+    oauth_host <- azure_authority_hosts$azure_public_cloud
+  }
+
+  if (
+    !is.character(tenant_id) ||
+      length(tenant_id) != 1L ||
+      is.na(tenant_id) ||
+      !nzchar(tenant_id)
+  ) {
+    tenant_id <- azure_client$tenant_id
+  }
+
+  oauth_base <- rlang::englue("https://{oauth_host}/{tenant_id}/oauth2/v2.0")
+  urls <- c(
+    authorize = paste0(oauth_base, "/authorize"),
+    token = paste0(oauth_base, "/token"),
+    devicecode = paste0(oauth_base, "/devicecode")
+  )
+
+  if (!is.null(endpoint)) {
+    if (!endpoint %in% names(urls)) {
+      return(NA_character_)
+    }
+    return(urls[[endpoint]])
+  }
+
+  as.list(urls)
 }
 
 #' Get default Azure Storage DFS endpoint suffix
@@ -248,7 +340,37 @@ default_azure_host <- function() {
 #' @examples
 #' default_storage_endpoint()
 default_storage_endpoint <- function() {
-  azure_storage_endpoints$dfs
+  azure_services$azure_storage$dfs
+}
+
+#' Get default Azure Log Analytics query endpoint
+#'
+#' @description
+#' Returns the default host used to construct Azure Log Analytics query URLs
+#' (`api.loganalytics.io`).
+#'
+#' @return A character string with the Log Analytics query endpoint host.
+#'
+#' @export
+#' @examples
+#' default_log_analytics_endpoint()
+default_log_analytics_endpoint <- function() {
+  azure_services$azure_log_analytics$host
+}
+
+#' Get default Microsoft Graph endpoint
+#'
+#' @description
+#' Returns the default host used to construct Microsoft Graph API URLs
+#' (`graph.microsoft.com`).
+#'
+#' @return A character string with the Microsoft Graph endpoint host.
+#'
+#' @export
+#' @examples
+#' default_graph_endpoint()
+default_graph_endpoint <- function() {
+  azure_services$azure_graph$host
 }
 
 #' Get default Azure configuration directory

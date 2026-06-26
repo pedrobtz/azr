@@ -14,8 +14,10 @@ test_that("InteractiveCredential$is_interactive returns TRUE", {
 test_that("InteractiveCredential cannot be used in non-interactive sessions", {
   skip_if(rlang::is_interactive(), "This test requires non-interactive session")
 
+  cred <- DeviceCodeCredential$new()
+
   expect_error(
-    DeviceCodeCredential$new(),
+    cred$get_token(),
     "requires an interactive session"
   )
 })
@@ -277,9 +279,9 @@ test_that("interactive credentials ignore AZURE_CLIENT_ID by default", {
     AZURE_CLIENT_ID = "env-client-id"
   )
 
-  device_cred <- DeviceCodeCredential$new(interactive = FALSE)
+  device_cred <- DeviceCodeCredential$new(allow_prompt = FALSE)
   auth_cred <- AuthCodeCredential$new(
-    interactive = FALSE,
+    allow_prompt = FALSE,
     redirect_uri = "http://localhost:1410/"
   )
 
@@ -331,7 +333,7 @@ new_non_interactive_cred <- function() {
   DeviceCodeCredential$new(
     tenant_id = "test-tenant-id",
     client_id = "test-client-id",
-    interactive = FALSE,
+    allow_prompt = FALSE,
     use_refresh_token = FALSE
   )
 }

@@ -42,11 +42,13 @@ ClientSecretCredential <- R6::R6Class(
     #' Checks that the client secret is provided and not NA or NULL. Calls the parent
     #' class validation method.
     validate = function() {
-      super$validate()
+      private$validate_base()
 
       if (is.null(self$.client_secret) || rlang::is_na(self$.client_secret)) {
         cli::cli_abort("Argument {.arg client_secret} cannot be NULL or NA.")
       }
+
+      invisible(self)
     },
     #' @description
     #' Get an access token using client credentials flow

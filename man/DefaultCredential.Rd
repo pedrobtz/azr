@@ -49,6 +49,8 @@ provider <- cred$provider
 \item{\code{.offline}}{Logical indicating whether to request offline access.}
 
 \item{\code{.chain}}{A credential chain object for authentication.}
+
+\item{\code{.verbose}}{Logical indicating whether to print the resolved provider class.}
 }
 \if{html}{\out{</div>}}
 }
@@ -79,9 +81,10 @@ Create a new DefaultCredential object
   tenant_id = NULL,
   client_id = NULL,
   client_secret = NULL,
-  use_cache = "disk",
+  use_cache = c("disk", "memory"),
   offline = TRUE,
-  chain = default_credential_chain()
+  chain = default_credential_chain(),
+  verbose = opts$get("chain_verbose")
 )}\if{html}{\out{</div>}}
 }
 
@@ -109,6 +112,11 @@ Defaults to \code{TRUE}.}
 \item{\code{chain}}{A list of credential objects, where each element must inherit
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
+
+\item{\code{verbose}}{Logical. If \code{TRUE}, prints the resolved credential provider
+on first access. Defaults to the \code{chain_verbose} option
+(\code{options(azr.chain_verbose = ...)} or \code{AZR_CHAIN_VERBOSE}); see
+\code{\link[=azr_options]{azr_options()}}.}
 }
 \if{html}{\out{</div>}}
 }

@@ -35,7 +35,7 @@ test_that("ClientSecretCredential$is_interactive returns FALSE", {
   expect_false(cred$is_interactive())
 })
 
-test_that("ClientSecretCredential validates client_secret is provided", {
+test_that("ClientSecretCredential validates client_secret is provided at construction", {
   expect_error(
     ClientSecretCredential$new(
       tenant_id = "test-tenant-id",
@@ -46,18 +46,18 @@ test_that("ClientSecretCredential validates client_secret is provided", {
   )
 })
 
-test_that("ClientSecretCredential validates client_secret is not NA", {
+test_that("ClientSecretCredential validates client_secret is not NA at construction", {
   expect_error(
     ClientSecretCredential$new(
       tenant_id = "test-tenant-id",
       client_id = "test-client-id",
       client_secret = NA_character_
     ),
-    "`secret` must be a single string or `NULL`"
+    "cannot be NULL or NA"
   )
 })
 
-test_that("ClientSecretCredential validates tenant_id", {
+test_that("ClientSecretCredential validates tenant_id at construction", {
   expect_error(
     ClientSecretCredential$new(
       tenant_id = "invalid!tenant",
@@ -68,7 +68,7 @@ test_that("ClientSecretCredential validates tenant_id", {
   )
 })
 
-test_that("ClientSecretCredential validates scope", {
+test_that("ClientSecretCredential validates scope at construction", {
   expect_error(
     ClientSecretCredential$new(
       tenant_id = "test-tenant-id",

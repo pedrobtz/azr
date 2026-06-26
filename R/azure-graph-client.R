@@ -24,6 +24,8 @@
 #' @param scopes A character string specifying the OAuth2 scope suffix to be appended
 #'   to the Graph API URL. Defaults to `".default"`, which requests all permissions
 #'   the app has been granted. The full scope will be `https://graph.microsoft.com/{scopes}`.
+#' @param endpoint A character string specifying the Microsoft Graph endpoint
+#'   host (e.g. `"graph.microsoft.com"`). Defaults to [default_graph_endpoint()].
 #' @param chain A [credential_chain] instance for authentication. If NULL,
 #'   a default credential chain will be created using [DefaultCredential].
 #' @param ... Additional arguments passed to the [api_client] constructor.
@@ -57,18 +59,20 @@
 #' graph <- azr_graph_client(scopes = "User.Read Mail.Read")
 #' }
 # azr_graph_client ----
-azr_graph_client <- function(scopes = ".default", ..., chain = NULL) {
-  graph_url <- "https://graph.microsoft.com"
+azr_graph_client <- function(
+  scopes = ".default",
+  endpoint = default_graph_endpoint(),
+  ...,
+  chain = NULL
+) {
+  graph_url <- paste0("https://", endpoint)
 
-  # Construct the full scope URL
-  if (length(scopes) > 1) {
-    scopes <- paste(scopes, collapse = " ")
-  }
-  scope <- paste0(graph_url, "/", scopes)
+  scope <- paste0(graph_url, "/", collapse_scope(scopes))
 
   provider <- DefaultCredential$new(
     scope = scope,
-    chain = chain
+    chain = chain,
+    client_id = default_azure_cli_client_id()
   )
 
   client <- api_client$new(

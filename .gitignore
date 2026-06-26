@@ -51,3 +51,12 @@ rsconnect/
 
 # Positron test problem files
 tests/testthat/_problems/
+
+# testthat failure-replay state (testthat >= 3.0)
+tests/testthat/testthat-problems.rds
+
+.claude/*.json
+
+/.quarto/
+TODO.md
+REVIEW.md
