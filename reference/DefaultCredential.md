@@ -41,6 +41,10 @@ first accessed, using the same logic as
 
   A credential chain object for authentication.
 
+- `.verbose`:
+
+  Logical indicating whether to print the resolved provider class.
+
 ## Active bindings
 
 - `provider`:
@@ -72,9 +76,10 @@ Create a new DefaultCredential object
       tenant_id = NULL,
       client_id = NULL,
       client_secret = NULL,
-      use_cache = "disk",
+      use_cache = c("disk", "memory"),
       offline = TRUE,
-      chain = default_credential_chain()
+      chain = default_credential_chain(),
+      verbose = opts$get("chain_verbose")
     )
 
 #### Arguments
@@ -112,6 +117,13 @@ Create a new DefaultCredential object
   A list of credential objects, where each element must inherit from the
   `Credential` base class. Credentials are attempted in the order
   provided until `get_token` succeeds.
+
+- `verbose`:
+
+  Logical. If `TRUE`, prints the resolved credential provider on first
+  access. Defaults to the `chain_verbose` option
+  (`options(azr.chain_verbose = ...)` or `AZR_CHAIN_VERBOSE`); see
+  [`azr_options()`](https://pedrobtz.github.io/azr/reference/azr_options.md).
 
 #### Returns
 

@@ -14,8 +14,22 @@ cached token. The default chain includes:
 ## Usage
 
 ``` r
-cached_token_credential_chain()
+cached_token_credential_chain(scope = NULL, tenant_id = NULL, client_id = NULL)
 ```
+
+## Arguments
+
+- scope:
+
+  Optional character string specifying the authentication scope.
+
+- tenant_id:
+
+  Optional character string specifying the tenant ID for authentication.
+
+- client_id:
+
+  Optional character string specifying the client ID for authentication.
 
 ## Value
 

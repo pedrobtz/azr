@@ -48,8 +48,9 @@ Create a new device code credential
       client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
-      interactive = TRUE,
-      use_refresh_token = TRUE
+      allow_prompt = TRUE,
+      use_refresh_token = TRUE,
+      interactive = NULL
     )
 
 #### Arguments
@@ -79,15 +80,19 @@ Create a new device code credential
   A logical value indicating whether to request offline access (refresh
   tokens). Defaults to `TRUE`.
 
-- `interactive`:
+- `allow_prompt`:
 
-  A logical value indicating whether this credential requires user
-  interaction. Defaults to `TRUE`.
+  A logical value indicating whether this credential may prompt the user
+  (vs. only reading cached/refresh tokens). Defaults to `TRUE`.
 
 - `use_refresh_token`:
 
   A logical value indicating whether to use the login flow (acquire
   tokens via refresh token exchange). Defaults to `TRUE`.
+
+- `interactive`:
+
+  Deprecated. Use `allow_prompt` instead.
 
 #### Returns
 

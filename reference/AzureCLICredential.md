@@ -16,10 +16,15 @@ account and subscription unless a specific tenant is specified.
 
 ## Public fields
 
-- `interactive`:
+- `auto_login`:
 
   Logical indicating whether to check login status and perform login if
   needed
+
+- `use_bridge`:
+
+  Logical indicating whether to use the device code bridge webpage
+  during interactive login
 
 - `.process_timeout`:
 
@@ -62,8 +67,9 @@ Create a new Azure CLI credential
       scope = NULL,
       tenant_id = NULL,
       process_timeout = NULL,
-      interactive = FALSE,
-      use_bridge = FALSE
+      auto_login = opts$get("cli_auto_login"),
+      use_bridge = TRUE,
+      interactive = NULL
     )
 
 #### Arguments
@@ -83,10 +89,14 @@ Create a new Azure CLI credential
   A numeric value specifying the timeout in seconds for the Azure CLI
   process. Defaults to `10`.
 
-- `interactive`:
+- `auto_login`:
 
-  A logical value indicating whether to check if the user is logged in
-  and perform login if needed. Defaults to `FALSE`.
+  A logical value indicating whether
+  [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+  may launch `az login` when the user is not logged in. Defaults to the
+  `cli_auto_login` option (`options(azr.cli_auto_login = ...)` or
+  `AZR_CLI_AUTO_LOGIN`); see
+  [`azr_options()`](https://pedrobtz.github.io/azr/reference/azr_options.md).
 
 - `use_bridge`:
 
@@ -94,7 +104,11 @@ Create a new Azure CLI credential
   webpage during login. If `TRUE`, launches an intermediate local
   webpage that displays the device code and facilitates copy-pasting
   before redirecting to the Microsoft device login page. Only used when
-  `interactive = TRUE`. Defaults to `FALSE`.
+  `auto_login = TRUE`. Defaults to `TRUE`.
+
+- `interactive`:
+
+  Deprecated. Use `auto_login` instead.
 
 #### Returns
 
@@ -233,6 +247,8 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+# 'az login' must have been executed successfully for these examples to work.
+if (FALSE) { # \dontrun{
 # Create credential with default settings
 cred <- AzureCLICredential$new()
 
@@ -242,9 +258,6 @@ cred <- AzureCLICredential$new(
   tenant_id = "your-tenant-id"
 )
 
-# To get a token or authenticate a request it is required that
-# 'az login' is successfully executed, otherwise it will return an error.
-if (FALSE) { # \dontrun{
 # Get an access token
 token <- cred$get_token()
 

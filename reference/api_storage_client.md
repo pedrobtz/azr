@@ -60,6 +60,7 @@ Create a new Azure Storage API client instance
       provider = NULL,
       chain = NULL,
       tenant_id = NULL,
+      client_id = default_azure_cli_client_id(),
       ...
     )
 
@@ -102,6 +103,13 @@ Create a new Azure Storage API client instance
   A character string specifying the Azure tenant ID. Passed to
   [DefaultCredential](https://pedrobtz.github.io/azr/reference/DefaultCredential.md)
   when `chain` is `NULL`.
+
+- `client_id`:
+
+  A character string specifying the Azure client ID. Passed to
+  [DefaultCredential](https://pedrobtz.github.io/azr/reference/DefaultCredential.md)
+  when `chain` is `NULL`. Defaults to
+  [`default_azure_cli_client_id()`](https://pedrobtz.github.io/azr/reference/default_azure_cli_client_id.md).
 
 - `...`:
 
@@ -195,8 +203,9 @@ List files and directories in a path
 
 #### Returns
 
-A data.frame (or data.table if available) containing file and directory
-information with columns such as name, contentLength, lastModified, etc.
+A data.frame (or data.table if available) with one row per file or
+directory. Columns include `name`, `contentLength`, `lastModified`, etc.
+All pages are fetched transparently; the result is the complete listing.
 
 ------------------------------------------------------------------------
 

@@ -67,7 +67,7 @@ Create a new CachedTokenCredential object
       scope = NULL,
       tenant_id = NULL,
       client_id = NULL,
-      chain = cached_token_credential_chain()
+      chain = NULL
     )
 
 #### Arguments

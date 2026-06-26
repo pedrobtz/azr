@@ -18,8 +18,9 @@ get_credential_provider(
   oauth_host = NULL,
   oauth_endpoint = NULL,
   chain = NULL,
-  interactive = TRUE,
-  verbose = getOption("azr.verbose", FALSE)
+  allow_interactive = rlang::is_interactive(),
+  verbose = opts$get("chain_verbose"),
+  interactive = NULL
 )
 ```
 
@@ -68,15 +69,23 @@ get_credential_provider(
   provided until `get_token` succeeds. If `NULL`, uses
   [`default_credential_chain()`](https://pedrobtz.github.io/azr/reference/default_credential_chain.md).
 
-- interactive:
+- allow_interactive:
 
   A logical value indicating whether interactive credentials are
-  allowed. Defaults to `TRUE`.
+  allowed. Defaults to
+  [`rlang::is_interactive()`](https://rlang.r-lib.org/reference/is_interactive.html).
 
 - verbose:
 
   A logical value indicating whether to print verbose messages during
-  credential discovery. Defaults to `getOption("azr.verbose", FALSE)`.
+  credential discovery. Defaults to the `chain_verbose` option, which
+  reads `options(azr.chain_verbose = ...)` or the `AZR_CHAIN_VERBOSE`
+  environment variable; see
+  [`azr_options()`](https://pedrobtz.github.io/azr/reference/azr_options.md).
+
+- interactive:
+
+  Deprecated. Use `allow_interactive` instead.
 
 ## Value
 

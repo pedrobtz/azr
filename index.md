@@ -20,6 +20,10 @@ The package supports creating Credential chains for Authentication with:
 
 - **Client Secret Credential**: Service principal authentication with
   client ID and secret
+- **Workload Identity Credential**: Federated token exchange for
+  Kubernetes/AKS workloads
+- **Managed Identity Credential**: System- or user-assigned managed
+  identity via the IMDS endpoint
 - **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
 - **Authorization Code Flow**: Interactive browser-based authentication
 - **Device Code Flow**: Authentication for headless or CLI environments
@@ -79,24 +83,22 @@ order:
 
 ``` r
 
-# Define a custom credential chain with specific credential instances
+# Define a custom credential chain: try a service principal first, then fall
+# back to the developer's Azure CLI login ('az login')
 custom_chain <- credential_chain(
-  ClientSecretCredential$new(
-    # e.g. app://mycompany.onmicrosoft.com/MyAppId/DEV/my-api/.default
-    scope = Sys.getenv("APP_SCOPE"),
-    # the 'Application Id' used in production/batch mode
-    client_id = Sys.getenv("APP_CLIENT_ID"),
-    client_secret = Sys.getenv("APP_CLIENT_SECRET")
-  ),
-  # during development the developer authenticates via 'az login --use-device-code'
-  AzureCLICredential
+  client_secret = ClientSecretCredential,
+  azure_cli     = AzureCLICredential
 )
 
-# Use the custom chain
+# Use the custom chain - scope, tenant_id, client_id, and client_secret are
+# forwarded to whichever entry ends up succeeding
 token <- get_token(
-  tenant_id = "mycompany-tenant-id",
-  scope = "https://management.azure.com/.default",
-  .chain = custom_chain
+  scope         = "https://management.azure.com/.default",
+  tenant_id     = "mycompany-tenant-id",
+  # the 'Application Id' and secret used in production/batch mode
+  client_id     = Sys.getenv("APP_CLIENT_ID"),
+  client_secret = Sys.getenv("APP_CLIENT_SECRET"),
+  chain         = custom_chain
 )
 ```
 
@@ -130,25 +132,15 @@ chat$chat("What is the capital of France?")
 ## Related work
 
 azr is inspired by Python’s
-[azure-identity](https://learn.microsoft.com/en-us/python/api/overview/azure/identity-readme)
-library, which provides comprehensive coverage of Azure authentication
-scenarios and introduced the credential chain pattern for automatic
+[azure-identity](https://learn.microsoft.com/en-us/python/api/overview/azure/identity-readme),
+which introduced the credential chain pattern for automatic
 authentication method discovery.
 
 The R package [AzureAuth](https://github.com/Azure/AzureAuth) (based on
-[httr](https://httr.r-lib.org/)) also provides token acquisition for
-Azure services, but does not offer an explicit way to define credential
-chains. This becomes important in scenarios where different
-authentication methods require different configurations. For example:
-
-- **Client Secret Credentials**: Using a service principal `client_id`
-  with an application-specific `scope`
-- **Interactive Credentials**: Using user authentication with different
-  credentials
-
-azr addresses this by allowing you to define custom credential chains
-with method-specific configurations, enabling seamless fallback between
-authentication approaches.
+[httr](https://httr.r-lib.org/)) also handles Azure token acquisition,
+but does not offer explicit credential chains. azr fills that gap by
+letting you define custom chains with method-specific configurations,
+enabling seamless fallback between authentication approaches.
 
 ## Code of Conduct
 

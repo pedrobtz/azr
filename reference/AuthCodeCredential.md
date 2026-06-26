@@ -19,6 +19,13 @@ for the OAuth flow to complete.
 [`azr::InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
 -\> `AuthCodeCredential`
 
+## Public fields
+
+- `.redirect_uri`:
+
+  Character string specifying the redirect URI registered with the
+  application.
+
 ## Methods
 
 ### Public methods
@@ -50,8 +57,9 @@ Create a new authorization code credential
       use_cache = "disk",
       offline = TRUE,
       redirect_uri = default_redirect_uri(),
-      interactive = TRUE,
-      use_refresh_token = TRUE
+      allow_prompt = TRUE,
+      use_refresh_token = TRUE,
+      interactive = NULL
     )
 
 #### Arguments
@@ -87,15 +95,19 @@ Create a new authorization code credential
   application. Defaults to
   [`default_redirect_uri()`](https://pedrobtz.github.io/azr/reference/default_redirect_uri.md).
 
-- `interactive`:
+- `allow_prompt`:
 
-  A logical value indicating whether this credential requires user
-  interaction. Defaults to `TRUE`.
+  A logical value indicating whether this credential may prompt the user
+  (vs. only reading cached/refresh tokens). Defaults to `TRUE`.
 
 - `use_refresh_token`:
 
   A logical value indicating whether to use the login flow (acquire
   tokens via refresh token exchange). Defaults to `TRUE`.
+
+- `interactive`:
+
+  Deprecated. Use `allow_prompt` instead.
 
 #### Returns
 

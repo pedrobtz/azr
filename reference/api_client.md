@@ -45,6 +45,10 @@ service-specific clients. It provides:
 
   Optional callback function to process response content
 
+- `.verbose`:
+
+  Logical flag controlling request/response logging in `.send_request()`
+
 ## Methods
 
 ### Public methods
@@ -80,7 +84,8 @@ Create a new API client instance
       timeout = 60L,
       connecttimeout = 30L,
       max_tries = 5L,
-      response_handler = NULL
+      response_handler = NULL,
+      verbose = opts$get("api_verbose")
     )
 
 #### Arguments
@@ -127,6 +132,15 @@ Create a new API client instance
   the processed content. If `NULL`, uses
   [`default_response_handler()`](https://pedrobtz.github.io/azr/reference/default_response_handler.md)
   which converts data frames to data.table objects. Defaults to `NULL`.
+
+- `verbose`:
+
+  A logical flag controlling request/response logging in
+  `.send_request()`. When `FALSE`, the `>>>` request and `<<<` response
+  `cli` alerts are suppressed. Defaults to the `api_verbose` option,
+  which reads `options(azr.api_verbose = ...)` or the `AZR_API_VERBOSE`
+  environment variable; see
+  [`azr_options()`](https://pedrobtz.github.io/azr/reference/azr_options.md).
 
 #### Returns
 

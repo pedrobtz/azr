@@ -15,10 +15,15 @@ credential_chain(...)
 
 - ...:
 
-  Named credential objects or credential classes. Each element should be
-  a credential class (e.g., `ClientSecretCredential`) or an instantiated
-  credential object that inherits from the `Credential` base class. The
-  names are used for identification purposes.
+  Named chain entries. Each entry must be either a credential class
+  (e.g., `ClientSecretCredential`) or an already-constructed object that
+  inherits from the `Credential` base class. Class entries receive the
+  context passed to
+  [`get_credential_provider()`](https://pedrobtz.github.io/azr/reference/get_credential_provider.md).
+  Constructed instances are used as-is.
+
+  The names are used for identification purposes. Constructing a chain
+  performs no authentication.
 
 ## Value
 

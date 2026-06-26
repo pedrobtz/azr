@@ -18,9 +18,10 @@ instead.
   Logical indicating whether to use the login flow (acquire tokens via
   refresh token exchange).
 
-- `interactive`:
+- `allow_prompt`:
 
-  Logical indicating whether this credential requires user interaction.
+  Logical indicating whether this credential may prompt the user (vs.
+  only reading cached/refresh tokens).
 
 ## Methods
 
@@ -55,13 +56,14 @@ Shared initializer for interactive credentials
       client_id = default_azure_cli_client_id(),
       use_cache = "disk",
       offline = TRUE,
-      interactive = TRUE,
+      allow_prompt = TRUE,
       use_refresh_token = TRUE,
       flow_fun,
       req_auth_fun,
       oauth_endpoint,
       name,
-      extra_flow_params = list()
+      extra_flow_params = list(),
+      interactive = NULL
     )
 
 #### Arguments
@@ -86,9 +88,10 @@ Shared initializer for interactive credentials
 
   Whether to request offline access (refresh tokens).
 
-- `interactive`:
+- `allow_prompt`:
 
-  Whether this credential requires user interaction.
+  Whether this credential may prompt the user (vs. only reading
+  cached/refresh tokens).
 
 - `use_refresh_token`:
 
@@ -117,6 +120,10 @@ Shared initializer for interactive credentials
 
   A named list of additional parameters merged into
   `private$.flow_params` after `scope` and `auth_url`.
+
+- `interactive`:
+
+  Deprecated. Use `allow_prompt` instead.
 
 ------------------------------------------------------------------------
 

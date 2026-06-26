@@ -10,7 +10,12 @@ versioned endpoints.
 ## Usage
 
 ``` r
-azr_graph_client(scopes = ".default", ..., chain = NULL)
+azr_graph_client(
+  scopes = ".default",
+  endpoint = default_graph_endpoint(),
+  ...,
+  chain = NULL
+)
 ```
 
 ## Arguments
@@ -21,6 +26,12 @@ azr_graph_client(scopes = ".default", ..., chain = NULL)
   to the Graph API URL. Defaults to `".default"`, which requests all
   permissions the app has been granted. The full scope will be
   `https://graph.microsoft.com/{scopes}`.
+
+- endpoint:
+
+  A character string specifying the Microsoft Graph endpoint host (e.g.
+  `"graph.microsoft.com"`). Defaults to
+  [`default_graph_endpoint()`](https://pedrobtz.github.io/azr/reference/default_graph_endpoint.md).
 
 - ...:
 
