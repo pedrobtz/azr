@@ -33,7 +33,7 @@ behaviour. Each one can be set three different ways, checked in this order:
 | `chain_verbose` | `azr.chain_verbose` | `AZR_CHAIN_VERBOSE` | `FALSE` | Verbose credential-chain discovery (see the credential chains vignette) |
 | `api_verbose` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | `>>>`/`<<<` request and response logging in `api_client` |
 | `cli_auto_login` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Whether `AzureCLICredential` runs `az login` automatically |
-| `dataset_tier` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for `az_dataset_uri()` / `az_resolve_dataset()` (see the datasets vignette) |
+| `dataset_tier` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for `azr_dataset_uri()` / `azr_resolve_dataset()` (see the datasets vignette) |
 
 ## Setting an option
 

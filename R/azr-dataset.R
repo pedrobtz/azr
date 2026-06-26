@@ -8,7 +8,7 @@
 #' Only the storage account varies by tier: `container`, `path`,
 #' `endpoint_suffix`, and `scheme` are shared across all tiers in `storage`.
 #' If an environment also needs a different container, path, or sovereign
-#' cloud, model it as a separate [az_dataset].
+#' cloud, model it as a separate [azr_dataset].
 #'
 #' `path` must be non-empty, so a dataset cannot point at a container root.
 #'
@@ -22,10 +22,10 @@
 #' @param endpoint_suffix Storage endpoint suffix. Defaults to
 #'   `"core.windows.net"`.
 #'
-#' @return An `az_dataset` S7 object.
+#' @return An `azr_dataset` S7 object.
 #' @export
-az_dataset <- S7::new_class(
-  "az_dataset",
+azr_dataset <- S7::new_class(
+  "azr_dataset",
   properties = list(
     name = S7::class_character,
     scheme = S7::class_character,
@@ -108,18 +108,18 @@ dataset_formats <- c(
 #' Azure Storage dataset catalog
 #'
 #' @description
-#' An S7 class holding an ordered collection of [az_dataset] objects with
+#' An S7 class holding an ordered collection of [azr_dataset] objects with
 #' unique `name`s.
 #'
 #' A catalog can be indexed by dataset name with `[[`, and supports `names()`
 #' and `length()`.
 #'
-#' @param datasets A list of [az_dataset] objects.
+#' @param datasets A list of [azr_dataset] objects.
 #'
-#' @return An `az_catalog` S7 object.
+#' @return An `azr_catalog` S7 object.
 #' @export
 #' @examples
-#' ds <- az_dataset(
+#' ds <- azr_dataset(
 #'   name = "orders",
 #'   scheme = "abfss",
 #'   container = "raw",
@@ -127,13 +127,13 @@ dataset_formats <- c(
 #'   path = "sales/orders",
 #'   format = "delta"
 #' )
-#' catalog <- az_catalog(datasets = list(ds))
+#' catalog <- azr_catalog(datasets = list(ds))
 #'
 #' catalog[["orders"]]
 #' names(catalog)
 #' length(catalog)
-az_catalog <- S7::new_class(
-  "az_catalog",
+azr_catalog <- S7::new_class(
+  "azr_catalog",
   properties = list(
     datasets = S7::class_list
   ),
@@ -141,11 +141,11 @@ az_catalog <- S7::new_class(
     if (
       !all(vapply(
         self@datasets,
-        function(d) S7::S7_inherits(d, az_dataset),
+        function(d) S7::S7_inherits(d, azr_dataset),
         logical(1L)
       ))
     ) {
-      return("datasets must be a list of az_dataset objects")
+      return("datasets must be a list of azr_dataset objects")
     }
     names <- vapply(self@datasets, function(d) d@name, character(1L))
     if (anyDuplicated(names) > 0L) {
@@ -167,14 +167,14 @@ az_catalog <- S7::new_class(
 #' reader to load an Azure Storage dataset. Use [as.list()][base::as.list] to
 #' convert it to a plain R list.
 #'
-#' @param name Dataset name, carried over from the source [az_dataset].
+#' @param name Dataset name, carried over from the source [azr_dataset].
 #' @param uri Resolved Azure Storage URI.
-#' @param format Dataset format. See [az_dataset] for supported values.
+#' @param format Dataset format. See [azr_dataset] for supported values.
 #'
-#' @return An `az_dataset_manifest` S7 object.
+#' @return An `azr_dataset_manifest` S7 object.
 #' @export
-az_dataset_manifest <- S7::new_class(
-  "az_dataset_manifest",
+azr_dataset_manifest <- S7::new_class(
+  "azr_dataset_manifest",
   properties = list(
     name = S7::class_character,
     uri = S7::class_character,
@@ -198,11 +198,11 @@ az_dataset_manifest <- S7::new_class(
 )
 
 
-#' Create an `az_dataset` from a full Azure Storage URI
+#' Create an `azr_dataset` from a full Azure Storage URI
 #'
 #' @description
 #' Parses an Azure Storage URI using [parse_storage_path()] and constructs an
-#' [az_dataset]. The parsed storage account is bound to `tier` in `storage`.
+#' [azr_dataset]. The parsed storage account is bound to `tier` in `storage`.
 #'
 #' @param uri Full Azure Storage URI, such as
 #'   `abfss://raw@account.dfs.core.windows.net/path` or
@@ -221,9 +221,9 @@ az_dataset_manifest <- S7::new_class(
 #'   accounts. The account from `uri` is bound to `tier` unless that key is
 #'   already present.
 #'
-#' @return An [az_dataset] object.
+#' @return An [azr_dataset] object.
 #' @export
-az_dataset_from_uri <- function(
+azr_dataset_from_uri <- function(
   uri,
   name = NULL,
   format = NULL,
@@ -260,7 +260,7 @@ az_dataset_from_uri <- function(
     storage
   }
 
-  az_dataset(
+  azr_dataset(
     name = name,
     scheme = scheme,
     container = parsed$container,
@@ -276,7 +276,7 @@ az_dataset_from_uri <- function(
 #'
 #' @description
 #' Reads a JSON file describing a collection of datasets and returns an
-#' [az_catalog].
+#' [azr_catalog].
 #'
 #' The expected JSON shape:
 #' \preformatted{
@@ -296,10 +296,10 @@ az_dataset_from_uri <- function(
 #'
 #' @param json_file Path to a JSON file.
 #'
-#' @return An [az_catalog] object.
-#' @seealso [az_catalog_write()]
+#' @return An [azr_catalog] object.
+#' @seealso [azr_catalog_write()]
 #' @export
-az_catalog_read <- function(json_file) {
+azr_catalog_read <- function(json_file) {
   raw <- jsonlite::fromJSON(json_file, simplifyVector = FALSE)
   if (!is.list(raw$datasets) || length(raw$datasets) == 0L) {
     cli::cli_abort(
@@ -319,7 +319,7 @@ az_catalog_read <- function(json_file) {
     }
 
     tryCatch(
-      az_dataset(
+      azr_dataset(
         name = x$name,
         scheme = x$scheme,
         container = x$container,
@@ -337,25 +337,25 @@ az_catalog_read <- function(json_file) {
     )
   })
 
-  az_catalog(datasets = datasets)
+  azr_catalog(datasets = datasets)
 }
 
 
 #' Write a dataset catalog to JSON
 #'
 #' @description
-#' Writes an [az_catalog] to a JSON file in the shape expected by
-#' [az_catalog_read()].
+#' Writes an [azr_catalog] to a JSON file in the shape expected by
+#' [azr_catalog_read()].
 #'
-#' @param catalog An [az_catalog] object.
+#' @param catalog An [azr_catalog] object.
 #' @param json_file Path to write the JSON file to.
 #'
 #' @return `json_file`, invisibly.
-#' @seealso [az_catalog_read()]
+#' @seealso [azr_catalog_read()]
 #' @export
-az_catalog_write <- function(catalog, json_file) {
-  if (!S7::S7_inherits(catalog, az_catalog)) {
-    cli::cli_abort("{.arg catalog} must be an {.cls az_catalog} object.")
+azr_catalog_write <- function(catalog, json_file) {
+  if (!S7::S7_inherits(catalog, azr_catalog)) {
+    cli::cli_abort("{.arg catalog} must be an {.cls azr_catalog} object.")
   }
   jsonlite::write_json(
     as.list(catalog),
@@ -367,9 +367,9 @@ az_catalog_write <- function(catalog, json_file) {
 }
 
 
-#' Build a URI for an `az_dataset` or look one up in an `az_catalog`
+#' Build a URI for an `azr_dataset` or look one up in an `azr_catalog`
 #'
-#' @param x An [az_dataset] or [az_catalog] object.
+#' @param x An [azr_dataset] or [azr_catalog] object.
 #' @param ... Additional arguments passed to methods:
 #'   \describe{
 #'     \item{`tier`}{Environment tier name (a key in the dataset's
@@ -379,17 +379,17 @@ az_catalog_write <- function(catalog, json_file) {
 #'     \item{`uri_type`}{URI type: `"https"` or `"hadoop"` (the Hadoop ABFS
 #'       URI form `scheme://container@account.dfs.../path`, used by Spark,
 #'       Flink, Trino, and any `hadoop-azure` consumer).}
-#'     \item{`name`}{For an [az_catalog] only: an optional character scalar
+#'     \item{`name`}{For an [azr_catalog] only: an optional character scalar
 #'       selecting a single dataset by name. If omitted, URIs for every
 #'       dataset are returned.}
 #'   }
 #'
-#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, a
-#'   character scalar URI. For an [az_catalog] without `name`, a named
+#' @return For an [azr_dataset], or an [azr_catalog] with `name` supplied, a
+#'   character scalar URI. For an [azr_catalog] without `name`, a named
 #'   character vector of URIs keyed by dataset name.
 #' @export
 #' @examples
-#' ds <- az_dataset(
+#' ds <- azr_dataset(
 #'   name = "orders",
 #'   scheme = "abfss",
 #'   container = "raw",
@@ -397,14 +397,14 @@ az_catalog_write <- function(catalog, json_file) {
 #'   path = "sales/orders",
 #'   format = "delta"
 #' )
-#' az_dataset_uri(ds, tier = "prod")
+#' azr_dataset_uri(ds, tier = "prod")
 #'
-#' catalog <- az_catalog(datasets = list(ds))
-#' az_dataset_uri(catalog, tier = "prod", name = "orders")
-#' az_dataset_uri(catalog, tier = "prod")
-az_dataset_uri <- S7::new_generic("az_dataset_uri", "x")
+#' catalog <- azr_catalog(datasets = list(ds))
+#' azr_dataset_uri(catalog, tier = "prod", name = "orders")
+#' azr_dataset_uri(catalog, tier = "prod")
+azr_dataset_uri <- S7::new_generic("azr_dataset_uri", "x")
 
-S7::method(az_dataset_uri, az_dataset) <- function(
+S7::method(azr_dataset_uri, azr_dataset) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -427,7 +427,7 @@ S7::method(az_dataset_uri, az_dataset) <- function(
   )
 }
 
-S7::method(az_dataset_uri, az_catalog) <- function(
+S7::method(azr_dataset_uri, azr_catalog) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -437,12 +437,12 @@ S7::method(az_dataset_uri, az_catalog) <- function(
   uri_type <- rlang::arg_match(uri_type)
 
   if (!is.null(name)) {
-    return(az_dataset_uri(x[[name]], tier = tier, uri_type = uri_type))
+    return(azr_dataset_uri(x[[name]], tier = tier, uri_type = uri_type))
   }
 
   out <- vapply(
     x@datasets,
-    function(d) az_dataset_uri(d, tier = tier, uri_type = uri_type),
+    function(d) azr_dataset_uri(d, tier = tier, uri_type = uri_type),
     character(1L)
   )
   names(out) <- names(x)
@@ -450,21 +450,21 @@ S7::method(az_dataset_uri, az_catalog) <- function(
 }
 
 
-#' Build a URI + format manifest for an `az_dataset` or `az_catalog`
+#' Build a URI + format manifest for an `azr_dataset` or `azr_catalog`
 #'
 #' @description
-#' Like [az_dataset_uri()], but each entry also carries the dataset's `format`,
+#' Like [azr_dataset_uri()], but each entry also carries the dataset's `format`,
 #' which together are what a reader (e.g. `sparklyr::spark_read_source()`)
 #' needs to load a dataset.
 #'
-#' @inheritParams az_dataset_uri
+#' @inheritParams azr_dataset_uri
 #'
-#' @return For an [az_dataset], or an [az_catalog] with `name` supplied, an
-#'   [az_dataset_manifest]. For an [az_catalog] without `name`, a named list
-#'   of `az_dataset_manifest` objects, keyed by dataset name.
+#' @return For an [azr_dataset], or an [azr_catalog] with `name` supplied, an
+#'   [azr_dataset_manifest]. For an [azr_catalog] without `name`, a named list
+#'   of `azr_dataset_manifest` objects, keyed by dataset name.
 #' @export
 #' @examples
-#' ds <- az_dataset(
+#' ds <- azr_dataset(
 #'   name = "orders",
 #'   scheme = "abfss",
 #'   container = "raw",
@@ -472,27 +472,27 @@ S7::method(az_dataset_uri, az_catalog) <- function(
 #'   path = "sales/orders",
 #'   format = "delta"
 #' )
-#' az_resolve_dataset(ds, tier = "prod")
+#' azr_resolve_dataset(ds, tier = "prod")
 #'
-#' catalog <- az_catalog(datasets = list(ds))
-#' az_resolve_dataset(catalog, tier = "prod")
-az_resolve_dataset <- S7::new_generic("az_resolve_dataset", "x")
+#' catalog <- azr_catalog(datasets = list(ds))
+#' azr_resolve_dataset(catalog, tier = "prod")
+azr_resolve_dataset <- S7::new_generic("azr_resolve_dataset", "x")
 
-S7::method(az_resolve_dataset, az_dataset) <- function(
+S7::method(azr_resolve_dataset, azr_dataset) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
   ...
 ) {
   uri_type <- rlang::arg_match(uri_type)
-  az_dataset_manifest(
+  azr_dataset_manifest(
     name = x@name,
-    uri = az_dataset_uri(x, tier = tier, uri_type = uri_type),
+    uri = azr_dataset_uri(x, tier = tier, uri_type = uri_type),
     format = x@format
   )
 }
 
-S7::method(az_resolve_dataset, az_catalog) <- function(
+S7::method(azr_resolve_dataset, azr_catalog) <- function(
   x,
   tier = opts$get("dataset_tier"),
   uri_type = c("hadoop", "https"),
@@ -502,12 +502,12 @@ S7::method(az_resolve_dataset, az_catalog) <- function(
   uri_type <- rlang::arg_match(uri_type)
 
   if (!is.null(name)) {
-    return(az_resolve_dataset(x[[name]], tier = tier, uri_type = uri_type))
+    return(azr_resolve_dataset(x[[name]], tier = tier, uri_type = uri_type))
   }
 
   out <- lapply(
     x@datasets,
-    function(d) az_resolve_dataset(d, tier = tier, uri_type = uri_type)
+    function(d) azr_resolve_dataset(d, tier = tier, uri_type = uri_type)
   )
   names(out) <- names(x)
   out
@@ -517,7 +517,7 @@ S7::method(az_resolve_dataset, az_catalog) <- function(
 # S3 methods registered via S7 (S7 namespaces class to "pkg::class") ------
 
 # nolint next: object_name_linter.
-S7::method(as.list, az_dataset) <- function(x, ...) {
+S7::method(as.list, azr_dataset) <- function(x, ...) {
   list(
     name = x@name,
     scheme = x@scheme,
@@ -530,12 +530,12 @@ S7::method(as.list, az_dataset) <- function(x, ...) {
 }
 
 # nolint next: object_name_linter.
-S7::method(as.list, az_catalog) <- function(x, ...) {
+S7::method(as.list, azr_catalog) <- function(x, ...) {
   list(datasets = lapply(x@datasets, as.list))
 }
 
 # nolint next: object_name_linter.
-S7::method(as.list, az_dataset_manifest) <- function(x, ...) {
+S7::method(as.list, azr_dataset_manifest) <- function(x, ...) {
   list(
     name = x@name,
     uri = x@uri,
@@ -543,8 +543,8 @@ S7::method(as.list, az_dataset_manifest) <- function(x, ...) {
   )
 }
 
-S7::method(print, az_dataset) <- function(x, ...) {
-  cli::cli_text(cli::style_bold("<az_dataset:{x@name}>"))
+S7::method(print, azr_dataset) <- function(x, ...) {
+  cli::cli_text(cli::style_bold("<azr_dataset:{x@name}>"))
   cli::cli_dl(c(
     scheme = x@scheme,
     container = x@container,
@@ -560,8 +560,8 @@ S7::method(print, az_dataset) <- function(x, ...) {
   invisible(x)
 }
 
-S7::method(print, az_dataset_manifest) <- function(x, ...) {
-  cli::cli_text(cli::style_bold("<az_dataset_manifest:{x@name}>"))
+S7::method(print, azr_dataset_manifest) <- function(x, ...) {
+  cli::cli_text(cli::style_bold("<azr_dataset_manifest:{x@name}>"))
   cli::cli_dl(c(
     uri = x@uri,
     format = x@format
@@ -569,24 +569,24 @@ S7::method(print, az_dataset_manifest) <- function(x, ...) {
   invisible(x)
 }
 
-S7::method(print, az_catalog) <- function(x, ...) {
+S7::method(print, azr_catalog) <- function(x, ...) {
   n <- length(x)
-  cli::cli_text(cli::style_bold("<az_catalog>"), " ({n} dataset{?s})")
+  cli::cli_text(cli::style_bold("<azr_catalog>"), " ({n} dataset{?s})")
   for (nm in names(x)) {
     cli::cli_text("  ", nm)
   }
   invisible(x)
 }
 
-S7::method(names, az_catalog) <- function(x) {
+S7::method(names, azr_catalog) <- function(x) {
   vapply(x@datasets, function(d) d@name, character(1L))
 }
 
-S7::method(length, az_catalog) <- function(x) {
+S7::method(length, azr_catalog) <- function(x) {
   length(x@datasets)
 }
 
-S7::method(`[[`, az_catalog) <- function(x, i) {
+S7::method(`[[`, azr_catalog) <- function(x, i) {
   idx <- which(vapply(
     x@datasets,
     function(d) identical(d@name, i),

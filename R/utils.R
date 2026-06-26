@@ -1,9 +1,12 @@
 # Warns that `old_name` is a deprecated alias for `new_name` on `fn_name`.
 deprecated_arg <- function(old_name, new_name, fn_name) {
-  cli::cli_warn(
+  rlang::warn(
     c(
-      "The {.arg {old_name}} argument to {.fn {fn_name}} is deprecated.",
-      "i" = "Use {.arg {new_name}} instead."
+      paste0(
+        "The `", old_name, "` argument to `", fn_name,
+        "()` is deprecated."
+      ),
+      i = paste0("Use `", new_name, "` instead.")
     ),
     class = "azr_deprecated_argument"
   )

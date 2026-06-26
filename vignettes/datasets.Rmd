@@ -31,11 +31,11 @@ This separates two concerns that usually get tangled together in pipeline code:
 
 ## A single dataset
 
-`az_dataset()` declares one dataset. Only the storage account varies by tier —
+`azr_dataset()` declares one dataset. Only the storage account varies by tier —
 the container, path, scheme, and format are shared across every environment:
 
 ```{r}
-orders <- az_dataset(
+orders <- azr_dataset(
   name      = "orders",
   scheme    = "abfss",
   container = "raw",
@@ -54,12 +54,12 @@ or `text`.
 
 ## Building a URI
 
-`az_dataset_uri()` turns a dataset into a concrete URI for one tier. The default
+`azr_dataset_uri()` turns a dataset into a concrete URI for one tier. The default
 `uri_type = "hadoop"` produces the ABFS form used by Spark, Flink, Trino, and any
 `hadoop-azure` consumer:
 
 ```{r}
-az_dataset_uri(orders, tier = "prod")
+azr_dataset_uri(orders, tier = "prod")
 #> "abfss://raw@stprod001.dfs.core.windows.net/sales/orders"
 ```
 
@@ -67,7 +67,7 @@ Switch tier to point the same dataset at a different storage account, or ask for
 the `https` form:
 
 ```{r}
-az_dataset_uri(orders, tier = "preprod", uri_type = "https")
+azr_dataset_uri(orders, tier = "preprod", uri_type = "https")
 #> "https://stpreprod001.dfs.core.windows.net/raw/sales/orders"
 ```
 
@@ -81,18 +81,18 @@ wrong environment.
 pass it. Set it once via `options(azr.dataset_tier = ...)` or the
 `AZR_DATASET_TIER` environment variable (default `"prod"`) — for example, a
 pre-production job can export `AZR_DATASET_TIER=preprod` and every
-`az_dataset_uri()` call follows.
+`azr_dataset_uri()` call follows.
 
 ## Resolving to a manifest
 
 A URI alone isn't enough to *load* data — a reader also needs the format.
-`az_resolve_dataset()` returns an `az_dataset_manifest` carrying the `name`,
+`azr_resolve_dataset()` returns an `azr_dataset_manifest` carrying the `name`,
 `uri`, and `format` together (call `as.list()` for a plain R list):
 
 ```{r}
-m <- az_resolve_dataset(orders, tier = "prod")
+m <- azr_resolve_dataset(orders, tier = "prod")
 m
-#> <az_dataset_manifest:orders>
+#> <azr_dataset_manifest:orders>
 #> uri: abfss://raw@stprod001.dfs.core.windows.net/sales/orders
 #> format: delta
 ```
@@ -100,25 +100,25 @@ m
 This is exactly the shape a reader like `sparklyr::spark_read_source()` wants:
 
 ```{r}
-m <- az_resolve_dataset(orders, tier = "prod")
+m <- azr_resolve_dataset(orders, tier = "prod")
 spark_read_source(sc, name = m@name, source = m@format, path = m@uri)
 ```
 
 ## Creating a dataset from a URI
 
-If you already have a full storage URI, `az_dataset_from_uri()` parses it into a
-dataset. The parsed storage account is bound to `tier`, and the `format` is
-inferred from the URI's file extension (or `_delta_log` segment) when you don't
-pass it:
+If you already have a full storage URI, `azr_dataset_from_uri()` parses it into a
+dataset. The parsed storage account is bound to `tier`; `name` defaults to the
+last path segment (with any file extension removed); and `format` is inferred
+from the URI's file extension (or `_delta_log` segment) when you don't pass it:
 
 ```{r}
-file <- az_dataset_from_uri(
+file <- azr_dataset_from_uri(
   "abfss://raw@stprod001.dfs.core.windows.net/sales/orders/part.parquet",
   name = "orders_file"
 )
 
 file
-#> <az_dataset:orders_file>
+#> <azr_dataset:orders_file>
 #> scheme: abfss
 #> container: raw
 #> path: sales/orders/part.parquet
@@ -126,21 +126,29 @@ file
 #> storage: prod=stprod001
 ```
 
-A directory URI is ambiguous (its format can't be inferred), so pass `format`
-explicitly in that case:
+A directory URI has no file extension to infer from, so `format` defaults to
+`"delta"`. Pass `format` explicitly to override it (for example a directory of
+Parquet files):
 
 ```{r}
-az_dataset_from_uri(
+# Directory URI → format defaults to "delta"
+azr_dataset_from_uri(
+  "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
+  name = "orders"
+)
+
+# Override the default for a non-delta directory
+azr_dataset_from_uri(
   "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
   name   = "orders",
-  format = "delta"
+  format = "parquet"
 )
 ```
 
 To make the dataset multi-tier, supply additional accounts via `storage`:
 
 ```{r}
-az_dataset_from_uri(
+azr_dataset_from_uri(
   "abfss://raw@stprod001.dfs.core.windows.net/sales/orders",
   name    = "orders",
   format  = "delta",
@@ -151,12 +159,12 @@ az_dataset_from_uri(
 
 ## Grouping datasets in a catalog
 
-An `az_catalog()` holds an ordered collection of datasets with unique names. It
+An `azr_catalog()` holds an ordered collection of datasets with unique names. It
 behaves like a named container: index with `[[`, and use `names()` and
 `length()`:
 
 ```{r}
-catalog <- az_catalog(datasets = list(orders, file))
+catalog <- azr_catalog(datasets = list(orders, file))
 
 names(catalog)
 #> "orders" "orders_file"
@@ -165,11 +173,11 @@ length(catalog)
 catalog[["orders"]]
 ```
 
-`az_dataset_uri()` and `az_resolve_dataset()` both dispatch on a catalog. With no
+`azr_dataset_uri()` and `azr_resolve_dataset()` both dispatch on a catalog. With no
 `name`, they return one entry per dataset, keyed by name:
 
 ```{r}
-az_dataset_uri(catalog, tier = "prod")
+azr_dataset_uri(catalog, tier = "prod")
 #> orders      "abfss://raw@stprod001.dfs.core.windows.net/sales/orders"
 #> orders_file "abfss://raw@stprod001.dfs.core.windows.net/sales/orders/part.parquet"
 ```
@@ -177,20 +185,20 @@ az_dataset_uri(catalog, tier = "prod")
 Pass `name` to resolve a single dataset out of the catalog:
 
 ```{r}
-az_dataset_uri(catalog, tier = "prod", name = "orders")
-az_resolve_dataset(catalog, tier = "prod", name = "orders")
+azr_dataset_uri(catalog, tier = "prod", name = "orders")
+azr_resolve_dataset(catalog, tier = "prod", name = "orders")
 ```
 
 ## Storing a catalog as JSON
 
 A catalog round-trips to JSON, so you can keep dataset definitions in version
-control and load them at runtime. `az_catalog_write()` serialises a catalog and
-`az_catalog_read()` reads it back:
+control and load them at runtime. `azr_catalog_write()` serialises a catalog and
+`azr_catalog_read()` reads it back:
 
 ```{r}
-az_catalog_write(catalog, "datasets.json")
+azr_catalog_write(catalog, "datasets.json")
 
-catalog <- az_catalog_read("datasets.json")
+catalog <- azr_catalog_read("datasets.json")
 ```
 
 The JSON shape is one object per dataset under a top-level `datasets` array:
@@ -210,7 +218,7 @@ The JSON shape is one object per dataset under a top-level `datasets` array:
 }
 ```
 
-`az_catalog_read()` validates every entry, reporting which dataset (by index and
+`azr_catalog_read()` validates every entry, reporting which dataset (by index and
 name) is invalid and why — so a malformed catalog fails at load time rather than
 when a pipeline later tries to read a dataset.
 
@@ -220,9 +228,9 @@ A typical flow: keep a `datasets.json` in the repo, read it into a catalog, and
 resolve the dataset you need for the current tier.
 
 ```{r}
-catalog <- az_catalog_read("datasets.json")
+catalog <- azr_catalog_read("datasets.json")
 
-m <- az_resolve_dataset(catalog, name = "orders")  # tier from AZR_DATASET_TIER
+m <- azr_resolve_dataset(catalog, name = "orders")  # tier from AZR_DATASET_TIER
 df <- spark_read_source(sc, name = m@name, source = m@format, path = m@uri)
 ```
 

@@ -23,7 +23,7 @@ a built-in default.\tabular{lllll}{
    \code{"chain_verbose"} \tab \code{azr.chain_verbose} \tab \code{AZR_CHAIN_VERBOSE} \tab \code{FALSE} \tab Verbose credential-chain discovery \cr
    \code{"api_verbose"} \tab \code{azr.api_verbose} \tab \code{AZR_API_VERBOSE} \tab \code{FALSE} \tab Verbose api_client request/response \cr
    \code{"cli_auto_login"} \tab \code{azr.cli_auto_login} \tab \code{AZR_CLI_AUTO_LOGIN} \tab \code{FALSE} \tab Auto Azure CLI login \cr
-   \code{"dataset_tier"} \tab \code{azr.dataset_tier} \tab \code{AZR_DATASET_TIER} \tab \code{"prod"} \tab Default tier for \code{\link[=az_dataset_uri]{az_dataset_uri()}} \cr
+   \code{"dataset_tier"} \tab \code{azr.dataset_tier} \tab \code{AZR_DATASET_TIER} \tab \code{"prod"} \tab Default tier for \code{\link[=azr_dataset_uri]{azr_dataset_uri()}} \cr
 }
 }
 \examples{

@@ -1,22 +1,28 @@
-# azr (development version)
+# azr 0.3.5
 
-* Added S7 classes `az_dataset`, `az_catalog`, and `az_dataset_manifest`, plus `az_dataset_uri()`, `az_resolve_dataset()`, `az_dataset_from_uri()`, `az_catalog_read()`, and `az_catalog_write()` for declaring and resolving Azure Storage datasets across tiers. `az_resolve_dataset()` returns an `az_dataset_manifest` (use `as.list()` for a plain list with `name`, `uri`, and `format`).
-* Added the `azr.*` option registry (`azr_options()`, `opts$get`/`opts$set`) backing the new `chain_verbose`, `api_verbose`, `cli_auto_login`, and `dataset_tier` options.
-* `api_client$new()` gained a `verbose` argument, defaulting to the `api_verbose` option, that gates the `>>>`/`<<<` request and response logging.
-* Added `default_graph_endpoint()` and an `endpoint` argument to `azr_graph_client()` so the Microsoft Graph host is no longer hardcoded.
-* Added `api_log_analytics_client` and `azr_logs_client()` for running KQL queries against the Azure Log Analytics REST API.
-* Added `ManagedIdentityCredential` for Azure managed identity authentication via the IMDS endpoint, now included in `default_credential_chain()`.
-* `default_azure_scope()` now accepts short service names without the `azure_` prefix and `default_credential_chain()` reorders and extends its entries to include workload identity, managed identity, and Azure CLI ahead of interactive credentials.
-* Consolidated `azure_storage_endpoints`/`azure_scopes` into a single internal `azure_services` list of per-service OAuth resource hosts and data-plane endpoints.
-* Added `azure_spark_storage_conf()` for generating Spark/Hadoop configuration keys (prefixed `spark.hadoop.` by default) for `refresh_token`, `client_secret`, `managed_identity`, and `shared_key` authentication, with sovereign cloud support.
-* `parse_storage_path()` now accepts `az://`/`azure://` schemes, captures an `endpoint_suffix` for sovereign clouds, and handles DNS-zone endpoints.
-* Breaking: `credential_chain()` accepts credential classes or configured credential instances, captured lazily and resolved when each entry is tried; `get_credential_provider()` builds class entries from an explicit context instead of scraping its caller's frame; renamed `get_credential_provider(interactive = )` to `allow_interactive = `.
-* Credential classes validate their configuration at construction via `$validate()`, so an incompletely configured credential fails fast rather than at token time.
-* Removed the constructor-time interactive-session check and unused `.redirect_uri` field from the base `Credential` class, and added an internal `is_credential()` helper.
-* `AzureCLICredential` no longer checks or runs `az login` at construction; its `interactive` argument is renamed to `auto_login` (defaulting to the `cli_auto_login` option) and login is now checked lazily in `get_token()`.
-* `InteractiveCredential`/`AuthCodeCredential`/`DeviceCodeCredential`'s `interactive` argument is renamed to `allow_prompt`, and constructors no longer abort in non-interactive sessions (deferred to `get_token()`).
-* `cached_token_credential_chain()` and `CachedTokenCredential` are updated to use the renamed `allow_prompt`/`auto_login`/`allow_interactive` arguments.
-* `api_storage_client$new()` gained a `client_id` argument, and `list_files()` now pages through all results automatically.
+* Added `azr_dataset()`, `azr_catalog()`, and `azr_resolve_dataset()` for declaring and resolving Azure Storage datasets across environment tiers.
+* Added `azr_logs_client()` for running KQL queries against the Azure Log Analytics REST API.
+* Added `ManagedIdentityCredential` for managed identity authentication via the IMDS endpoint.
+* Added `azr_options()`, an option registry backing the new `azr.*` options.
+* Added `azure_spark_storage_conf()` for generating Spark/Hadoop storage configuration keys, with sovereign-cloud support.
+* Added `parse_storage_path()` for splitting Azure Storage URIs, including `az://`/`azure://` schemes and sovereign-cloud endpoints.
+* `api_client$new()` gained a `verbose` argument that gates request and response logging.
+* `azr_graph_client()` gained an `endpoint` argument so the Microsoft Graph host is no longer hardcoded.
+* `api_storage_client` gained a `client_id` argument, and `list_files()` now pages through all results automatically.
+* Breaking: `get_credential_provider()`'s `interactive` argument is renamed to `allow_interactive`, and `default_credential_chain()` now tries workload identity, managed identity, and Azure CLI ahead of interactive credentials.
+* The base `Credential` class no longer aborts at construction in non-interactive sessions (deferred to `get_token()`), and its shared configuration checks moved to a private `validate_base()` helper.
+* `AzureCLICredential`'s `interactive` argument is renamed to `auto_login`, with login checked lazily in `get_token()`.
+* `InteractiveCredential` (and `AuthCodeCredential`/`DeviceCodeCredential`) renamed its `interactive` argument to `allow_prompt`.
+* `cached_token_credential_chain()` was updated to the renamed `allow_prompt`/`auto_login` arguments.
+* Internal: `ClientSecretCredential`'s `$validate()` now delegates to the shared `validate_base()` helper.
+* Internal: `RefreshTokenCredential`'s `$validate()` now delegates to the shared `validate_base()` helper.
+* `WorkloadIdentityCredential` now performs its required `tenant_id`/`client_id` checks in `$validate()` rather than its constructor body.
+* `default_azure_scope()` now accepts short service names without the `azure_` prefix.
+* Internal `azure_services` replaces `azure_storage_endpoints`/`azure_scopes`, consolidating per-service OAuth hosts and data-plane endpoints.
+* Added internal `list_redact_pattern()` for redacting named list entries by pattern.
+* Added internal `validate_required_string()` and `deprecated_arg()` helpers.
+* Added an `.onLoad()` hook that registers S7 methods via `S7::methods_register()`.
+* Added namespace imports for the S7 `@` operator and rlang's `:=`.
 
 # azr 0.3.4
 
