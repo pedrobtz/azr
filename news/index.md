@@ -2,6 +2,8 @@
 
 ## azr 0.3.5
 
+CRAN release: 2026-06-26
+
 - Added
   [`azr_dataset()`](https://pedrobtz.github.io/azr/reference/azr_dataset.md),
   [`azr_catalog()`](https://pedrobtz.github.io/azr/reference/azr_catalog.md),
