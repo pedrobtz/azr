@@ -630,3 +630,106 @@ test_that("allow_interactive = FALSE prevents interactive credentials from being
 
   expect_match(conditionMessage(err), "interactive session")
 })
+
+
+test_that("user_credential_chain holds only human credentials", {
+  chain <- user_credential_chain()
+
+  expect_s3_class(chain, "credential_chain")
+  expect_named(chain, c("azure_cli", "auth_code", "device_code"))
+
+  # the order matches the one default_credential_chain() tries them in
+  default_order <- names(default_credential_chain())
+  expect_equal(names(chain), default_order[default_order %in% names(chain)])
+
+  # no credential that authenticates a workload
+  expect_false(any(
+    c("client_secret", "workload_identity", "managed_identity") %in%
+      names(chain)
+  ))
+})
+
+test_that("get_user_token ignores a workload identity environment", {
+  token_file <- withr::local_tempfile(lines = "a-federated-token")
+  withr::local_envvar(
+    AZURE_FEDERATED_TOKEN_FILE = token_file,
+    AZURE_CLIENT_ID = "workload-client",
+    AZURE_TENANT_ID = "workload-tenant"
+  )
+
+  # WorkloadIdentityCredential would be built from this environment...
+  expect_s3_class(
+    try_build_credential(
+      default_credential_chain()[["workload_identity"]],
+      "workload_identity",
+      context = build_credential_context(scope = "s")
+    )$obj,
+    "WorkloadIdentityCredential"
+  )
+
+  # ...but it is not a candidate for get_user_token()
+  expect_false("workload_identity" %in% names(user_credential_chain()))
+
+  # in a non-interactive session only the Azure CLI credential is left, so the
+  # failure names it and nothing else
+  local_mocked_bindings(
+    az_cli_available = function(...) cli::cli_abort("az CLI not found")
+  )
+  err <- expect_error(
+    get_user_token(scope = "https://management.azure.com/.default"),
+    class = "azr_credential_chain_failed"
+  )
+  expect_match(conditionMessage(err), "azure_cli")
+  expect_false(grepl("workload_identity", conditionMessage(err)))
+})
+
+
+test_that("get_user_token authenticates against the Azure CLI client", {
+  withr::local_envvar(AZURE_CLIENT_ID = "workload-client")
+
+  expect_equal(
+    formals(get_user_token)$client_id,
+    quote(default_azure_cli_client_id())
+  )
+
+  # the interactive credentials sign in to the CLI client, not to the
+  # application named by AZURE_CLIENT_ID
+  context <- build_credential_context(
+    scope = "s",
+    client_id = default_azure_cli_client_id()
+  )
+  for (nm in c("auth_code", "device_code")) {
+    obj <- try_build_credential(
+      user_credential_chain()[[nm]],
+      nm,
+      context = context,
+      interactive = TRUE
+    )$obj
+    expect_equal(obj$.client_id, default_azure_cli_client_id())
+  }
+})
+
+
+test_that("get_user_token skips a service principal Azure CLI session", {
+  local_mocked_bindings(
+    az_cli_account_show = function(...) {
+      list(user = list(name = "an-app-id", type = "servicePrincipal"))
+    },
+    az_cli_get_token = function(...) httr2::oauth_token("an-app-token")
+  )
+
+  # the chain uses the user-only variant of the CLI credential
+  expect_identical(
+    eval_chain_entry(user_credential_chain()[["azure_cli"]]),
+    UserAzureCLICredential
+  )
+
+  # in a non-interactive session nothing else can serve a token, and the
+  # failure explains that the CLI session is not a user
+  err <- expect_error(
+    get_user_token(scope = "https://management.azure.com/.default"),
+    class = "azr_credential_chain_failed"
+  )
+  expect_match(conditionMessage(err), "not as a user")
+  expect_false(grepl("an-app-token", conditionMessage(err), fixed = TRUE))
+})
