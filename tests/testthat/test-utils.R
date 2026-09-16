@@ -118,23 +118,35 @@ test_that("is_empty_vec returns logical vector", {
   expect_length(result, 3)
 })
 
-test_that("get_env_config returns formatted bullet list", {
+test_that("az_config returns one row per variable", {
   withr::local_envvar(
     AZURE_TENANT_ID = NA,
     AZURE_CLIENT_ID = NA,
     AZURE_CLIENT_SECRET = NA,
-    AZURE_AUTHORITY_HOST = NA
+    AZURE_AUTHORITY_HOST = NA,
+    AZURE_CONFIG_DIR = NA,
+    AZURE_FEDERATED_TOKEN_FILE = NA
   )
 
-  result <- get_env_config()
+  result <- az_config()
 
-  expect_type(result, "character")
-  expect_length(result, 5)
-  expect_named(result, c("*", "*", "*", "*", "*"))
-  expect_false(any(grepl("AZURE_CLIENT_ID", result)))
+  expect_s3_class(result, "data.frame")
+  expect_named(result, c("variable", "value", "source"))
+  expect_equal(
+    result$variable,
+    c(
+      "AZURE_TENANT_ID",
+      "AZURE_CLIENT_ID",
+      "AZURE_CLIENT_SECRET",
+      "AZURE_AUTHORITY_HOST",
+      "AZURE_CONFIG_DIR",
+      "AZURE_FEDERATED_TOKEN_FILE"
+    )
+  )
+  expect_true(all(result$source %in% c("env", "default", "unset")))
 })
 
-test_that("get_env_config shows environment variables when set", {
+test_that("az_config reports environment variables as source env", {
   withr::local_envvar(
     AZURE_TENANT_ID = "my-tenant",
     AZURE_CLIENT_ID = "my-client",
@@ -142,27 +154,70 @@ test_that("get_env_config shows environment variables when set", {
     AZURE_AUTHORITY_HOST = "login.microsoftonline.us"
   )
 
-  result <- get_env_config()
+  result <- az_config()
+  value_of <- function(var) result$value[result$variable == var]
+  source_of <- function(var) result$source[result$variable == var]
 
-  expect_true(any(grepl("my-tenant", result)))
-  expect_false(any(grepl("AZURE_CLIENT_ID", result)))
-  expect_true(any(grepl("REDACTED", result)))
-  expect_true(any(grepl("login.microsoftonline.us", result)))
+  expect_equal(value_of("AZURE_TENANT_ID"), "my-tenant")
+  expect_equal(value_of("AZURE_CLIENT_ID"), "my-client")
+  expect_equal(value_of("AZURE_AUTHORITY_HOST"), "login.microsoftonline.us")
+  expect_equal(
+    source_of(c("AZURE_TENANT_ID", "AZURE_CLIENT_ID")),
+    c("env", "env")
+  )
 })
 
-test_that("get_env_config shows defaults when not set", {
+test_that("az_config redacts the client secret", {
+  withr::local_envvar(AZURE_CLIENT_SECRET = "super-secret")
+
+  result <- az_config()
+  secret <- result[result$variable == "AZURE_CLIENT_SECRET", ]
+
+  expect_equal(secret$source, "env")
+  expect_equal(secret$value, "<<REDACTED>>")
+  expect_false(any(grepl("super-secret", unlist(result), fixed = TRUE)))
+})
+
+test_that("az_config falls back to defaults, or reports unset", {
   withr::local_envvar(
     AZURE_TENANT_ID = "",
     AZURE_CLIENT_ID = "",
     AZURE_CLIENT_SECRET = "",
-    AZURE_AUTHORITY_HOST = ""
+    AZURE_AUTHORITY_HOST = "",
+    AZURE_FEDERATED_TOKEN_FILE = ""
   )
 
-  result <- get_env_config()
+  result <- az_config()
+  row_for <- function(var) result[result$variable == var, ]
 
-  expect_true(any(grepl("default", result)))
-  expect_false(any(grepl("AZURE_CLIENT_ID", result)))
-  expect_true(any(grepl("not set", result)))
+  expect_equal(row_for("AZURE_TENANT_ID")$source, "default")
+  expect_equal(row_for("AZURE_TENANT_ID")$value, azure_client$tenant_id)
+  expect_equal(row_for("AZURE_CLIENT_ID")$value, azure_client$client_id)
+
+  # variables with no built-in fallback are unset, with no value
+  expect_equal(row_for("AZURE_CLIENT_SECRET")$source, "unset")
+  expect_true(is.na(row_for("AZURE_CLIENT_SECRET")$value))
+  expect_equal(row_for("AZURE_FEDERATED_TOKEN_FILE")$source, "unset")
+  expect_true(is.na(row_for("AZURE_FEDERATED_TOKEN_FILE")$value))
+})
+
+test_that("format_az_config renders one bullet per row", {
+  config <- data.frame(
+    variable = c("A_ENV", "A_DEFAULT", "A_UNSET", "A_SECRET"),
+    value = c("from-env", "built-in", NA, "<<REDACTED>>"),
+    source = c("env", "default", "unset", "env"),
+    stringsAsFactors = FALSE
+  )
+
+  raw <- format_az_config(config)
+  result <- cli::ansi_strip(raw)
+
+  expect_length(raw, 4)
+  expect_named(raw, rep("*", 4))
+  expect_match(result[[1]], '^A_ENV: "from-env" \\(env\\)')
+  expect_equal(result[[2]], 'A_DEFAULT: "built-in" (default)')
+  expect_equal(result[[3]], "A_UNSET: (not set)")
+  expect_match(result[[4]], "^A_SECRET: <<REDACTED>> \\(env\\)")
 })
 
 # Tests for r6_get_initialize_arguments

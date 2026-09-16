@@ -8,7 +8,7 @@
   packageStartupMessage(cli::format_bullets_raw(c(
     i = "Environment configuration:"
   )))
-  for (bullet in cli::format_bullets_raw(get_env_config())) {
+  for (bullet in cli::format_bullets_raw(format_az_config())) {
     packageStartupMessage(bullet)
   }
 }
