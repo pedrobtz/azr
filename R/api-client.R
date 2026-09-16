@@ -465,16 +465,32 @@ format_size <- function(body, units = "Kb") {
   cli::col_blue(strsplit(x, split = " ", fixed = TRUE)[[1]][1])
 }
 
-format_json_body <- function(x, params = NULL, max_size = 12L, max_items = 6L) {
+format_json_body <- function(x, params = NULL, max_size = 12L, max_items = 10L) {
+  # keep the head and tail of `z`, separated by an "..." placeholder. Names are
+  # carried over so that named lists don't end up with an index as key.
+  truncate <- function(z, n) {
+    half <- max(n %/% 2L, 1L)
+    res <- c(utils::head(z, half), list("..."), utils::tail(z, half))
+    if (!is.null(names(z))) {
+      names(res) <- c(
+        utils::head(names(z), half),
+        "...",
+        utils::tail(names(z), half)
+      )
+    }
+    res
+  }
+
   inner_format <- function(z) {
     if (length(z) > max_items) {
-      z <- c(utils::head(z, 3), list("..."), utils::tail(z, 3))
+      z <- truncate(z, max_items)
     }
     lapply(z, function(i) {
       if (is.list(i)) {
         inner_format(i)
       } else if (length(i) > max_size) {
-        c(utils::head(i), "...", utils::tail(i))
+        half <- max(max_size %/% 2L, 1L)
+        c(utils::head(i, half), "...", utils::tail(i, half))
       } else {
         i
       }
@@ -498,8 +514,8 @@ format_json_body <- function(x, params = NULL, max_size = 12L, max_items = 6L) {
     auto_unbox = par_auto_box,
     null = par_null
   )
-  res <- gsub("\\", "...", res, fixed = TRUE)
   res <- gsub('"..."', "...", res, fixed = TRUE)
+  res <- gsub("...: ...", "...", res, fixed = TRUE)
 
   return(res)
 }
