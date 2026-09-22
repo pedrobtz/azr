@@ -1,4 +1,4 @@
-# azr (development version)
+# azr 0.3.6
 
 * Added `get_user_token()`, which authenticates the person signed in on this machine rather than the host's service identity. `get_token()` tries workload and managed identity ahead of the Azure CLI, so on a host configured for a service identity it returns the workload's token even when a user is at the console.
 * Added `az_config()`, which reports the Azure environment variables used during credential discovery as a `data.frame` of `variable`, `value` and `source`. `AZURE_CLIENT_SECRET` is reported as redacted rather than by value.
