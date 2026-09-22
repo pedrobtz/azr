@@ -123,7 +123,8 @@ DefaultCredential <- R6::R6Class(
           client_secret = self$.client_secret,
           use_cache = self$.use_cache,
           offline = self$.offline,
-          chain = self$.chain
+          chain = self$.chain,
+          verbose = isTRUE(self$.verbose)
         )
         if (isTRUE(self$.verbose)) {
           cli::cli_inform("Using provider:")
@@ -295,7 +296,8 @@ get_request_authorizer <- function(
 #'
 #' @return An [httr2::oauth_token()] object.
 #'
-#' @seealso [get_token_provider()], [get_request_authorizer()]
+#' @seealso [get_user_token()], [get_token_provider()],
+#'   [get_request_authorizer()]
 #'
 #' @examples
 #' # In non-interactive sessions, this function will return an error if the
@@ -331,6 +333,73 @@ get_token <- function(
   )
 
   provider$get_token()
+}
+
+
+#' Get an Access Token for the Signed-In User
+#'
+#' @description
+#' Retrieves an authentication token for the person signed in on this machine,
+#' skipping the service identities that [get_token()] would try first.
+#'
+#' @details
+#' [get_token()] walks the whole [default_credential_chain()], where
+#' `workload_identity` and `managed_identity` come before `azure_cli`. On a host
+#' configured for a service identity - an AKS pod setting
+#' `AZURE_FEDERATED_TOKEN_FILE`, a CI runner with OIDC - that means
+#' [get_token()] hands back the *workload's* identity even when a person is
+#' sitting at the console. `get_user_token()` restricts the chain to the
+#' credentials that represent a person, tried in the same order the default
+#' chain uses them:
+#' \enumerate{
+#'   \item Azure CLI Credential - the current `az login` session
+#'   \item Authorization Code Credential - interactive browser sign-in
+#'   \item Device Code Credential - interactive device code flow
+#' }
+#'
+#' The two interactive flows are skipped in non-interactive sessions, so on an
+#' unattended host this resolves to the Azure CLI login or fails. `client_secret`
+#' is deliberately absent from the arguments: it authenticates an application,
+#' not a user.
+#'
+#' @inheritParams get_token
+#' @param client_id Optional character string specifying the client ID to
+#'   authenticate against. Defaults to [default_azure_cli_client_id()], the
+#'   public Azure CLI client, rather than to `AZURE_CLIENT_ID`: on a host
+#'   configured for a service identity that variable holds the *workload's*
+#'   application, which is not the application a person signs in to.
+#'
+#' @return An [httr2::oauth_token()] object.
+#'
+#' @seealso [get_token()], [az_cli_get_token()], [default_credential_chain()]
+#'
+#' @examples
+#' \dontrun{
+#' scope <- "https://management.azure.com/.default"
+#'
+#' # on a host configured for workload identity, this is the workload
+#' get_token(scope = scope)
+#'
+#' # ...while this is whoever ran `az login`
+#' get_user_token(scope = scope)
+#' }
+#'
+#' @export
+get_user_token <- function(
+  scope = NULL,
+  tenant_id = NULL,
+  client_id = default_azure_cli_client_id(),
+  use_cache = "disk",
+  offline = TRUE
+) {
+  get_token(
+    scope = scope,
+    tenant_id = tenant_id,
+    client_id = client_id,
+    use_cache = use_cache,
+    offline = offline,
+    chain = user_credential_chain()
+  )
 }
 
 
@@ -689,6 +758,18 @@ default_credential_chain <- function() {
     workload_identity = WorkloadIdentityCredential,
     managed_identity = ManagedIdentityCredential,
     azure_cli = AzureCLICredential,
+    auth_code = AuthCodeCredential,
+    device_code = DeviceCodeCredential
+  )
+}
+
+
+# The credentials from default_credential_chain() that authenticate a person
+# rather than a workload, kept in the order the default chain tries them.
+# Used by get_user_token().
+user_credential_chain <- function() {
+  credential_chain(
+    azure_cli = UserAzureCLICredential,
     auth_code = AuthCodeCredential,
     device_code = DeviceCodeCredential
   )

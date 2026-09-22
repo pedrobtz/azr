@@ -155,81 +155,114 @@ is_empty_vec <- function(x) {
 }
 
 
-get_env_config <- function() {
-  tenant_id_env <- Sys.getenv("AZURE_TENANT_ID", unset = "")
-  client_secret_env <- Sys.getenv("AZURE_CLIENT_SECRET", unset = "")
-  authority_host_env <- Sys.getenv("AZURE_AUTHORITY_HOST", unset = "")
-  config_dir_env <- Sys.getenv("AZURE_CONFIG_DIR", unset = "")
-  federated_token_file_env <- Sys.getenv(
-    "AZURE_FEDERATED_TOKEN_FILE",
-    unset = ""
-  )
+# Sentinel used in place of a secret's value; the banner never shows it verbatim.
+redacted_value <- "<<REDACTED>>"
 
-  c(
-    env_override_entry(
-      "AZURE_TENANT_ID",
-      env_val = tenant_id_env,
-      default_val = azure_client$tenant_id
-    ),
-    "*" = if (nzchar(client_secret_env)) {
-      paste0("AZURE_CLIENT_SECRET: ", cli::col_grey("<<REDACTED>>"))
+#' Report the Azure environment configuration
+#'
+#' @description
+#' Reports the Azure environment variables used during credential discovery,
+#' the value each one resolves to, and where that value came from. This is the
+#' same information shown in the package startup banner.
+#'
+#' `AZURE_CLIENT_SECRET` is never reported verbatim: when it is set, its value
+#' is returned as `<<REDACTED>>`.
+#'
+#' @return A `data.frame` with one row per environment variable and the
+#'   columns:
+#'   \describe{
+#'     \item{`variable`}{Name of the environment variable.}
+#'     \item{`value`}{The resolved value, or `NA` when the variable is unset
+#'       and has no built-in fallback.}
+#'     \item{`source`}{Where the value came from: `"env"` when read from the
+#'       environment, `"default"` when it falls back to a built-in value, or
+#'       `"unset"` when the variable is not set and has no fallback.}
+#'   }
+#'
+#' @seealso [default_azure_tenant_id()], [default_azure_client_id()],
+#'   [default_azure_config_dir()]
+#'
+#' @export
+#' @examples
+#' az_config()
+#'
+#' # which variables are actually set in the environment?
+#' config <- az_config()
+#' config[config$source == "env", ]
+az_config <- function() {
+  entry <- function(variable, default = NULL, secret = FALSE) {
+    env_val <- Sys.getenv(variable, unset = "")
+
+    if (nzchar(env_val)) {
+      source <- "env"
+      value <- env_val
+    } else if (!is.null(default)) {
+      source <- "default"
+      value <- default
     } else {
-      paste0("AZURE_CLIENT_SECRET: ", cli::col_grey("(not set)"))
-    },
-    env_override_entry(
-      "AZURE_AUTHORITY_HOST",
-      env_val = authority_host_env,
-      default_val = azure_authority_hosts$azure_public_cloud
-    ),
-    "*" = if (nzchar(config_dir_env)) {
-      paste0(
-        cli::format_inline("AZURE_CONFIG_DIR: {.val {config_dir_env}}"),
-        " ",
-        cli::col_grey("(env)"),
-        " ",
-        cli::col_green("\u2713")
-      )
-    } else {
-      paste0(
-        cli::format_inline(
-          "AZURE_CONFIG_DIR: {.val {default_azure_config_dir()}}"
-        ),
-        " ",
-        cli::col_grey("(default)")
-      )
-    },
-    "*" = if (nzchar(federated_token_file_env)) {
-      cli::format_inline(
-        "AZURE_FEDERATED_TOKEN_FILE: {.val {federated_token_file_env}}"
-      )
-    } else {
-      paste0("AZURE_FEDERATED_TOKEN_FILE: ", cli::col_grey("(not set)"))
+      source <- "unset"
+      value <- NA_character_
     }
+
+    if (secret && !is.na(value)) {
+      value <- redacted_value
+    }
+
+    data.frame(
+      variable = variable,
+      value = value,
+      source = source,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  rbind(
+    entry("AZURE_TENANT_ID", default = azure_client$tenant_id),
+    entry("AZURE_CLIENT_ID", default = azure_client$client_id),
+    entry("AZURE_CLIENT_SECRET", secret = TRUE),
+    entry(
+      "AZURE_AUTHORITY_HOST",
+      default = azure_authority_hosts$azure_public_cloud
+    ),
+    entry("AZURE_CONFIG_DIR", default = default_azure_config_dir()),
+    entry("AZURE_FEDERATED_TOKEN_FILE")
   )
 }
 
 
-# Formats a bullet entry for a field that can be set via an env var and
-# otherwise falls back to a built-in default.
-env_override_entry <- function(var_name, env_val, default_val) {
-  has_env <- nzchar(env_val)
+# Renders az_config() as cli bullets for the startup banner. Values sourced
+# from the environment are marked with a check; secrets stay redacted.
+format_az_config <- function(config = az_config()) {
+  bullets <- vapply(
+    seq_len(nrow(config)),
+    function(i) {
+      variable <- config$variable[[i]]
+      value <- config$value[[i]]
 
-  if (!has_env) {
-    return(c(
-      "*" = cli::format_inline(
-        "{var_name}: {.val {default_val}} {cli::col_grey('(default)')}"
-      )
-    ))
-  }
+      if (config$source[[i]] == "unset") {
+        return(paste0(variable, ": ", cli::col_grey("(not set)")))
+      }
 
-  check <- paste0(" ", cli::col_green("\u2713"))
+      shown <- if (identical(value, redacted_value)) {
+        paste0(variable, ": ", cli::col_grey(value))
+      } else {
+        cli::format_inline("{variable}: {.val {value}}")
+      }
 
-  c(
-    "*" = paste0(
-      cli::format_inline("{var_name}: {.val {env_val}}"),
-      " ",
-      cli::col_grey("(env)"),
-      check
-    )
+      if (config$source[[i]] == "env") {
+        paste0(
+          shown,
+          " ",
+          cli::col_grey("(env)"),
+          " ",
+          cli::col_green("\u2713")
+        )
+      } else {
+        paste0(shown, " ", cli::col_grey("(default)"))
+      }
+    },
+    character(1)
   )
+
+  stats::setNames(bullets, rep("*", length(bullets)))
 }

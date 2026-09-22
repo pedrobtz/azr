@@ -60,5 +60,6 @@ token <- get_token(
 
 }
 \seealso{
-\code{\link[=get_token_provider]{get_token_provider()}}, \code{\link[=get_request_authorizer]{get_request_authorizer()}}
+\code{\link[=get_user_token]{get_user_token()}}, \code{\link[=get_token_provider]{get_token_provider()}},
+\code{\link[=get_request_authorizer]{get_request_authorizer()}}
 }

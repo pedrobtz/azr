@@ -80,7 +80,10 @@ AzureCLICredential <- R6::R6Class(
       self$use_bridge <- use_bridge
       super$initialize(
         scope = scope,
-        tenant_id = tenant_id
+        tenant_id = tenant_id,
+        # tokens come from `az account get-access-token`, so they are issued to
+        # the Azure CLI's own client, never to `AZURE_CLIENT_ID`
+        client_id = default_azure_cli_client_id()
       )
       self$.process_timeout <- process_timeout %||% self$.process_timeout
     },
@@ -168,6 +171,40 @@ AzureCLICredential <- R6::R6Class(
             "i" = "Please run {.code $login()} or use {.code az login} in your terminal"
           ),
           class = "azr_cli_not_logged_in"
+        )
+      }
+
+      invisible(NULL)
+    }
+  )
+)
+
+
+# An AzureCLICredential that insists the CLI is signed in as a person.
+# `az login --service-principal` and `az login --identity` leave the CLI
+# authenticated as an application, and `az account get-access-token` then hands
+# back that application's token. get_user_token() uses this class so such a
+# session is rejected and the chain falls through to an interactive sign-in,
+# rather than quietly standing in for the user.
+UserAzureCLICredential <- R6::R6Class(
+  classname = "UserAzureCLICredential",
+  inherit = AzureCLICredential,
+  private = list(
+    ensure_login = function() {
+      super$ensure_login()
+
+      account <- az_cli_account_show(timeout = self$.process_timeout)
+      account_type <- account$user$type %||% "unknown"
+
+      if (!identical(account_type, "user")) {
+        cli::cli_abort(
+          c(
+            "Azure CLI is signed in as {.val {account_type}}, not as a user.",
+            "i" = "Signed in as {.val {account$user$name %||% 'unknown'}}.",
+            "i" = "Run {.code az login} to sign in as a user, or use
+                   {.fn get_token} to accept this identity."
+          ),
+          class = "azr_cli_not_user_account"
         )
       }
 
@@ -463,19 +500,20 @@ az_cli_login <- function(
             }
           )
         } else {
-          # Copy to clipboard
-          rlang::check_installed("clipr")
-          tryCatch(
-            {
-              clipr::write_clip(device_code)
-              cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
-            },
-            error = function(e) {
-              cli::cli_alert_warning(
-                "Could not write to clipboard. Please copy manually."
-              )
-            }
-          )
+          # Copy to clipboard, if clipr is available
+          if (rlang::is_installed("clipr")) {
+            tryCatch(
+              {
+                clipr::write_clip(device_code)
+                cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
+              },
+              error = function(e) {
+                cli::cli_alert_warning(
+                  "Could not write to clipboard. Please copy manually."
+                )
+              }
+            )
+          }
 
           cli::cli_alert_info("Opening browser to {.url {login_url}}...")
           utils::browseURL(login_url)

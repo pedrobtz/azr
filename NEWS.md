@@ -1,3 +1,12 @@
+# azr 0.3.6
+
+* Added `get_user_token()`, which authenticates the person signed in on this machine rather than the host's service identity. `get_token()` tries workload and managed identity ahead of the Azure CLI, so on a host configured for a service identity it returns the workload's token even when a user is at the console.
+* Added `az_config()`, which reports the Azure environment variables used during credential discovery as a `data.frame` of `variable`, `value` and `source`. `AZURE_CLIENT_SECRET` is reported as redacted rather than by value.
+* The startup banner lists `AZURE_CLIENT_ID` again, and marks values read from the environment separately from built-in defaults.
+* `AzureCLICredential` now reports the Azure CLI's own client ID rather than `AZURE_CLIENT_ID`; its tokens come from `az account get-access-token` and are always issued to that client.
+* `DefaultCredential$new(verbose = TRUE)` now produces the full credential-chain trace, not only the resolved provider.
+* Fixed `format_json_body()` printing a positional key such as `"4"` in place of the `...` placeholder when truncating a named request body, and mangling every backslash in a logged body, so Windows paths, escaped quotes and newlines survive.
+
 # azr 0.3.5
 
 * Added `azr_dataset()`, `azr_catalog()`, and `azr_resolve_dataset()` for declaring and resolving Azure Storage datasets across environment tiers.

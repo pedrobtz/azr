@@ -286,3 +286,41 @@ test_that("api_client DELETE method works", {
     expect_equal(delete_response$status_code, 200)
   })
 })
+
+test_that("format_json_body truncates named lists without index keys", {
+  x <- as.list(stats::setNames(1:16, letters[1:16]))
+  res <- format_json_body(x)
+
+  expect_match(res, "\n  \\.\\.\\.,\n", fixed = FALSE)
+  expect_false(grepl('"4"', res, fixed = TRUE))
+  expect_match(res, '"a": 1', fixed = TRUE)
+  expect_match(res, '"p": 16', fixed = TRUE)
+})
+
+test_that("format_json_body truncates nested and unnamed lists", {
+  res <- format_json_body(as.list(1:16))
+  expect_match(res, "\n  \\.\\.\\.,\n")
+  expect_false(grepl('"1"', res, fixed = TRUE))
+
+  nested <- list(a = 1, b = list(x = as.list(stats::setNames(1:10, letters[1:10]))))
+  res <- format_json_body(nested)
+  expect_false(grepl('"4"', res, fixed = TRUE))
+  expect_match(res, '"j": 10', fixed = TRUE)
+})
+
+test_that("format_json_body leaves short bodies untouched", {
+  res <- format_json_body(list(a = 1, b = "two"))
+  expect_false(grepl("...", res, fixed = TRUE))
+  expect_equal(
+    jsonlite::fromJSON(res),
+    list(a = 1L, b = "two")
+  )
+})
+
+test_that("format_json_body preserves JSON string escapes", {
+  x <- list(path = "C:\\data\\file", quoted = 'say "hi"', multi = "a\nb")
+  res <- format_json_body(x)
+
+  expect_equal(jsonlite::fromJSON(res), x)
+  expect_false(grepl("...", res, fixed = TRUE))
+})
