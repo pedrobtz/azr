@@ -62,6 +62,9 @@
 - [`az_cli_logout()`](https://pedrobtz.github.io/azr/reference/az_cli_logout.md)
   : Azure CLI Logout
 
+- [`az_config()`](https://pedrobtz.github.io/azr/reference/az_config.md)
+  : Report the Azure environment configuration
+
 - [`azr_catalog()`](https://pedrobtz.github.io/azr/reference/azr_catalog.md)
   : Azure Storage dataset catalog
 
@@ -184,6 +187,9 @@
 
 - [`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md)
   : Get Default Token Provider Function
+
+- [`get_user_token()`](https://pedrobtz.github.io/azr/reference/get_user_token.md)
+  : Get an Access Token for the Signed-In User
 
 - [`is_hosted_session()`](https://pedrobtz.github.io/azr/reference/is_hosted_session.md)
   : Detect if running in a hosted session

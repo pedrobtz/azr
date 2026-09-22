@@ -62,6 +62,7 @@ object.
 
 ## See also
 
+[`get_user_token()`](https://pedrobtz.github.io/azr/reference/get_user_token.md),
 [`get_token_provider()`](https://pedrobtz.github.io/azr/reference/get_token_provider.md),
 [`get_request_authorizer()`](https://pedrobtz.github.io/azr/reference/get_request_authorizer.md)
 
