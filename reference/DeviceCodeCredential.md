@@ -14,29 +14,29 @@ Tokens can be cached to disk or in memory.
 
 ## Super classes
 
-`azr::Credential` -\>
-[`azr::InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
+`Credential` -\>
+[`InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
 -\> `DeviceCodeCredential`
 
 ## Methods
 
 ### Public methods
 
-- [`DeviceCodeCredential$new()`](#method-DeviceCodeCredential-new)
+- [`DeviceCodeCredential$new()`](#method-DeviceCodeCredential-initialize)
 
 - [`DeviceCodeCredential$clone()`](#method-DeviceCodeCredential-clone)
 
 Inherited methods
 
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
-- [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
-- [`azr::InteractiveCredential$get_token()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-get_token)
-- [`azr::InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
-- [`azr::InteractiveCredential$req_auth()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-req_auth)
+- `Credential$print()`
+- `Credential$validate()`
+- [`InteractiveCredential$get_token()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-get_token)
+- [`InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
+- [`InteractiveCredential$req_auth()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-req_auth)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `DeviceCodeCredential$new()`
 
 Create a new device code credential
 
@@ -100,7 +100,7 @@ A new `DeviceCodeCredential` object
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `DeviceCodeCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

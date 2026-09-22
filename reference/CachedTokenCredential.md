@@ -47,7 +47,7 @@ This is particularly useful for:
 
 ### Public methods
 
-- [`CachedTokenCredential$new()`](#method-CachedTokenCredential-new)
+- [`CachedTokenCredential$new()`](#method-CachedTokenCredential-initialize)
 
 - [`CachedTokenCredential$get_token()`](#method-CachedTokenCredential-get_token)
 
@@ -57,7 +57,7 @@ This is particularly useful for:
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CachedTokenCredential$new()`
 
 Create a new CachedTokenCredential object
 
@@ -95,7 +95,7 @@ A new `CachedTokenCredential` object
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `CachedTokenCredential$get_token()`
 
 Get an access token from the cache
 
@@ -111,7 +111,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `CachedTokenCredential$req_auth()`
 
 Add authentication to an httr2 request
 
@@ -133,7 +133,7 @@ The request object with authentication configured
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CachedTokenCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

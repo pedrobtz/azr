@@ -12,7 +12,7 @@ The base URL is constructed as:
 
 ## Super class
 
-[`azr::api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
+[`api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
 -\> `api_storage_client`
 
 ## Public fields
@@ -25,7 +25,7 @@ The base URL is constructed as:
 
 ### Public methods
 
-- [`api_storage_client$new()`](#method-api_storage_client-new)
+- [`api_storage_client$new()`](#method-api_storage_client-initialize)
 
 - [`api_storage_client$download_file()`](#method-api_storage_client-download_file)
 
@@ -37,16 +37,16 @@ The base URL is constructed as:
 
 Inherited methods
 
-- [`azr::api_client$.build_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.build_request)
-- [`azr::api_client$.fetch()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.fetch)
-- [`azr::api_client$.get_token()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.get_token)
-- [`azr::api_client$.resp_body_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_body_content)
-- [`azr::api_client$.resp_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_content)
-- [`azr::api_client$.send_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.send_request)
+- [`api_client$.build_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.build_request)
+- [`api_client$.fetch()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.fetch)
+- [`api_client$.get_token()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.get_token)
+- [`api_client$.resp_body_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_body_content)
+- [`api_client$.resp_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_content)
+- [`api_client$.send_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.send_request)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `api_storage_client$new()`
 
 Create a new Azure Storage API client instance
 
@@ -123,7 +123,7 @@ A new `api_storage_client` object
 
 ------------------------------------------------------------------------
 
-### Method `download_file()`
+### `api_storage_client$download_file()`
 
 Download a file from the filesystem
 
@@ -149,7 +149,7 @@ The local path the file was written to (invisibly).
 
 ------------------------------------------------------------------------
 
-### Method `get_access_control()`
+### `api_storage_client$get_access_control()`
 
 Get the access control list (ACL) for a file or directory
 
@@ -177,7 +177,7 @@ group entry in the `x-ms-acl` response header.
 
 ------------------------------------------------------------------------
 
-### Method `list_files()`
+### `api_storage_client$list_files()`
 
 List files and directories in a path
 
@@ -209,7 +209,7 @@ All pages are fetched transparently; the result is the complete listing.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `api_storage_client$clone()`
 
 The objects of this class are cloneable with this method.
 

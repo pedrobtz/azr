@@ -26,7 +26,7 @@ provided:
 
 ## Super class
 
-`azr::Credential` -\> `WorkloadIdentityCredential`
+`Credential` -\> `WorkloadIdentityCredential`
 
 ## Public fields
 
@@ -38,7 +38,7 @@ provided:
 
 ### Public methods
 
-- [`WorkloadIdentityCredential$new()`](#method-WorkloadIdentityCredential-new)
+- [`WorkloadIdentityCredential$new()`](#method-WorkloadIdentityCredential-initialize)
 
 - [`WorkloadIdentityCredential$validate()`](#method-WorkloadIdentityCredential-validate)
 
@@ -50,12 +50,12 @@ provided:
 
 Inherited methods
 
-- [`azr::Credential$is_interactive()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-is_interactive)
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
+- `Credential$is_interactive()`
+- `Credential$print()`
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `WorkloadIdentityCredential$new()`
 
 Create a new Workload Identity credential
 
@@ -97,7 +97,7 @@ A new `WorkloadIdentityCredential` object
 
 ------------------------------------------------------------------------
 
-### Method `validate()`
+### `WorkloadIdentityCredential$validate()`
 
 Validate the credential configuration
 
@@ -112,7 +112,7 @@ class validation method.
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `WorkloadIdentityCredential$get_token()`
 
 Get an access token by exchanging the federated token
 
@@ -135,7 +135,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `WorkloadIdentityCredential$req_auth()`
 
 Add authentication to an httr2 request
 
@@ -157,7 +157,7 @@ The request object with a Bearer token authorization header
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `WorkloadIdentityCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

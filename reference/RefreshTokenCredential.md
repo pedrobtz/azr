@@ -22,7 +22,7 @@ This is particularly useful for:
 
 ## Super class
 
-`azr::Credential` -\> `RefreshTokenCredential`
+`Credential` -\> `RefreshTokenCredential`
 
 ## Public fields
 
@@ -34,7 +34,7 @@ This is particularly useful for:
 
 ### Public methods
 
-- [`RefreshTokenCredential$new()`](#method-RefreshTokenCredential-new)
+- [`RefreshTokenCredential$new()`](#method-RefreshTokenCredential-initialize)
 
 - [`RefreshTokenCredential$validate()`](#method-RefreshTokenCredential-validate)
 
@@ -46,12 +46,12 @@ This is particularly useful for:
 
 Inherited methods
 
-- [`azr::Credential$is_interactive()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-is_interactive)
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
+- `Credential$is_interactive()`
+- `Credential$print()`
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `RefreshTokenCredential$new()`
 
 Create a new refresh token credential
 
@@ -92,7 +92,7 @@ A new `RefreshTokenCredential` object
 
 ------------------------------------------------------------------------
 
-### Method `validate()`
+### `RefreshTokenCredential$validate()`
 
 Validate the credential configuration
 
@@ -107,7 +107,7 @@ parent class validation method.
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `RefreshTokenCredential$get_token()`
 
 Get an access token using the refresh token flow
 
@@ -123,7 +123,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `RefreshTokenCredential$req_auth()`
 
 Add OAuth refresh token authentication to an httr2 request
 
@@ -145,7 +145,7 @@ The request object with OAuth refresh token authentication configured
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `RefreshTokenCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

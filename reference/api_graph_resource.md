@@ -7,7 +7,7 @@ adds convenience methods for common Graph operations.
 
 ## Super class
 
-[`azr::api_resource`](https://pedrobtz.github.io/azr/reference/api_resource.md)
+[`api_resource`](https://pedrobtz.github.io/azr/reference/api_resource.md)
 -\> `api_graph_resource`
 
 ## Methods
@@ -20,11 +20,11 @@ adds convenience methods for common Graph operations.
 
 Inherited methods
 
-- [`azr::api_resource$initialize()`](https://pedrobtz.github.io/azr/reference/api_resource.html#method-initialize)
+- [`api_resource$initialize()`](https://pedrobtz.github.io/azr/reference/api_resource.html#method-initialize)
 
 ------------------------------------------------------------------------
 
-### Method `me()`
+### `api_graph_resource$me()`
 
 Fetch the current user's profile
 
@@ -45,7 +45,7 @@ The response from the /me endpoint
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `api_graph_resource$clone()`
 
 The objects of this class are cloneable with this method.
 

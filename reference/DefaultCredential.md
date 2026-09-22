@@ -55,7 +55,7 @@ first accessed, using the same logic as
 
 ### Public methods
 
-- [`DefaultCredential$new()`](#method-DefaultCredential-new)
+- [`DefaultCredential$new()`](#method-DefaultCredential-initialize)
 
 - [`DefaultCredential$get_token()`](#method-DefaultCredential-get_token)
 
@@ -65,7 +65,7 @@ first accessed, using the same logic as
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `DefaultCredential$new()`
 
 Create a new DefaultCredential object
 
@@ -131,7 +131,7 @@ A new `DefaultCredential` object
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `DefaultCredential$get_token()`
 
 Get an access token using the credential chain
 
@@ -147,7 +147,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `DefaultCredential$req_auth()`
 
 Add authentication to an httr2 request
 
@@ -169,7 +169,7 @@ The request object with authentication configured
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `DefaultCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

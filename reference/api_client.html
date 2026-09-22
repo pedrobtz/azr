@@ -64,27 +64,27 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 <dd><p>Base URL for the API</p></dd>
 
 
-<dt><code>.base_req</code></dt>
+    <dt><code>.base_req</code></dt>
 <dd><p>Base httr2 request object</p></dd>
 
 
-<dt><code>.provider</code></dt>
+    <dt><code>.provider</code></dt>
 <dd><p>Credential provider R6 object</p></dd>
 
 
-<dt><code>.credentials</code></dt>
+    <dt><code>.credentials</code></dt>
 <dd><p>Credentials function for authentication</p></dd>
 
 
-<dt><code>.options</code></dt>
+    <dt><code>.options</code></dt>
 <dd><p>Request options (timeout, connecttimeout, max_tries)</p></dd>
 
 
-<dt><code>.response_handler</code></dt>
+    <dt><code>.response_handler</code></dt>
 <dd><p>Optional callback function to process response content</p></dd>
 
 
-<dt><code>.verbose</code></dt>
+    <dt><code>.verbose</code></dt>
 <dd><p>Logical flag controlling request/response logging in <code>.send_request()</code></p></dd>
 
 
@@ -95,8 +95,7 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-api_client-new"><code>api_client$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-api_client-initialize"><code>api_client$new()</code></a></p></li>
 <li><p><a href="#method-api_client-.fetch"><code>api_client$.fetch()</code></a></p></li>
 <li><p><a href="#method-api_client-.resp_content"><code>api_client$.resp_content()</code></a></p></li>
 <li><p><a href="#method-api_client-.build_request"><code>api_client$.build_request()</code></a></p></li>
@@ -104,8 +103,8 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 <li><p><a href="#method-api_client-.resp_body_content"><code>api_client$.resp_body_content()</code></a></p></li>
 <li><p><a href="#method-api_client-.get_token"><code>api_client$.get_token()</code></a></p></li>
 <li><p><a href="#method-api_client-clone"><code>api_client$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-api_client-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p></p><hr><a id="method-api_client-initialize"></a><div class="section">
+<h3 id="api-client-new-"><code>api_client$new()</code><a class="anchor" aria-label="anchor" href="#api-client-new-"></a></h3>
 <p>Create a new API client instance</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_client.html">api_client</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -118,52 +117,43 @@ clients. It provides:</p><ul><li><p>Automatic authentication using Azure credent
 <span>  response_handler <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="va">opts</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"api_verbose"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>host_url</code></dt>
 <dd><p>A character string specifying the base URL for the API
 (e.g., <code>"https://management.azure.com"</code>).</p></dd>
 
-
-<dt><code>provider</code></dt>
+      <dt><code>provider</code></dt>
 <dd><p>An R6 credential provider object that inherits from the
 <code>Credential</code> or <code>DefaultCredential</code> class. If provided, the credential's
 <code>req_auth</code> method will be used for authentication. Takes precedence over
 <code>credentials</code>.</p></dd>
 
-
-<dt><code>credentials</code></dt>
+      <dt><code>credentials</code></dt>
 <dd><p>A function that adds authentication to requests. If
 both <code>provider</code> and <code>credentials</code> are <code>NULL</code>, uses <code><a href="default_non_auth.html">default_non_auth()</a></code>.
 The function should accept an httr2 request object and return a modified
 request with authentication.</p></dd>
 
-
-<dt><code>timeout</code></dt>
+      <dt><code>timeout</code></dt>
 <dd><p>An integer specifying the request timeout in seconds.
 Defaults to <code>60</code>.</p></dd>
 
-
-<dt><code>connecttimeout</code></dt>
+      <dt><code>connecttimeout</code></dt>
 <dd><p>An integer specifying the connection timeout in
 seconds. Defaults to <code>30</code>.</p></dd>
 
-
-<dt><code>max_tries</code></dt>
+      <dt><code>max_tries</code></dt>
 <dd><p>An integer specifying the maximum number of retry
 attempts for failed requests. Defaults to <code>5</code>.</p></dd>
 
-
-<dt><code>response_handler</code></dt>
+      <dt><code>response_handler</code></dt>
 <dd><p>An optional function to process the parsed response
 content. The function should accept one argument (the parsed response) and
 return the processed content. If <code>NULL</code>, uses <code><a href="default_response_handler.html">default_response_handler()</a></code>
 which converts data frames to data.table objects. Defaults to <code>NULL</code>.</p></dd>
 
-
-<dt><code>verbose</code></dt>
+      <dt><code>verbose</code></dt>
 <dd><p>A logical flag controlling request/response logging in
 <code>.send_request()</code>. When <code>FALSE</code>, the <code>&gt;&gt;&gt;</code> request and <code>&lt;&lt;&lt;</code> response
 <code>cli</code> alerts are suppressed. Defaults to the <code>api_verbose</code> option, which
@@ -172,14 +162,15 @@ environment variable; see <code><a href="azr_options.html">azr_options()</a></co
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A new <code>api_client</code> object</p>
 </div>
 
-</div><p></p><hr><a id="method-api_client-.fetch"></a><div class="section">
-<h3 id="method-fetch-">Method <code>.fetch()</code><a class="anchor" aria-label="anchor" href="#method-fetch-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-.fetch"></a><div class="section">
+<h3 id="api-client-fetch-"><code>api_client$.fetch()</code><a class="anchor" aria-label="anchor" href="#api-client-fetch-"></a></h3>
 <p>Make an HTTP request to the API</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.fetch</span><span class="op">(</span></span>
@@ -193,105 +184,95 @@ environment variable; see <code><a href="azr_options.html">azr_options()</a></co
 <span>  content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"body"</span>, <span class="st">"headers"</span>, <span class="st">"response"</span>, <span class="st">"request"</span><span class="op">)</span>,</span>
 <span>  content_type <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>A character string specifying the API endpoint path. Supports
 <code><a href="https://rlang.r-lib.org/reference/englue.html" class="external-link">rlang::englue()</a></code> syntax for variable interpolation using named arguments
 passed via <code>...</code>.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Named arguments used for path interpolation with <code><a href="https://rlang.r-lib.org/reference/englue.html" class="external-link">rlang::englue()</a></code>.</p></dd>
 
-
-<dt><code>query</code></dt>
+      <dt><code>query</code></dt>
 <dd><p>A named list of query parameters to append to the URL.</p></dd>
 
-
-<dt><code>body</code></dt>
+      <dt><code>body</code></dt>
 <dd><p>Request body data. Sent as JSON in the request body.
 Can be a list or character string (JSON).</p></dd>
 
-
-<dt><code>headers</code></dt>
+      <dt><code>headers</code></dt>
 <dd><p>A named list of additional HTTP headers to include in the
 request.</p></dd>
 
-
-<dt><code>method</code></dt>
+      <dt><code>method</code></dt>
 <dd><p>A character string specifying the HTTP method. One of
 <code>"get"</code>, <code>"post"</code>, <code>"put"</code>, <code>"patch"</code>, or <code>"delete"</code>. Defaults to <code>"get"</code>.</p></dd>
 
-
-<dt><code>verbosity</code></dt>
+      <dt><code>verbosity</code></dt>
 <dd><p>An integer specifying the verbosity level for request
 debugging (passed to <code><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">httr2::req_perform()</a></code>). Defaults to <code>0</code>.</p></dd>
 
-
-<dt><code>content</code></dt>
+      <dt><code>content</code></dt>
 <dd><p>A character string specifying what to return. One of:</p><ul><li><p><code>"body"</code> (default): Return the parsed response body</p></li>
 <li><p><code>"headers"</code>: Return response headers</p></li>
 <li><p><code>"response"</code>: Return the full httr2 response object</p></li>
 <li><p><code>"request"</code>: Return the prepared request object without executing it</p></li>
 </ul></dd>
 
-
-<dt><code>content_type</code></dt>
+      <dt><code>content_type</code></dt>
 <dd><p>A character string specifying how to parse the response
 body. If <code>NULL</code>, uses the response's Content-Type header. Common values:
 <code>"application/json"</code>, <code>"application/xml"</code>, <code>"text/html"</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>Depends on the <code>content</code> parameter:</p><ul><li><p><code>"body"</code>: Parsed response body (list, data.frame, or character)</p></li>
 <li><p><code>"headers"</code>: List of response headers</p></li>
 <li><p><code>"response"</code>: Full <code><a href="https://httr2.r-lib.org/reference/response.html" class="external-link">httr2::response()</a></code> object</p></li>
 <li><p><code>"request"</code>: <code><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">httr2::request()</a></code> object</p></li>
-</ul></div>
+</ul><p></p>
+</div>
 
-</div><p></p><hr><a id="method-api_client-.resp_content"></a><div class="section">
-<h3 id="method-resp-content-">Method <code>.resp_content()</code><a class="anchor" aria-label="anchor" href="#method-resp-content-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-.resp_content"></a><div class="section">
+<h3 id="api-client-resp-content-"><code>api_client$.resp_content()</code><a class="anchor" aria-label="anchor" href="#api-client-resp-content-"></a></h3>
 <p>Extract content from a response object</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.resp_content</span><span class="op">(</span><span class="va">resp</span>, <span class="va">content</span>, content_type <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>resp</code></dt>
 <dd><p>An <code><a href="https://httr2.r-lib.org/reference/response.html" class="external-link">httr2::response()</a></code> object</p></dd>
 
-
-<dt><code>content</code></dt>
+      <dt><code>content</code></dt>
 <dd><p>A character string specifying what to return. One of:</p><ul><li><p><code>"body"</code>: Return the parsed response body</p></li>
 <li><p><code>"headers"</code>: Return response headers</p></li>
 <li><p><code>"response"</code>: Return the full httr2 response object</p></li>
 </ul></dd>
 
-
-<dt><code>content_type</code></dt>
+      <dt><code>content_type</code></dt>
 <dd><p>A character string specifying how to parse the response
 body. Only used when <code>content = "body"</code>. If <code>NULL</code>, uses the response's
 Content-Type header.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
 <p>Depends on the <code>content</code> parameter:</p><ul><li><p><code>"body"</code>: Parsed response body (list, data.frame, or character)</p></li>
 <li><p><code>"headers"</code>: List of response headers</p></li>
 <li><p><code>"response"</code>: Full <code><a href="https://httr2.r-lib.org/reference/response.html" class="external-link">httr2::response()</a></code> object</p></li>
-</ul></div>
+</ul><p></p>
+</div>
 
-</div><p></p><hr><a id="method-api_client-.build_request"></a><div class="section">
-<h3 id="method-build-request-">Method <code>.build_request()</code><a class="anchor" aria-label="anchor" href="#method-build-request-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-.build_request"></a><div class="section">
+<h3 id="api-client-build-request-"><code>api_client$.build_request()</code><a class="anchor" aria-label="anchor" href="#api-client-build-request-"></a></h3>
 <p>Build an HTTP request object</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.build_request</span><span class="op">(</span></span>
@@ -302,121 +283,110 @@ Content-Type header.</p></dd>
 <span>  headers <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"get"</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>A character string specifying the API endpoint path. Supports
 <code><a href="https://rlang.r-lib.org/reference/englue.html" class="external-link">rlang::englue()</a></code> syntax for variable interpolation using named arguments
 passed via <code>...</code>.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Named arguments used for path interpolation with <code><a href="https://rlang.r-lib.org/reference/englue.html" class="external-link">rlang::englue()</a></code>.</p></dd>
 
-
-<dt><code>query</code></dt>
+      <dt><code>query</code></dt>
 <dd><p>A named list of query parameters to append to the URL.</p></dd>
 
-
-<dt><code>body</code></dt>
+      <dt><code>body</code></dt>
 <dd><p>Request body data. Sent as JSON in the request body.
 Can be a list or character string (JSON).</p></dd>
 
-
-<dt><code>headers</code></dt>
+      <dt><code>headers</code></dt>
 <dd><p>A named list of additional HTTP headers to include in the
 request.</p></dd>
 
-
-<dt><code>method</code></dt>
+      <dt><code>method</code></dt>
 <dd><p>A character string specifying the HTTP method. One of
 <code>"get"</code>, <code>"post"</code>, <code>"put"</code>, <code>"patch"</code>, or <code>"delete"</code>. Defaults to <code>"get"</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
 <p>An <code><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">httr2::request()</a></code> object ready for execution</p>
 </div>
 
-</div><p></p><hr><a id="method-api_client-.send_request"></a><div class="section">
-<h3 id="method-send-request-">Method <code>.send_request()</code><a class="anchor" aria-label="anchor" href="#method-send-request-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-.send_request"></a><div class="section">
+<h3 id="api-client-send-request-"><code>api_client$.send_request()</code><a class="anchor" aria-label="anchor" href="#api-client-send-request-"></a></h3>
 <p>Perform an HTTP request and log the results</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.send_request</span><span class="op">(</span><span class="va">req</span>, <span class="va">verbosity</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>req</code></dt>
 <dd><p>An <code><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">httr2::request()</a></code> object to execute</p></dd>
 
-
-<dt><code>verbosity</code></dt>
+      <dt><code>verbosity</code></dt>
 <dd><p>An integer specifying the verbosity level for request
 debugging (passed to <code><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">httr2::req_perform()</a></code>). Defaults to <code>0</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p>An <code><a href="https://httr2.r-lib.org/reference/response.html" class="external-link">httr2::response()</a></code> object containing the API response</p>
 </div>
 
-</div><p></p><hr><a id="method-api_client-.resp_body_content"></a><div class="section">
-<h3 id="method-resp-body-content-">Method <code>.resp_body_content()</code><a class="anchor" aria-label="anchor" href="#method-resp-body-content-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-.resp_body_content"></a><div class="section">
+<h3 id="api-client-resp-body-content-"><code>api_client$.resp_body_content()</code><a class="anchor" aria-label="anchor" href="#api-client-resp-body-content-"></a></h3>
 <p>Extract and parse response content</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.resp_body_content</span><span class="op">(</span><span class="va">resp</span>, content_type <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>resp</code></dt>
 <dd><p>An <code><a href="https://httr2.r-lib.org/reference/response.html" class="external-link">httr2::response()</a></code> object</p></dd>
 
-
-<dt><code>content_type</code></dt>
+      <dt><code>content_type</code></dt>
 <dd><p>A character string specifying how to parse the response
 body. If <code>NULL</code>, uses the response's Content-Type header. Common values:
 <code>"application/json"</code>, <code>"application/xml"</code>, <code>"text/html"</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>Parsed response body. Format depends on content type:</p><ul><li><p>JSON: List or data.frame</p></li>
 <li><p>XML: xml2 document</p></li>
 <li><p>HTML: xml2 document</p></li>
 <li><p>Other: Character string</p></li>
-</ul></div>
+</ul><p></p>
+</div>
 
-</div><p></p><hr><a id="method-api_client-.get_token"></a><div class="section">
-<h3 id="method-get-token-">Method <code>.get_token()</code><a class="anchor" aria-label="anchor" href="#method-get-token-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-.get_token"></a><div class="section">
+<h3 id="api-client-get-token-"><code>api_client$.get_token()</code><a class="anchor" aria-label="anchor" href="#api-client-get-token-"></a></h3>
 <p>Get authentication token from the credential provider</p><div class="section">
 <h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">.get_token</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
 <p>An <code><a href="https://httr2.r-lib.org/reference/oauth_token.html" class="external-link">httr2::oauth_token()</a></code> object if a provider is available,
 otherwise returns <code>NULL</code> with a warning.</p>
 </div>
 
-</div><p></p><hr><a id="method-api_client-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_client-clone"></a><div class="section">
+<h3 id="api-client-clone-"><code>api_client$clone()</code><a class="anchor" aria-label="anchor" href="#api-client-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_client</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -426,6 +396,7 @@ otherwise returns <code>NULL</code> with a warning.</p>
 </div>
 
 </div>
+
 
     </div>
 

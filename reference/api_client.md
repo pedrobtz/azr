@@ -53,7 +53,7 @@ service-specific clients. It provides:
 
 ### Public methods
 
-- [`api_client$new()`](#method-api_client-new)
+- [`api_client$new()`](#method-api_client-initialize)
 
 - [`api_client$.fetch()`](#method-api_client-.fetch)
 
@@ -71,7 +71,7 @@ service-specific clients. It provides:
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `api_client$new()`
 
 Create a new API client instance
 
@@ -148,7 +148,7 @@ A new `api_client` object
 
 ------------------------------------------------------------------------
 
-### Method `.fetch()`
+### `api_client$.fetch()`
 
 Make an HTTP request to the API
 
@@ -241,7 +241,7 @@ Depends on the `content` parameter:
 
 ------------------------------------------------------------------------
 
-### Method `.resp_content()`
+### `api_client$.resp_content()`
 
 Extract content from a response object
 
@@ -287,7 +287,7 @@ Depends on the `content` parameter:
 
 ------------------------------------------------------------------------
 
-### Method `.build_request()`
+### `api_client$.build_request()`
 
 Build an HTTP request object
 
@@ -341,7 +341,7 @@ object ready for execution
 
 ------------------------------------------------------------------------
 
-### Method `.send_request()`
+### `api_client$.send_request()`
 
 Perform an HTTP request and log the results
 
@@ -372,7 +372,7 @@ object containing the API response
 
 ------------------------------------------------------------------------
 
-### Method `.resp_body_content()`
+### `api_client$.resp_body_content()`
 
 Extract and parse response content
 
@@ -408,7 +408,7 @@ Parsed response body. Format depends on content type:
 
 ------------------------------------------------------------------------
 
-### Method `.get_token()`
+### `api_client$.get_token()`
 
 Get authentication token from the credential provider
 
@@ -425,7 +425,7 @@ warning.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `api_client$clone()`
 
 The objects of this class are cloneable with this method.
 

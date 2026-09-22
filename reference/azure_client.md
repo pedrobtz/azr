@@ -9,7 +9,3 @@ client ID.
 ``` r
 azure_client
 ```
-
-## Format
-
-An object of class `list` of length 2.

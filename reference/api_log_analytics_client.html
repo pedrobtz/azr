@@ -60,7 +60,7 @@ via <code>...</code> on <code>$query()</code> to traverse the resource hierarchy
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="api_client.html">azr::api_client</a></code> -&gt; <code>api_log_analytics_client</code></p>
+    <p><code><a href="api_client.html">api_client</a></code> -&gt; <code>api_log_analytics_client</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -68,11 +68,11 @@ via <code>...</code> on <code>$query()</code> to traverse the resource hierarchy
 <dd><p>The Azure subscription ID the client is bound to.</p></dd>
 
 
-<dt><code>.resource_id</code></dt>
+    <dt><code>.resource_id</code></dt>
 <dd><p>The Azure resource group name the client is bound to.</p></dd>
 
 
-<dt><code>.api_version</code></dt>
+    <dt><code>.api_version</code></dt>
 <dd><p>The API version segment prepended to all query paths.</p></dd>
 
 
@@ -83,18 +83,17 @@ via <code>...</code> on <code>$query()</code> to traverse the resource hierarchy
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-api_log_analytics_client-new"><code>api_log_analytics_client$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-api_log_analytics_client-initialize"><code>api_log_analytics_client$new()</code></a></p></li>
 <li><p><a href="#method-api_log_analytics_client-query"><code>api_log_analytics_client$query()</code></a></p></li>
 <li><p><a href="#method-api_log_analytics_client-clone"><code>api_log_analytics_client$clone()</code></a></p></li>
-</ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href="api_client.html#method-.build_request"><code>azr::api_client$.build_request()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href="api_client.html#method-.fetch"><code>azr::api_client$.fetch()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href="api_client.html#method-.get_token"><code>azr::api_client$.get_token()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href="api_client.html#method-.resp_body_content"><code>azr::api_client$.resp_body_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href="api_client.html#method-.resp_content"><code>azr::api_client$.resp_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href="api_client.html#method-.send_request"><code>azr::api_client$.send_request()</code></a></span></li>
-</ul></details></p><hr><a id="method-api_log_analytics_client-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href="api_client.html#method-.build_request"><code>api_client$.build_request()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href="api_client.html#method-.fetch"><code>api_client$.fetch()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href="api_client.html#method-.get_token"><code>api_client$.get_token()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href="api_client.html#method-.resp_body_content"><code>api_client$.resp_body_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href="api_client.html#method-.resp_content"><code>api_client$.resp_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href="api_client.html#method-.send_request"><code>api_client$.send_request()</code></a></span></li>
+</ul></details></p><hr><a id="method-api_log_analytics_client-initialize"></a><div class="section">
+<h3 id="api-log-analytics-client-new-"><code>api_log_analytics_client$new()</code><a class="anchor" aria-label="anchor" href="#api-log-analytics-client-new-"></a></h3>
 <p>Create a new Azure Log Analytics API client instance bound to a specific
 subscription and resource group.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -109,65 +108,56 @@ subscription and resource group.</p><div class="section">
 <span>  tenant_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>subscription_id</code></dt>
 <dd><p>A character string specifying the Azure
 subscription ID (GUID) to bind the client to.</p></dd>
 
-
-<dt><code>resource_id</code></dt>
+      <dt><code>resource_id</code></dt>
 <dd><p>A character string specifying the Azure resource
 group name to bind the client to.</p></dd>
 
-
-<dt><code>endpoint</code></dt>
+      <dt><code>endpoint</code></dt>
 <dd><p>A character string specifying the Log Analytics query
 endpoint host (e.g. <code>"api.loganalytics.io"</code>). Defaults to
 <code><a href="default_log_analytics_endpoint.html">default_log_analytics_endpoint()</a></code>. Any leading <code>https?://</code> scheme or
 trailing slashes are stripped.</p></dd>
 
-
-<dt><code>api_version</code></dt>
+      <dt><code>api_version</code></dt>
 <dd><p>A character string specifying the API version segment
 prepended to the query path. Defaults to <code>"v1"</code>.</p></dd>
 
-
-<dt><code>scope</code></dt>
+      <dt><code>scope</code></dt>
 <dd><p>A character string specifying the OAuth2 scope. Defaults to
 <code>default_azure_scope("azure_log_analytics")</code>.</p></dd>
 
-
-<dt><code>provider</code></dt>
+      <dt><code>provider</code></dt>
 <dd><p>An optional credential provider object that inherits from
 <code>Credential</code> or <code>DefaultCredential</code>. If provided, <code>chain</code> is ignored.</p></dd>
 
-
-<dt><code>chain</code></dt>
+      <dt><code>chain</code></dt>
 <dd><p>A <a href="credential_chain.html">credential_chain</a> instance for authentication. If <code>NULL</code>,
 a default credential chain is created using <a href="DefaultCredential.html">DefaultCredential</a>.</p></dd>
 
-
-<dt><code>tenant_id</code></dt>
+      <dt><code>tenant_id</code></dt>
 <dd><p>A character string specifying the Azure tenant ID. Passed
 to <a href="DefaultCredential.html">DefaultCredential</a> when <code>chain</code> is <code>NULL</code>.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to the parent <a href="api_client.html">api_client</a> constructor.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A new <code>api_log_analytics_client</code> object</p>
 </div>
 
-</div><p></p><hr><a id="method-api_log_analytics_client-query"></a><div class="section">
-<h3 id="method-query-">Method <code>query()</code><a class="anchor" aria-label="anchor" href="#method-query-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_log_analytics_client-query"></a><div class="section">
+<h3 id="api-log-analytics-client-query-"><code>api_log_analytics_client$query()</code><a class="anchor" aria-label="anchor" href="#api-log-analytics-client-query-"></a></h3>
 <p>Issue a KQL query against the bound subscription and resource group.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_log_analytics_client</span><span class="op">$</span><span class="fu">query</span><span class="op">(</span></span>
@@ -182,60 +172,49 @@ to <a href="DefaultCredential.html">DefaultCredential</a> when <code>chain</code
 <span>  raw <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  coerce_types <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>query</code></dt>
 <dd><p>A character string containing the KQL query to execute.</p></dd>
 
-
-<dt><code>date_from</code></dt>
+      <dt><code>date_from</code></dt>
 <dd><p>Start of the time range as a <code>Date</code> or <code>POSIXct</code>. When
 provided together with <code>date_to</code>, appends
 <code>| where TimeGenerated between(datetime(...), datetime(...))</code> to the
 query and sets <code>timespan</code> to <code>NULL</code>. Defaults to <code>Sys.Date() - 3</code>.</p></dd>
 
-
-<dt><code>date_to</code></dt>
+      <dt><code>date_to</code></dt>
 <dd><p>End of the time range as a <code>Date</code> or <code>POSIXct</code>. Defaults
 to <code>Sys.Date() + 1</code>.</p></dd>
 
-
-<dt><code>timespan</code></dt>
+      <dt><code>timespan</code></dt>
 <dd><p>An ISO 8601 duration (e.g. <code>"PT12H"</code>) or start/end pair
 separated by <code>/</code> (e.g. <code>"2024-01-01/2024-01-02"</code>). Passed as a URL
 query parameter. Ignored when <code>date_from</code> and <code>date_to</code> are set.
 Defaults to <code>NULL</code>.</p></dd>
 
-
-<dt><code>max_rows</code></dt>
+      <dt><code>max_rows</code></dt>
 <dd><p>Maximum number of rows to return. Defaults to <code>500001</code>.</p></dd>
 
-
-<dt><code>options</code></dt>
+      <dt><code>options</code></dt>
 <dd><p>A named list of query options. Defaults to
 <code>list(truncationMaxSize = 67108864)</code>.</p></dd>
 
-
-<dt><code>workspace_filters</code></dt>
+      <dt><code>workspace_filters</code></dt>
 <dd><p>A named list of workspace filters. Defaults to
 <code>list(regions = list())</code>.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional URL query parameters. Override defaults (e.g.
 <code>scope = "resource"</code> to change from the default <code>"hierarchy"</code>).</p></dd>
 
-
-<dt><code>raw</code></dt>
+      <dt><code>raw</code></dt>
 <dd><p>If <code>TRUE</code>, returns the parsed JSON response as a list. If
 <code>FALSE</code> (the default), returns a named list of <code>data.frame</code>s — one per
 table in the response — or the single table directly if only one is
 returned.</p></dd>
 
-
-<dt><code>coerce_types</code></dt>
+      <dt><code>coerce_types</code></dt>
 <dd><p>If <code>TRUE</code> (the default), columns are coerced to their
 native R types based on the Log Analytics schema (e.g. <code>datetime</code> →
 <code>POSIXct</code>, <code>bool</code> → <code>logical</code>). Set to <code>FALSE</code> to keep all values as
@@ -243,21 +222,20 @@ character.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>Either a single <code>data.frame</code>, a named list of <code>data.frame</code>s, or
 the raw parsed response (when <code>raw = TRUE</code>).</p>
 </div>
 
-</div><p></p><hr><a id="method-api_log_analytics_client-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_log_analytics_client-clone"></a><div class="section">
+<h3 id="api-log-analytics-client-clone-"><code>api_log_analytics_client$clone()</code><a class="anchor" aria-label="anchor" href="#api-log-analytics-client-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_log_analytics_client</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -267,6 +245,7 @@ the raw parsed response (when <code>raw = TRUE</code>).</p>
 </div>
 
 </div>
+
 
     </div>
 

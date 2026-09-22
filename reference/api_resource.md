@@ -21,13 +21,13 @@ through this resource will automatically include this path prefix.
 
 ### Public methods
 
-- [`api_resource$new()`](#method-api_resource-new)
+- [`api_resource$new()`](#method-api_resource-initialize)
 
 - [`api_resource$clone()`](#method-api_resource-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `api_resource$new()`
 
 Create a new API resource instance
 
@@ -53,7 +53,7 @@ A new `api_resource` object
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `api_resource$clone()`
 
 The objects of this class are cloneable with this method.
 

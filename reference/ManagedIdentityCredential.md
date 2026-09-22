@@ -22,7 +22,7 @@ inside Azure, so it is safe to include early in a credential chain.
 
 ## Super class
 
-`azr::Credential` -\> `ManagedIdentityCredential`
+`Credential` -\> `ManagedIdentityCredential`
 
 ## Public fields
 
@@ -35,7 +35,7 @@ inside Azure, so it is safe to include early in a credential chain.
 
 ### Public methods
 
-- [`ManagedIdentityCredential$new()`](#method-ManagedIdentityCredential-new)
+- [`ManagedIdentityCredential$new()`](#method-ManagedIdentityCredential-initialize)
 
 - [`ManagedIdentityCredential$get_token()`](#method-ManagedIdentityCredential-get_token)
 
@@ -45,13 +45,13 @@ inside Azure, so it is safe to include early in a credential chain.
 
 Inherited methods
 
-- [`azr::Credential$is_interactive()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-is_interactive)
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
-- [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
+- `Credential$is_interactive()`
+- `Credential$print()`
+- `Credential$validate()`
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ManagedIdentityCredential$new()`
 
 Create a new managed identity credential
 
@@ -78,7 +78,7 @@ A new `ManagedIdentityCredential` object
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `ManagedIdentityCredential$get_token()`
 
 Get an access token from the IMDS endpoint
 
@@ -100,7 +100,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `ManagedIdentityCredential$req_auth()`
 
 Add managed identity authentication to an httr2 request
 
@@ -122,7 +122,7 @@ The request object with a Bearer token authorization header
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ManagedIdentityCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

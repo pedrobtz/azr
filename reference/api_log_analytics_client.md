@@ -19,7 +19,7 @@ parameter) via `...` on `$query()` to traverse the resource hierarchy.
 
 ## Super class
 
-[`azr::api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
+[`api_client`](https://pedrobtz.github.io/azr/reference/api_client.md)
 -\> `api_log_analytics_client`
 
 ## Public fields
@@ -40,7 +40,7 @@ parameter) via `...` on `$query()` to traverse the resource hierarchy.
 
 ### Public methods
 
-- [`api_log_analytics_client$new()`](#method-api_log_analytics_client-new)
+- [`api_log_analytics_client$new()`](#method-api_log_analytics_client-initialize)
 
 - [`api_log_analytics_client$query()`](#method-api_log_analytics_client-query)
 
@@ -48,16 +48,16 @@ parameter) via `...` on `$query()` to traverse the resource hierarchy.
 
 Inherited methods
 
-- [`azr::api_client$.build_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.build_request)
-- [`azr::api_client$.fetch()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.fetch)
-- [`azr::api_client$.get_token()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.get_token)
-- [`azr::api_client$.resp_body_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_body_content)
-- [`azr::api_client$.resp_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_content)
-- [`azr::api_client$.send_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.send_request)
+- [`api_client$.build_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.build_request)
+- [`api_client$.fetch()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.fetch)
+- [`api_client$.get_token()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.get_token)
+- [`api_client$.resp_body_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_body_content)
+- [`api_client$.resp_content()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.resp_content)
+- [`api_client$.send_request()`](https://pedrobtz.github.io/azr/reference/api_client.html#method-.send_request)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `api_log_analytics_client$new()`
 
 Create a new Azure Log Analytics API client instance bound to a specific
 subscription and resource group.
@@ -136,7 +136,7 @@ A new `api_log_analytics_client` object
 
 ------------------------------------------------------------------------
 
-### Method `query()`
+### `api_log_analytics_client$query()`
 
 Issue a KQL query against the bound subscription and resource group.
 
@@ -217,7 +217,7 @@ parsed response (when `raw = TRUE`).
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `api_log_analytics_client$clone()`
 
 The objects of this class are cloneable with this method.
 

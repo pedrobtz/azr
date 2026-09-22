@@ -19,3 +19,7 @@ Useful links:
 ## Author
 
 **Maintainer**: Pedro Baltazar <pedrobtz@gmail.com>
+
+Authors:
+
+- Pedro Baltazar <pedrobtz@gmail.com>

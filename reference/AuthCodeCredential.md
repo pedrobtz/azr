@@ -15,8 +15,8 @@ for the OAuth flow to complete.
 
 ## Super classes
 
-`azr::Credential` -\>
-[`azr::InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
+`Credential` -\>
+[`InteractiveCredential`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.md)
 -\> `AuthCodeCredential`
 
 ## Public fields
@@ -30,21 +30,21 @@ for the OAuth flow to complete.
 
 ### Public methods
 
-- [`AuthCodeCredential$new()`](#method-AuthCodeCredential-new)
+- [`AuthCodeCredential$new()`](#method-AuthCodeCredential-initialize)
 
 - [`AuthCodeCredential$clone()`](#method-AuthCodeCredential-clone)
 
 Inherited methods
 
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
-- [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
-- [`azr::InteractiveCredential$get_token()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-get_token)
-- [`azr::InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
-- [`azr::InteractiveCredential$req_auth()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-req_auth)
+- `Credential$print()`
+- `Credential$validate()`
+- [`InteractiveCredential$get_token()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-get_token)
+- [`InteractiveCredential$is_interactive()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-is_interactive)
+- [`InteractiveCredential$req_auth()`](https://pedrobtz.github.io/azr/reference/InteractiveCredential.html#method-req_auth)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `AuthCodeCredential$new()`
 
 Create a new authorization code credential
 
@@ -115,7 +115,7 @@ A new `AuthCodeCredential` object
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `AuthCodeCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

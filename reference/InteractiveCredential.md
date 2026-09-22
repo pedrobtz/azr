@@ -9,7 +9,7 @@ instead.
 
 ## Super class
 
-`azr::Credential` -\> `InteractiveCredential`
+`Credential` -\> `InteractiveCredential`
 
 ## Public fields
 
@@ -27,7 +27,7 @@ instead.
 
 ### Public methods
 
-- [`InteractiveCredential$new()`](#method-InteractiveCredential-new)
+- [`InteractiveCredential$new()`](#method-InteractiveCredential-initialize)
 
 - [`InteractiveCredential$is_interactive()`](#method-InteractiveCredential-is_interactive)
 
@@ -39,12 +39,12 @@ instead.
 
 Inherited methods
 
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
-- [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
+- `Credential$print()`
+- `Credential$validate()`
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `InteractiveCredential$new()`
 
 Shared initializer for interactive credentials
 
@@ -127,7 +127,7 @@ Shared initializer for interactive credentials
 
 ------------------------------------------------------------------------
 
-### Method `is_interactive()`
+### `InteractiveCredential$is_interactive()`
 
 Check if the credential requires user interaction
 
@@ -141,7 +141,7 @@ Logical indicating whether this credential is interactive
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `InteractiveCredential$get_token()`
 
 Get an access token using the flow configured by the subclass. Returns a
 valid in-object cached token immediately if one exists for the requested
@@ -175,7 +175,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `InteractiveCredential$req_auth()`
 
 Add OAuth authentication to an httr2 request using the flow configured
 by the subclass
@@ -198,7 +198,7 @@ The request object with OAuth authentication configured
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `InteractiveCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

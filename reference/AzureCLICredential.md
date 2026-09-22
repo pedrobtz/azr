@@ -12,7 +12,7 @@ account and subscription unless a specific tenant is specified.
 
 ## Super class
 
-`azr::Credential` -\> `AzureCLICredential`
+`Credential` -\> `AzureCLICredential`
 
 ## Public fields
 
@@ -34,7 +34,7 @@ account and subscription unless a specific tenant is specified.
 
 ### Public methods
 
-- [`AzureCLICredential$new()`](#method-AzureCLICredential-new)
+- [`AzureCLICredential$new()`](#method-AzureCLICredential-initialize)
 
 - [`AzureCLICredential$get_token()`](#method-AzureCLICredential-get_token)
 
@@ -52,12 +52,12 @@ account and subscription unless a specific tenant is specified.
 
 Inherited methods
 
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
-- [`azr::Credential$validate()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-validate)
+- `Credential$print()`
+- `Credential$validate()`
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `AzureCLICredential$new()`
 
 Create a new Azure CLI credential
 
@@ -116,7 +116,7 @@ A new `AzureCLICredential` object
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `AzureCLICredential$get_token()`
 
 Get an access token from Azure CLI
 
@@ -139,7 +139,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `AzureCLICredential$req_auth()`
 
 Add authentication to an httr2 request
 
@@ -166,7 +166,7 @@ The request object with authentication header added
 
 ------------------------------------------------------------------------
 
-### Method `account_show()`
+### `AzureCLICredential$account_show()`
 
 Show the currently active Azure CLI account information
 
@@ -188,7 +188,7 @@ A list containing the account information from Azure CLI
 
 ------------------------------------------------------------------------
 
-### Method `login()`
+### `AzureCLICredential$login()`
 
 Perform Azure CLI login using device code flow
 
@@ -202,7 +202,7 @@ Invisibly returns the exit status (0 for success, non-zero for failure)
 
 ------------------------------------------------------------------------
 
-### Method `is_interactive()`
+### `AzureCLICredential$is_interactive()`
 
 Check if the credential requires user interaction
 
@@ -216,7 +216,7 @@ Logical indicating whether this credential is interactive
 
 ------------------------------------------------------------------------
 
-### Method `logout()`
+### `AzureCLICredential$logout()`
 
 Log out from Azure CLI
 
@@ -230,7 +230,7 @@ Invisibly returns `NULL`
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `AzureCLICredential$clone()`
 
 The objects of this class are cloneable with this method.
 

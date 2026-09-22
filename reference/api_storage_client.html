@@ -53,7 +53,7 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="api_client.html">azr::api_client</a></code> -&gt; <code>api_storage_client</code></p>
+    <p><code><a href="api_client.html">api_client</a></code> -&gt; <code>api_storage_client</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -68,20 +68,19 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-api_storage_client-new"><code>api_storage_client$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-api_storage_client-initialize"><code>api_storage_client$new()</code></a></p></li>
 <li><p><a href="#method-api_storage_client-download_file"><code>api_storage_client$download_file()</code></a></p></li>
 <li><p><a href="#method-api_storage_client-get_access_control"><code>api_storage_client$get_access_control()</code></a></p></li>
 <li><p><a href="#method-api_storage_client-list_files"><code>api_storage_client$list_files()</code></a></p></li>
 <li><p><a href="#method-api_storage_client-clone"><code>api_storage_client$clone()</code></a></p></li>
-</ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href="api_client.html#method-.build_request"><code>azr::api_client$.build_request()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href="api_client.html#method-.fetch"><code>azr::api_client$.fetch()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href="api_client.html#method-.get_token"><code>azr::api_client$.get_token()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href="api_client.html#method-.resp_body_content"><code>azr::api_client$.resp_body_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href="api_client.html#method-.resp_content"><code>azr::api_client$.resp_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href="api_client.html#method-.send_request"><code>azr::api_client$.send_request()</code></a></span></li>
-</ul></details></p><hr><a id="method-api_storage_client-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href="api_client.html#method-.build_request"><code>api_client$.build_request()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href="api_client.html#method-.fetch"><code>api_client$.fetch()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href="api_client.html#method-.get_token"><code>api_client$.get_token()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href="api_client.html#method-.resp_body_content"><code>api_client$.resp_body_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href="api_client.html#method-.resp_content"><code>api_client$.resp_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href="api_client.html#method-.send_request"><code>api_client$.send_request()</code></a></span></li>
+</ul></details></p><hr><a id="method-api_storage_client-initialize"></a><div class="section">
+<h3 id="api-storage-client-new-"><code>api_storage_client$new()</code><a class="anchor" aria-label="anchor" href="#api-storage-client-new-"></a></h3>
 <p>Create a new Azure Storage API client instance</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_storage_client.html">api_storage_client</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -95,154 +94,136 @@ for Azure Data Lake Storage Gen2 (ADLS Gen2) REST API operations.</p>
 <span>  client_id <span class="op">=</span> <span class="fu"><a href="../reference/default_azure_cli_client_id.html">default_azure_cli_client_id</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>storageaccount</code></dt>
 <dd><p>A character string specifying the Azure Storage account name.</p></dd>
 
-
-<dt><code>filesystem</code></dt>
+      <dt><code>filesystem</code></dt>
 <dd><p>A character string specifying the filesystem (container) name.</p></dd>
 
-
-<dt><code>scope</code></dt>
+      <dt><code>scope</code></dt>
 <dd><p>A character string specifying the OAuth2 scope. Defaults to
 <code>default_azure_scope("azure_storage")</code>.</p></dd>
 
-
-<dt><code>endpoint_suffix</code></dt>
+      <dt><code>endpoint_suffix</code></dt>
 <dd><p>A character string specifying the Azure
 Storage DFS endpoint suffix. Defaults to
 <code><a href="default_storage_endpoint.html">default_storage_endpoint()</a></code>.</p></dd>
 
-
-<dt><code>provider</code></dt>
+      <dt><code>provider</code></dt>
 <dd><p>An optional credential provider object that inherits from
 <code>Credential</code> or <code>DefaultCredential</code>. If provided, <code>chain</code> is ignored.</p></dd>
 
-
-<dt><code>chain</code></dt>
+      <dt><code>chain</code></dt>
 <dd><p>A <a href="credential_chain.html">credential_chain</a> instance for authentication. If NULL,
 a default credential chain will be created using <a href="DefaultCredential.html">DefaultCredential</a>.</p></dd>
 
-
-<dt><code>tenant_id</code></dt>
+      <dt><code>tenant_id</code></dt>
 <dd><p>A character string specifying the Azure tenant ID. Passed to
 <a href="DefaultCredential.html">DefaultCredential</a> when <code>chain</code> is <code>NULL</code>.</p></dd>
 
-
-<dt><code>client_id</code></dt>
+      <dt><code>client_id</code></dt>
 <dd><p>A character string specifying the Azure client ID. Passed to
 <a href="DefaultCredential.html">DefaultCredential</a> when <code>chain</code> is <code>NULL</code>. Defaults to
 <code><a href="default_azure_cli_client_id.html">default_azure_cli_client_id()</a></code>.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional arguments passed to the parent <a href="api_client.html">api_client</a> constructor.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A new <code>api_storage_client</code> object</p>
 </div>
 
-</div><p></p><hr><a id="method-api_storage_client-download_file"></a><div class="section">
-<h3 id="method-download-file-">Method <code>download_file()</code><a class="anchor" aria-label="anchor" href="#method-download-file-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_storage_client-download_file"></a><div class="section">
+<h3 id="api-storage-client-download-file-"><code>api_storage_client$download_file()</code><a class="anchor" aria-label="anchor" href="#api-storage-client-download-file-"></a></h3>
 <p>Download a file from the filesystem</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_storage_client</span><span class="op">$</span><span class="fu">download_file</span><span class="op">(</span><span class="va">path</span>, dest <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>A character string specifying the file path within the filesystem.</p></dd>
 
-
-<dt><code>dest</code></dt>
+      <dt><code>dest</code></dt>
 <dd><p>A character string specifying the local destination path.
 Defaults to a temporary file via <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile()</a></code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>The local path the file was written to (invisibly).</p>
 </div>
 
-</div><p></p><hr><a id="method-api_storage_client-get_access_control"></a><div class="section">
-<h3 id="method-get-access-control-">Method <code>get_access_control()</code><a class="anchor" aria-label="anchor" href="#method-get-access-control-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_storage_client-get_access_control"></a><div class="section">
+<h3 id="api-storage-client-get-access-control-"><code>api_storage_client$get_access_control()</code><a class="anchor" aria-label="anchor" href="#api-storage-client-get-access-control-"></a></h3>
 <p>Get the access control list (ACL) for a file or directory</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_storage_client</span><span class="op">$</span><span class="fu">get_access_control</span><span class="op">(</span><span class="va">dataset</span>, upn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>dataset</code></dt>
 <dd><p>A character string specifying the file or directory path within
 the filesystem.</p></dd>
 
-
-<dt><code>upn</code></dt>
+      <dt><code>upn</code></dt>
 <dd><p>A logical value. If <code>TRUE</code>, user principal names (UPN) are
 returned in the <code>x-ms-owner</code>, <code>x-ms-group</code>, and <code>x-ms-acl</code> response
 headers instead of object IDs. Defaults to <code>FALSE</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
 <p>A data.frame with columns <code>group_id</code> and <code>permission</code>, one row per
 named group entry in the <code>x-ms-acl</code> response header.</p>
 </div>
 
-</div><p></p><hr><a id="method-api_storage_client-list_files"></a><div class="section">
-<h3 id="method-list-files-">Method <code>list_files()</code><a class="anchor" aria-label="anchor" href="#method-list-files-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_storage_client-list_files"></a><div class="section">
+<h3 id="api-storage-client-list-files-"><code>api_storage_client$list_files()</code><a class="anchor" aria-label="anchor" href="#api-storage-client-list-files-"></a></h3>
 <p>List files and directories in a path</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_storage_client</span><span class="op">$</span><span class="fu">list_files</span><span class="op">(</span>path <span class="op">=</span> <span class="st">""</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>A character string specifying the directory path to list.
 Use empty string or NULL for the root directory. Defaults to <code>""</code>.</p></dd>
 
-
-<dt><code>recursive</code></dt>
+      <dt><code>recursive</code></dt>
 <dd><p>A logical value indicating whether to list files recursively.
 Defaults to <code>FALSE</code>.</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>Additional query parameters to pass to the API.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
 <p>A data.frame (or data.table if available) with one row per file or
 directory. Columns include <code>name</code>, <code>contentLength</code>, <code>lastModified</code>, etc.
 All pages are fetched transparently; the result is the complete listing.</p>
 </div>
 
-</div><p></p><hr><a id="method-api_storage_client-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-api_storage_client-clone"></a><div class="section">
+<h3 id="api-storage-client-clone-"><code>api_storage_client$clone()</code><a class="anchor" aria-label="anchor" href="#api-storage-client-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">api_storage_client</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -252,6 +233,7 @@ All pages are fetched transparently; the result is the complete listing.</p>
 </div>
 
 </div>
+
 
     </div>
 

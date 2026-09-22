@@ -16,11 +16,11 @@ authentication, endpoint management, and configuration.
 
 ### Public methods
 
-- [`api_service$new()`](#method-api_service-new)
+- [`api_service$new()`](#method-api_service-initialize)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `api_service$new()`
 
 Create a new API service instance
 

@@ -13,7 +13,7 @@ hard-coded in scripts.
 
 ## Super class
 
-`azr::Credential` -\> `ClientSecretCredential`
+`Credential` -\> `ClientSecretCredential`
 
 ## Methods
 
@@ -29,13 +29,13 @@ hard-coded in scripts.
 
 Inherited methods
 
-- [`azr::Credential$initialize()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-initialize)
-- [`azr::Credential$is_interactive()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-is_interactive)
-- [`azr::Credential$print()`](https://pedrobtz.github.io/azr/reference/Credential.html#method-print)
+- `Credential$initialize()`
+- `Credential$is_interactive()`
+- `Credential$print()`
 
 ------------------------------------------------------------------------
 
-### Method `validate()`
+### `ClientSecretCredential$validate()`
 
 Validate the credential configuration
 
@@ -50,7 +50,7 @@ parent class validation method.
 
 ------------------------------------------------------------------------
 
-### Method [`get_token()`](https://pedrobtz.github.io/azr/reference/get_token.md)
+### `ClientSecretCredential$get_token()`
 
 Get an access token using client credentials flow
 
@@ -66,7 +66,7 @@ object containing the access token
 
 ------------------------------------------------------------------------
 
-### Method `req_auth()`
+### `ClientSecretCredential$req_auth()`
 
 Add OAuth client credentials authentication to an httr2 request
 
@@ -89,7 +89,7 @@ configured
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ClientSecretCredential$clone()`
 
 The objects of this class are cloneable with this method.
 

@@ -12,7 +12,3 @@ data-plane host `*.dfs.core.windows.net`).
 ``` r
 azure_services
 ```
-
-## Format
-
-An object of class `list` of length 10.

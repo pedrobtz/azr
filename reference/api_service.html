@@ -62,10 +62,9 @@ endpoint management, and configuration.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-api_service-new"><code>api_service$new()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-api_service-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+<p></p><ul><li><p><a href="#method-api_service-initialize"><code>api_service$new()</code></a></p></li>
+</ul></div><p></p><hr><a id="method-api_service-initialize"></a><div class="section">
+<h3 id="api-service-new-"><code>api_service$new()</code><a class="anchor" aria-label="anchor" href="#api-service-new-"></a></h3>
 <p>Create a new API service instance</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/api_service.html">api_service</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -74,36 +73,31 @@ endpoint management, and configuration.</p>
 <span>  endpoints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  config <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>client</code></dt>
 <dd><p>An <a href="api_client.html">api_client</a> instance. If <code>NULL</code>, a new client will be created.</p></dd>
 
-
-<dt><code>chain</code></dt>
+      <dt><code>chain</code></dt>
 <dd><p>A <a href="credential_chain.html">credential_chain</a> instance for authentication. Optional.</p></dd>
 
-
-<dt><code>endpoints</code></dt>
+      <dt><code>endpoints</code></dt>
 <dd><p>A named list where names are endpoint paths (e.g., "v1.0", "beta")
 and values are R6 class objects (not instances) to use for creating resources.
 Defaults to an empty list. If the value is <code>NULL</code>, <a href="api_resource.html">api_resource</a> will be used.</p></dd>
 
-
-<dt><code>config</code></dt>
+      <dt><code>config</code></dt>
 <dd><p>A list of configuration options. Defaults to an empty list.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A new <code>api_service</code> object</p>
 </div>
 
 </div>
+
 
     </div>
 
