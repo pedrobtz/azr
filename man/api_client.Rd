@@ -63,44 +63,45 @@ response <- client$.fetch(
 }
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.host_url}}{Base URL for the API}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.host_url}}{Base URL for the API}
 
-\item{\code{.base_req}}{Base httr2 request object}
+    \item{\code{.base_req}}{Base httr2 request object}
 
-\item{\code{.provider}}{Credential provider R6 object}
+    \item{\code{.provider}}{Credential provider R6 object}
 
-\item{\code{.credentials}}{Credentials function for authentication}
+    \item{\code{.credentials}}{Credentials function for authentication}
 
-\item{\code{.options}}{Request options (timeout, connecttimeout, max_tries)}
+    \item{\code{.options}}{Request options (timeout, connecttimeout, max_tries)}
 
-\item{\code{.response_handler}}{Optional callback function to process response content}
+    \item{\code{.response_handler}}{Optional callback function to process response content}
 
-\item{\code{.verbose}}{Logical flag controlling request/response logging in \code{.send_request()}}
-}
-\if{html}{\out{</div>}}
+    \item{\code{.verbose}}{Logical flag controlling request/response logging in \code{.send_request()}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-api_client-new}{\code{api_client$new()}}
-\item \href{#method-api_client-.fetch}{\code{api_client$.fetch()}}
-\item \href{#method-api_client-.resp_content}{\code{api_client$.resp_content()}}
-\item \href{#method-api_client-.build_request}{\code{api_client$.build_request()}}
-\item \href{#method-api_client-.send_request}{\code{api_client$.send_request()}}
-\item \href{#method-api_client-.resp_body_content}{\code{api_client$.resp_body_content()}}
-\item \href{#method-api_client-.get_token}{\code{api_client$.get_token()}}
-\item \href{#method-api_client-clone}{\code{api_client$clone()}}
-}
+  \itemize{
+    \item \href{#method-api_client-initialize}{\code{api_client$new()}}
+    \item \href{#method-api_client-.fetch}{\code{api_client$.fetch()}}
+    \item \href{#method-api_client-.resp_content}{\code{api_client$.resp_content()}}
+    \item \href{#method-api_client-.build_request}{\code{api_client$.build_request()}}
+    \item \href{#method-api_client-.send_request}{\code{api_client$.send_request()}}
+    \item \href{#method-api_client-.resp_body_content}{\code{api_client$.resp_body_content()}}
+    \item \href{#method-api_client-.get_token}{\code{api_client$.get_token()}}
+    \item \href{#method-api_client-clone}{\code{api_client$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_client-new"></a>}}
-\if{latex}{\out{\hypertarget{method-api_client-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new API client instance
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$new(
+\if{html}{\out{<a id="method-api_client-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-api_client-initialize}{}}}
+\subsection{\code{api_client$new()}}{
+  Create a new API client instance
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$new(
   host_url,
   provider = NULL,
   credentials = NULL,
@@ -109,58 +110,53 @@ Create a new API client instance
   max_tries = 5L,
   response_handler = NULL,
   verbose = opts$get("api_verbose")
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{host_url}}{A character string specifying the base URL for the API
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{host_url}}{A character string specifying the base URL for the API
 (e.g., \code{"https://management.azure.com"}).}
-
-\item{\code{provider}}{An R6 credential provider object that inherits from the
+      \item{\code{provider}}{An R6 credential provider object that inherits from the
 \code{Credential} or \code{DefaultCredential} class. If provided, the credential's
 \code{req_auth} method will be used for authentication. Takes precedence over
 \code{credentials}.}
-
-\item{\code{credentials}}{A function that adds authentication to requests. If
+      \item{\code{credentials}}{A function that adds authentication to requests. If
 both \code{provider} and \code{credentials} are \code{NULL}, uses \code{\link[=default_non_auth]{default_non_auth()}}.
 The function should accept an httr2 request object and return a modified
 request with authentication.}
-
-\item{\code{timeout}}{An integer specifying the request timeout in seconds.
+      \item{\code{timeout}}{An integer specifying the request timeout in seconds.
 Defaults to \code{60}.}
-
-\item{\code{connecttimeout}}{An integer specifying the connection timeout in
+      \item{\code{connecttimeout}}{An integer specifying the connection timeout in
 seconds. Defaults to \code{30}.}
-
-\item{\code{max_tries}}{An integer specifying the maximum number of retry
+      \item{\code{max_tries}}{An integer specifying the maximum number of retry
 attempts for failed requests. Defaults to \code{5}.}
-
-\item{\code{response_handler}}{An optional function to process the parsed response
+      \item{\code{response_handler}}{An optional function to process the parsed response
 content. The function should accept one argument (the parsed response) and
 return the processed content. If \code{NULL}, uses \code{\link[=default_response_handler]{default_response_handler()}}
 which converts data frames to data.table objects. Defaults to \code{NULL}.}
-
-\item{\code{verbose}}{A logical flag controlling request/response logging in
+      \item{\code{verbose}}{A logical flag controlling request/response logging in
 \code{.send_request()}. When \code{FALSE}, the \verb{>>>} request and \verb{<<<} response
 \code{cli} alerts are suppressed. Defaults to the \code{api_verbose} option, which
 reads \code{options(azr.api_verbose = ...)} or the \code{AZR_API_VERBOSE}
 environment variable; see \code{\link[=azr_options]{azr_options()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{api_client} object
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{api_client} object
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-.fetch"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-.fetch}{}}}
-\subsection{Method \code{.fetch()}}{
-Make an HTTP request to the API
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.fetch(
+\subsection{\code{api_client$.fetch()}}{
+  Make an HTTP request to the API
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$.fetch(
   path,
   ...,
   query = NULL,
@@ -170,216 +166,212 @@ Make an HTTP request to the API
   verbosity = 0L,
   content = c("body", "headers", "response", "request"),
   content_type = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{A character string specifying the API endpoint path. Supports
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{A character string specifying the API endpoint path. Supports
 \code{\link[rlang:englue]{rlang::englue()}} syntax for variable interpolation using named arguments
 passed via \code{...}.}
-
-\item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
-
-\item{\code{query}}{A named list of query parameters to append to the URL.}
-
-\item{\code{body}}{Request body data. Sent as JSON in the request body.
+      \item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
+      \item{\code{query}}{A named list of query parameters to append to the URL.}
+      \item{\code{body}}{Request body data. Sent as JSON in the request body.
 Can be a list or character string (JSON).}
-
-\item{\code{headers}}{A named list of additional HTTP headers to include in the
+      \item{\code{headers}}{A named list of additional HTTP headers to include in the
 request.}
-
-\item{\code{method}}{A character string specifying the HTTP method. One of
+      \item{\code{method}}{A character string specifying the HTTP method. One of
 \code{"get"}, \code{"post"}, \code{"put"}, \code{"patch"}, or \code{"delete"}. Defaults to \code{"get"}.}
-
-\item{\code{verbosity}}{An integer specifying the verbosity level for request
+      \item{\code{verbosity}}{An integer specifying the verbosity level for request
 debugging (passed to \code{\link[httr2:req_perform]{httr2::req_perform()}}). Defaults to \code{0}.}
-
-\item{\code{content}}{A character string specifying what to return. One of:
+      \item{\code{content}}{A character string specifying what to return. One of:
 \itemize{
 \item \code{"body"} (default): Return the parsed response body
 \item \code{"headers"}: Return response headers
 \item \code{"response"}: Return the full httr2 response object
 \item \code{"request"}: Return the prepared request object without executing it
 }}
-
-\item{\code{content_type}}{A character string specifying how to parse the response
+      \item{\code{content_type}}{A character string specifying how to parse the response
 body. If \code{NULL}, uses the response's Content-Type header. Common values:
 \code{"application/json"}, \code{"application/xml"}, \code{"text/html"}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Depends on the \code{content} parameter:
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Depends on the \code{content} parameter:
 \itemize{
 \item \code{"body"}: Parsed response body (list, data.frame, or character)
 \item \code{"headers"}: List of response headers
 \item \code{"response"}: Full \code{\link[httr2:response]{httr2::response()}} object
 \item \code{"request"}: \code{\link[httr2:request]{httr2::request()}} object
 }
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-.resp_content"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-.resp_content}{}}}
-\subsection{Method \code{.resp_content()}}{
-Extract content from a response object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.resp_content(resp, content, content_type = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{resp}}{An \code{\link[httr2:response]{httr2::response()}} object}
-
-\item{\code{content}}{A character string specifying what to return. One of:
+\subsection{\code{api_client$.resp_content()}}{
+  Extract content from a response object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$.resp_content(resp, content, content_type = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{resp}}{An \code{\link[httr2:response]{httr2::response()}} object}
+      \item{\code{content}}{A character string specifying what to return. One of:
 \itemize{
 \item \code{"body"}: Return the parsed response body
 \item \code{"headers"}: Return response headers
 \item \code{"response"}: Return the full httr2 response object
 }}
-
-\item{\code{content_type}}{A character string specifying how to parse the response
+      \item{\code{content_type}}{A character string specifying how to parse the response
 body. Only used when \code{content = "body"}. If \code{NULL}, uses the response's
 Content-Type header.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Depends on the \code{content} parameter:
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Depends on the \code{content} parameter:
 \itemize{
 \item \code{"body"}: Parsed response body (list, data.frame, or character)
 \item \code{"headers"}: List of response headers
 \item \code{"response"}: Full \code{\link[httr2:response]{httr2::response()}} object
 }
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-.build_request"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-.build_request}{}}}
-\subsection{Method \code{.build_request()}}{
-Build an HTTP request object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.build_request(
+\subsection{\code{api_client$.build_request()}}{
+  Build an HTTP request object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$.build_request(
   path,
   ...,
   query = NULL,
   body = NULL,
   headers = NULL,
   method = "get"
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{A character string specifying the API endpoint path. Supports
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{A character string specifying the API endpoint path. Supports
 \code{\link[rlang:englue]{rlang::englue()}} syntax for variable interpolation using named arguments
 passed via \code{...}.}
-
-\item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
-
-\item{\code{query}}{A named list of query parameters to append to the URL.}
-
-\item{\code{body}}{Request body data. Sent as JSON in the request body.
+      \item{\code{...}}{Named arguments used for path interpolation with \code{\link[rlang:englue]{rlang::englue()}}.}
+      \item{\code{query}}{A named list of query parameters to append to the URL.}
+      \item{\code{body}}{Request body data. Sent as JSON in the request body.
 Can be a list or character string (JSON).}
-
-\item{\code{headers}}{A named list of additional HTTP headers to include in the
+      \item{\code{headers}}{A named list of additional HTTP headers to include in the
 request.}
-
-\item{\code{method}}{A character string specifying the HTTP method. One of
+      \item{\code{method}}{A character string specifying the HTTP method. One of
 \code{"get"}, \code{"post"}, \code{"put"}, \code{"patch"}, or \code{"delete"}. Defaults to \code{"get"}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:request]{httr2::request()}} object ready for execution
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An \code{\link[httr2:request]{httr2::request()}} object ready for execution
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-.send_request"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-.send_request}{}}}
-\subsection{Method \code{.send_request()}}{
-Perform an HTTP request and log the results
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.send_request(req, verbosity)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object to execute}
-
-\item{\code{verbosity}}{An integer specifying the verbosity level for request
+\subsection{\code{api_client$.send_request()}}{
+  Perform an HTTP request and log the results
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$.send_request(req, verbosity)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object to execute}
+      \item{\code{verbosity}}{An integer specifying the verbosity level for request
 debugging (passed to \code{\link[httr2:req_perform]{httr2::req_perform()}}). Defaults to \code{0}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:response]{httr2::response()}} object containing the API response
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An \code{\link[httr2:response]{httr2::response()}} object containing the API response
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-.resp_body_content"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-.resp_body_content}{}}}
-\subsection{Method \code{.resp_body_content()}}{
-Extract and parse response content
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.resp_body_content(resp, content_type = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{resp}}{An \code{\link[httr2:response]{httr2::response()}} object}
-
-\item{\code{content_type}}{A character string specifying how to parse the response
+\subsection{\code{api_client$.resp_body_content()}}{
+  Extract and parse response content
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$.resp_body_content(resp, content_type = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{resp}}{An \code{\link[httr2:response]{httr2::response()}} object}
+      \item{\code{content_type}}{A character string specifying how to parse the response
 body. If \code{NULL}, uses the response's Content-Type header. Common values:
 \code{"application/json"}, \code{"application/xml"}, \code{"text/html"}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Parsed response body. Format depends on content type:
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Parsed response body. Format depends on content type:
 \itemize{
 \item JSON: List or data.frame
 \item XML: xml2 document
 \item HTML: xml2 document
 \item Other: Character string
 }
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-.get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-.get_token}{}}}
-\subsection{Method \code{.get_token()}}{
-Get authentication token from the credential provider
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$.get_token()}\if{html}{\out{</div>}}
+\subsection{\code{api_client$.get_token()}}{
+  Get authentication token from the credential provider
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$.get_token()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object if a provider is available,
+otherwise returns \code{NULL} with a warning.
+  }
 }
 
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object if a provider is available,
-otherwise returns \code{NULL} with a warning.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_client-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-api_client-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_client$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{api_client$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_client$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

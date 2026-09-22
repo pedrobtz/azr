@@ -38,113 +38,117 @@ token <- cred$get_token()
 }
 }
 \section{Super class}{
-\code{azr::Credential} -> \code{ManagedIdentityCredential}
+\code{Credential} -> \code{ManagedIdentityCredential}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.msi_client_id}}{Client ID for user-assigned managed identity, or
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.msi_client_id}}{Client ID for user-assigned managed identity, or
 \code{NULL} for system-assigned.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ManagedIdentityCredential-new}{\code{ManagedIdentityCredential$new()}}
-\item \href{#method-ManagedIdentityCredential-get_token}{\code{ManagedIdentityCredential$get_token()}}
-\item \href{#method-ManagedIdentityCredential-req_auth}{\code{ManagedIdentityCredential$req_auth()}}
-\item \href{#method-ManagedIdentityCredential-clone}{\code{ManagedIdentityCredential$clone()}}
+  \itemize{
+    \item \href{#method-ManagedIdentityCredential-initialize}{\code{ManagedIdentityCredential$new()}}
+    \item \href{#method-ManagedIdentityCredential-get_token}{\code{ManagedIdentityCredential$get_token()}}
+    \item \href{#method-ManagedIdentityCredential-req_auth}{\code{ManagedIdentityCredential$req_auth()}}
+    \item \href{#method-ManagedIdentityCredential-clone}{\code{ManagedIdentityCredential$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="is_interactive"><a href='../../azr/html/Credential.html#method-Credential-is_interactive'><code>azr::Credential$is_interactive()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
+  <li><code>Credential$is_interactive()</code></li>
+  <li><code>Credential$print()</code></li>
+  <li><code>Credential$validate()</code></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ManagedIdentityCredential-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ManagedIdentityCredential-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new managed identity credential
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ManagedIdentityCredential$new(scope = NULL, client_id = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+\if{html}{\out{<a id="method-ManagedIdentityCredential-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ManagedIdentityCredential-initialize}{}}}
+\subsection{\code{ManagedIdentityCredential$new()}}{
+  Create a new managed identity credential
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ManagedIdentityCredential$new(scope = NULL, client_id = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 the Azure Resource Manager scope.}
-
-\item{\code{client_id}}{A character string specifying the client ID of a
+      \item{\code{client_id}}{A character string specifying the client ID of a
 user-assigned managed identity. Leave \code{NULL} (the default) to use the
 system-assigned managed identity.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{ManagedIdentityCredential} object
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{ManagedIdentityCredential} object
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ManagedIdentityCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-ManagedIdentityCredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token from the IMDS endpoint
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ManagedIdentityCredential$get_token()}\if{html}{\out{</div>}}
-}
-
-\subsection{Details}{
-Returns a valid in-object cached token immediately if one exists.
+\subsection{\code{ManagedIdentityCredential$get_token()}}{
+  Get an access token from the IMDS endpoint
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ManagedIdentityCredential$get_token()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    Returns a valid in-object cached token immediately if one exists.
 Otherwise queries the Azure Instance Metadata Service (IMDS) for a new
 token.
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+  }
 }
 
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ManagedIdentityCredential-req_auth"></a>}}
 \if{latex}{\out{\hypertarget{method-ManagedIdentityCredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add managed identity authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ManagedIdentityCredential$req_auth(req)}\if{html}{\out{</div>}}
+\subsection{\code{ManagedIdentityCredential$req_auth()}}{
+  Add managed identity authentication to an httr2 request
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ManagedIdentityCredential$req_auth(req)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The request object with a Bearer token authorization header
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with a Bearer token authorization header
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ManagedIdentityCredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ManagedIdentityCredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ManagedIdentityCredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ManagedIdentityCredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ManagedIdentityCredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

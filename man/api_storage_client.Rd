@@ -30,44 +30,43 @@ files <- storage$list_files(path = "data", recursive = TRUE)
 }
 }
 \section{Super class}{
-\code{\link[azr:api_client]{azr::api_client}} -> \code{api_storage_client}
+\code{\link[azr:api_client]{api_client}} -> \code{api_storage_client}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.filesystem}}{The filesystem (container) name}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.filesystem}}{The filesystem (container) name}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-api_storage_client-new}{\code{api_storage_client$new()}}
-\item \href{#method-api_storage_client-download_file}{\code{api_storage_client$download_file()}}
-\item \href{#method-api_storage_client-get_access_control}{\code{api_storage_client$get_access_control()}}
-\item \href{#method-api_storage_client-list_files}{\code{api_storage_client$list_files()}}
-\item \href{#method-api_storage_client-clone}{\code{api_storage_client$clone()}}
+  \itemize{
+    \item \href{#method-api_storage_client-initialize}{\code{api_storage_client$new()}}
+    \item \href{#method-api_storage_client-download_file}{\code{api_storage_client$download_file()}}
+    \item \href{#method-api_storage_client-get_access_control}{\code{api_storage_client$get_access_control()}}
+    \item \href{#method-api_storage_client-list_files}{\code{api_storage_client$list_files()}}
+    \item \href{#method-api_storage_client-clone}{\code{api_storage_client$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href='../../azr/html/api_client.html#method-api_client-.build_request'><code>azr::api_client$.build_request()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href='../../azr/html/api_client.html#method-api_client-.fetch'><code>azr::api_client$.fetch()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href='../../azr/html/api_client.html#method-api_client-.get_token'><code>azr::api_client$.get_token()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_body_content'><code>azr::api_client$.resp_body_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_content'><code>azr::api_client$.resp_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href='../../azr/html/api_client.html#method-api_client-.send_request'><code>azr::api_client$.send_request()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href='../../azr/html/api_client.html#method-api_client-.build_request'><code>api_client$.build_request()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href='../../azr/html/api_client.html#method-api_client-.fetch'><code>api_client$.fetch()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href='../../azr/html/api_client.html#method-api_client-.get_token'><code>api_client$.get_token()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_body_content'><code>api_client$.resp_body_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_content'><code>api_client$.resp_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href='../../azr/html/api_client.html#method-api_client-.send_request'><code>api_client$.send_request()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_storage_client-new"></a>}}
-\if{latex}{\out{\hypertarget{method-api_storage_client-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new Azure Storage API client instance
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$new(
+\if{html}{\out{<a id="method-api_storage_client-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-api_storage_client-initialize}{}}}
+\subsection{\code{api_storage_client$new()}}{
+  Create a new Azure Storage API client instance
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_storage_client$new(
   storageaccount,
   filesystem,
   scope = default_azure_scope("azure_storage"),
@@ -77,136 +76,133 @@ Create a new Azure Storage API client instance
   tenant_id = NULL,
   client_id = default_azure_cli_client_id(),
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{storageaccount}}{A character string specifying the Azure Storage account name.}
-
-\item{\code{filesystem}}{A character string specifying the filesystem (container) name.}
-
-\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{storageaccount}}{A character string specifying the Azure Storage account name.}
+      \item{\code{filesystem}}{A character string specifying the filesystem (container) name.}
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 \code{default_azure_scope("azure_storage")}.}
-
-\item{\code{endpoint_suffix}}{A character string specifying the Azure
+      \item{\code{endpoint_suffix}}{A character string specifying the Azure
 Storage DFS endpoint suffix. Defaults to
 \code{\link[=default_storage_endpoint]{default_storage_endpoint()}}.}
-
-\item{\code{provider}}{An optional credential provider object that inherits from
+      \item{\code{provider}}{An optional credential provider object that inherits from
 \code{Credential} or \code{DefaultCredential}. If provided, \code{chain} is ignored.}
-
-\item{\code{chain}}{A \link{credential_chain} instance for authentication. If NULL,
+      \item{\code{chain}}{A \link{credential_chain} instance for authentication. If NULL,
 a default credential chain will be created using \link{DefaultCredential}.}
-
-\item{\code{tenant_id}}{A character string specifying the Azure tenant ID. Passed to
+      \item{\code{tenant_id}}{A character string specifying the Azure tenant ID. Passed to
 \link{DefaultCredential} when \code{chain} is \code{NULL}.}
-
-\item{\code{client_id}}{A character string specifying the Azure client ID. Passed to
+      \item{\code{client_id}}{A character string specifying the Azure client ID. Passed to
 \link{DefaultCredential} when \code{chain} is \code{NULL}. Defaults to
 \code{\link[=default_azure_cli_client_id]{default_azure_cli_client_id()}}.}
+      \item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{api_storage_client} object
+  }
+}
 
-\item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{api_storage_client} object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_storage_client-download_file"></a>}}
 \if{latex}{\out{\hypertarget{method-api_storage_client-download_file}{}}}
-\subsection{Method \code{download_file()}}{
-Download a file from the filesystem
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$download_file(path, dest = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{A character string specifying the file path within the filesystem.}
-
-\item{\code{dest}}{A character string specifying the local destination path.
+\subsection{\code{api_storage_client$download_file()}}{
+  Download a file from the filesystem
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_storage_client$download_file(path, dest = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{A character string specifying the file path within the filesystem.}
+      \item{\code{dest}}{A character string specifying the local destination path.
 Defaults to a temporary file via \code{\link[=tempfile]{tempfile()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The local path the file was written to (invisibly).
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The local path the file was written to (invisibly).
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_storage_client-get_access_control"></a>}}
 \if{latex}{\out{\hypertarget{method-api_storage_client-get_access_control}{}}}
-\subsection{Method \code{get_access_control()}}{
-Get the access control list (ACL) for a file or directory
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$get_access_control(dataset, upn = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dataset}}{A character string specifying the file or directory path within
+\subsection{\code{api_storage_client$get_access_control()}}{
+  Get the access control list (ACL) for a file or directory
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_storage_client$get_access_control(dataset, upn = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{dataset}}{A character string specifying the file or directory path within
 the filesystem.}
-
-\item{\code{upn}}{A logical value. If \code{TRUE}, user principal names (UPN) are
+      \item{\code{upn}}{A logical value. If \code{TRUE}, user principal names (UPN) are
 returned in the \code{x-ms-owner}, \code{x-ms-group}, and \code{x-ms-acl} response
 headers instead of object IDs. Defaults to \code{FALSE}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame with columns \code{group_id} and \code{permission}, one row per
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A data.frame with columns \code{group_id} and \code{permission}, one row per
 named group entry in the \code{x-ms-acl} response header.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_storage_client-list_files"></a>}}
 \if{latex}{\out{\hypertarget{method-api_storage_client-list_files}{}}}
-\subsection{Method \code{list_files()}}{
-List files and directories in a path
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$list_files(path = "", recursive = FALSE, ...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{A character string specifying the directory path to list.
+\subsection{\code{api_storage_client$list_files()}}{
+  List files and directories in a path
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_storage_client$list_files(path = "", recursive = FALSE, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{A character string specifying the directory path to list.
 Use empty string or NULL for the root directory. Defaults to \code{""}.}
-
-\item{\code{recursive}}{A logical value indicating whether to list files recursively.
+      \item{\code{recursive}}{A logical value indicating whether to list files recursively.
 Defaults to \code{FALSE}.}
-
-\item{\code{...}}{Additional query parameters to pass to the API.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A data.frame (or data.table if available) with one row per file or
+      \item{\code{...}}{Additional query parameters to pass to the API.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A data.frame (or data.table if available) with one row per file or
 directory. Columns include \code{name}, \code{contentLength}, \code{lastModified}, etc.
 All pages are fetched transparently; the result is the complete listing.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_storage_client-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-api_storage_client-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_storage_client$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{api_storage_client$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_storage_client$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

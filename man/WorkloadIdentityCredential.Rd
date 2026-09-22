@@ -47,139 +47,142 @@ resp <- httr2::req_perform(cred$req_auth(req))
 }
 }
 \section{Super class}{
-\code{azr::Credential} -> \code{WorkloadIdentityCredential}
+\code{Credential} -> \code{WorkloadIdentityCredential}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.token_file_path}}{Path to the file containing the federated identity token}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.token_file_path}}{Path to the file containing the federated identity token}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-WorkloadIdentityCredential-new}{\code{WorkloadIdentityCredential$new()}}
-\item \href{#method-WorkloadIdentityCredential-validate}{\code{WorkloadIdentityCredential$validate()}}
-\item \href{#method-WorkloadIdentityCredential-get_token}{\code{WorkloadIdentityCredential$get_token()}}
-\item \href{#method-WorkloadIdentityCredential-req_auth}{\code{WorkloadIdentityCredential$req_auth()}}
-\item \href{#method-WorkloadIdentityCredential-clone}{\code{WorkloadIdentityCredential$clone()}}
+  \itemize{
+    \item \href{#method-WorkloadIdentityCredential-initialize}{\code{WorkloadIdentityCredential$new()}}
+    \item \href{#method-WorkloadIdentityCredential-validate}{\code{WorkloadIdentityCredential$validate()}}
+    \item \href{#method-WorkloadIdentityCredential-get_token}{\code{WorkloadIdentityCredential$get_token()}}
+    \item \href{#method-WorkloadIdentityCredential-req_auth}{\code{WorkloadIdentityCredential$req_auth()}}
+    \item \href{#method-WorkloadIdentityCredential-clone}{\code{WorkloadIdentityCredential$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="is_interactive"><a href='../../azr/html/Credential.html#method-Credential-is_interactive'><code>azr::Credential$is_interactive()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
+  <li><code>Credential$is_interactive()</code></li>
+  <li><code>Credential$print()</code></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-WorkloadIdentityCredential-new"></a>}}
-\if{latex}{\out{\hypertarget{method-WorkloadIdentityCredential-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new Workload Identity credential
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{WorkloadIdentityCredential$new(
+\if{html}{\out{<a id="method-WorkloadIdentityCredential-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-WorkloadIdentityCredential-initialize}{}}}
+\subsection{\code{WorkloadIdentityCredential$new()}}{
+  Create a new Workload Identity credential
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{WorkloadIdentityCredential$new(
   scope = NULL,
   tenant_id = Sys.getenv(environment_variables$azure_tenant_id, unset = NA_character_),
   client_id = Sys.getenv(environment_variables$azure_client_id, unset = NA_character_),
   token_file_path = default_federated_token_file()
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 the Azure Resource Manager scope.}
-
-\item{\code{tenant_id}}{A character string specifying the Azure AD tenant ID.
+      \item{\code{tenant_id}}{A character string specifying the Azure AD tenant ID.
 Defaults to the \code{AZURE_TENANT_ID} environment variable.}
-
-\item{\code{client_id}}{A character string specifying the client (application) ID.
+      \item{\code{client_id}}{A character string specifying the client (application) ID.
 Defaults to the \code{AZURE_CLIENT_ID} environment variable.}
-
-\item{\code{token_file_path}}{A character string specifying the path to the file
+      \item{\code{token_file_path}}{A character string specifying the path to the file
 containing the federated identity token. Defaults to the
 \code{AZURE_FEDERATED_TOKEN_FILE} environment variable.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{WorkloadIdentityCredential} object
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{WorkloadIdentityCredential} object
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-WorkloadIdentityCredential-validate"></a>}}
 \if{latex}{\out{\hypertarget{method-WorkloadIdentityCredential-validate}{}}}
-\subsection{Method \code{validate()}}{
-Validate the credential configuration
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{WorkloadIdentityCredential$validate()}\if{html}{\out{</div>}}
-}
-
-\subsection{Details}{
-Checks that \code{token_file_path} is provided and not NA. Calls the parent
+\subsection{\code{WorkloadIdentityCredential$validate()}}{
+  Validate the credential configuration
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{WorkloadIdentityCredential$validate()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    Checks that \code{token_file_path} is provided and not NA. Calls the parent
 class validation method.
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-WorkloadIdentityCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-WorkloadIdentityCredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token by exchanging the federated token
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{WorkloadIdentityCredential$get_token()}\if{html}{\out{</div>}}
-}
-
-\subsection{Details}{
-Returns a valid in-object cached token immediately if one exists. Otherwise
+\subsection{\code{WorkloadIdentityCredential$get_token()}}{
+  Get an access token by exchanging the federated token
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{WorkloadIdentityCredential$get_token()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    Returns a valid in-object cached token immediately if one exists. Otherwise
 reads the federated token from the file and exchanges it for a new access
 token so that token rotation performed by the runtime is automatically
 reflected.
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+  }
 }
 
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-WorkloadIdentityCredential-req_auth"></a>}}
 \if{latex}{\out{\hypertarget{method-WorkloadIdentityCredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{WorkloadIdentityCredential$req_auth(req)}\if{html}{\out{</div>}}
+\subsection{\code{WorkloadIdentityCredential$req_auth()}}{
+  Add authentication to an httr2 request
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{WorkloadIdentityCredential$req_auth(req)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The request object with a Bearer token authorization header
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with a Bearer token authorization header
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-WorkloadIdentityCredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-WorkloadIdentityCredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{WorkloadIdentityCredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{WorkloadIdentityCredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{WorkloadIdentityCredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

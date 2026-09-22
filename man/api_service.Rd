@@ -9,49 +9,48 @@ foundation for building service-specific API clients with authentication,
 endpoint management, and configuration.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.client}}{An \link{api_client} instance for making API requests}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.client}}{An \link{api_client} instance for making API requests}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-api_service-new}{\code{api_service$new()}}
-}
+  \itemize{
+    \item \href{#method-api_service-initialize}{\code{api_service$new()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_service-new"></a>}}
-\if{latex}{\out{\hypertarget{method-api_service-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new API service instance
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_service$new(
+\if{html}{\out{<a id="method-api_service-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-api_service-initialize}{}}}
+\subsection{\code{api_service$new()}}{
+  Create a new API service instance
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_service$new(
   client = NULL,
   chain = NULL,
   endpoints = list(),
   config = list()
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{client}}{An \link{api_client} instance. If \code{NULL}, a new client will be created.}
-
-\item{\code{chain}}{A \link{credential_chain} instance for authentication. Optional.}
-
-\item{\code{endpoints}}{A named list where names are endpoint paths (e.g., "v1.0", "beta")
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{client}}{An \link{api_client} instance. If \code{NULL}, a new client will be created.}
+      \item{\code{chain}}{A \link{credential_chain} instance for authentication. Optional.}
+      \item{\code{endpoints}}{A named list where names are endpoint paths (e.g., "v1.0", "beta")
 and values are R6 class objects (not instances) to use for creating resources.
 Defaults to an empty list. If the value is \code{NULL}, \link{api_resource} will be used.}
+      \item{\code{config}}{A list of configuration options. Defaults to an empty list.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{api_service} object
+  }
+}
 
-\item{\code{config}}{A list of configuration options. Defaults to an empty list.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{api_service} object
-}
-}
 }

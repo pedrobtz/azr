@@ -34,49 +34,50 @@ provider <- cred$provider
 
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.scope}}{Character string specifying the authentication scope.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.scope}}{Character string specifying the authentication scope.}
 
-\item{\code{.tenant_id}}{Character string specifying the tenant ID.}
+    \item{\code{.tenant_id}}{Character string specifying the tenant ID.}
 
-\item{\code{.client_id}}{Character string specifying the client ID.}
+    \item{\code{.client_id}}{Character string specifying the client ID.}
 
-\item{\code{.client_secret}}{Character string specifying the client secret.}
+    \item{\code{.client_secret}}{Character string specifying the client secret.}
 
-\item{\code{.use_cache}}{Character string indicating the caching strategy.}
+    \item{\code{.use_cache}}{Character string indicating the caching strategy.}
 
-\item{\code{.offline}}{Logical indicating whether to request offline access.}
+    \item{\code{.offline}}{Logical indicating whether to request offline access.}
 
-\item{\code{.chain}}{A credential chain object for authentication.}
+    \item{\code{.chain}}{A credential chain object for authentication.}
 
-\item{\code{.verbose}}{Logical indicating whether to print the resolved provider class.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{.verbose}}{Logical indicating whether to print the resolved provider class.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{provider}}{Lazily initialized credential provider}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{provider}}{Lazily initialized credential provider}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DefaultCredential-new}{\code{DefaultCredential$new()}}
-\item \href{#method-DefaultCredential-get_token}{\code{DefaultCredential$get_token()}}
-\item \href{#method-DefaultCredential-req_auth}{\code{DefaultCredential$req_auth()}}
-\item \href{#method-DefaultCredential-clone}{\code{DefaultCredential$clone()}}
-}
+  \itemize{
+    \item \href{#method-DefaultCredential-initialize}{\code{DefaultCredential$new()}}
+    \item \href{#method-DefaultCredential-get_token}{\code{DefaultCredential$get_token()}}
+    \item \href{#method-DefaultCredential-req_auth}{\code{DefaultCredential$req_auth()}}
+    \item \href{#method-DefaultCredential-clone}{\code{DefaultCredential$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DefaultCredential-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DefaultCredential-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new DefaultCredential object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DefaultCredential$new(
+\if{html}{\out{<a id="method-DefaultCredential-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DefaultCredential-initialize}{}}}
+\subsection{\code{DefaultCredential$new()}}{
+  Create a new DefaultCredential object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DefaultCredential$new(
   scope = NULL,
   tenant_id = NULL,
   client_id = NULL,
@@ -85,93 +86,93 @@ Create a new DefaultCredential object
   offline = TRUE,
   chain = default_credential_chain(),
   verbose = opts$get("chain_verbose")
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{Optional character string specifying the authentication scope.}
-
-\item{\code{tenant_id}}{Optional character string specifying the tenant ID for
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{Optional character string specifying the authentication scope.}
+      \item{\code{tenant_id}}{Optional character string specifying the tenant ID for
 authentication.}
-
-\item{\code{client_id}}{Optional character string specifying the client ID for
+      \item{\code{client_id}}{Optional character string specifying the client ID for
 authentication.}
-
-\item{\code{client_secret}}{Optional character string specifying the client secret
+      \item{\code{client_secret}}{Optional character string specifying the client secret
 for authentication.}
-
-\item{\code{use_cache}}{Character string indicating the caching strategy. Defaults
+      \item{\code{use_cache}}{Character string indicating the caching strategy. Defaults
 to \code{"disk"}. Options include \code{"disk"} for disk-based caching or \code{"memory"}
 for in-memory caching.}
-
-\item{\code{offline}}{Logical. If \code{TRUE}, adds 'offline_access' to the scope to request a 'refresh_token'.
+      \item{\code{offline}}{Logical. If \code{TRUE}, adds 'offline_access' to the scope to request a 'refresh_token'.
 Defaults to \code{TRUE}.}
-
-\item{\code{chain}}{A list of credential objects, where each element must inherit
+      \item{\code{chain}}{A list of credential objects, where each element must inherit
 from the \code{Credential} base class. Credentials are attempted in the order
 provided until \code{get_token} succeeds.}
-
-\item{\code{verbose}}{Logical. If \code{TRUE}, prints the resolved credential provider
+      \item{\code{verbose}}{Logical. If \code{TRUE}, prints the resolved credential provider
 on first access. Defaults to the \code{chain_verbose} option
 (\code{options(azr.chain_verbose = ...)} or \code{AZR_CHAIN_VERBOSE}); see
 \code{\link[=azr_options]{azr_options()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{DefaultCredential} object
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{DefaultCredential} object
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DefaultCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-DefaultCredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token using the credential chain
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DefaultCredential$get_token()}\if{html}{\out{</div>}}
+\subsection{\code{DefaultCredential$get_token()}}{
+  Get an access token using the credential chain
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DefaultCredential$get_token()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+  }
 }
 
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DefaultCredential-req_auth"></a>}}
 \if{latex}{\out{\hypertarget{method-DefaultCredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DefaultCredential$req_auth(req)}\if{html}{\out{</div>}}
+\subsection{\code{DefaultCredential$req_auth()}}{
+  Add authentication to an httr2 request
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DefaultCredential$req_auth(req)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The request object with authentication configured
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with authentication configured
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DefaultCredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DefaultCredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DefaultCredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DefaultCredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DefaultCredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
