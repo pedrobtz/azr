@@ -500,19 +500,20 @@ az_cli_login <- function(
             }
           )
         } else {
-          # Copy to clipboard
-          rlang::check_installed("clipr")
-          tryCatch(
-            {
-              clipr::write_clip(device_code)
-              cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
-            },
-            error = function(e) {
-              cli::cli_alert_warning(
-                "Could not write to clipboard. Please copy manually."
-              )
-            }
-          )
+          # Copy to clipboard, if clipr is available
+          if (rlang::is_installed("clipr")) {
+            tryCatch(
+              {
+                clipr::write_clip(device_code)
+                cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
+              },
+              error = function(e) {
+                cli::cli_alert_warning(
+                  "Could not write to clipboard. Please copy manually."
+                )
+              }
+            )
+          }
 
           cli::cli_alert_info("Opening browser to {.url {login_url}}...")
           utils::browseURL(login_url)
