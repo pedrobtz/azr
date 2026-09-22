@@ -38,40 +38,39 @@ req <- cred$req_auth(req)
 }
 }
 \section{Super classes}{
-\code{azr::Credential} -> \code{\link[azr:InteractiveCredential]{azr::InteractiveCredential}} -> \code{AuthCodeCredential}
+\code{Credential} -> \code{\link[azr:InteractiveCredential]{InteractiveCredential}} -> \code{AuthCodeCredential}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.redirect_uri}}{Character string specifying the redirect URI registered with the application.}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.redirect_uri}}{Character string specifying the redirect URI registered with the application.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-AuthCodeCredential-new}{\code{AuthCodeCredential$new()}}
-\item \href{#method-AuthCodeCredential-clone}{\code{AuthCodeCredential$clone()}}
+  \itemize{
+    \item \href{#method-AuthCodeCredential-initialize}{\code{AuthCodeCredential$new()}}
+    \item \href{#method-AuthCodeCredential-clone}{\code{AuthCodeCredential$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="get_token"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-get_token'><code>azr::InteractiveCredential$get_token()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>azr::InteractiveCredential$is_interactive()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="req_auth"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-req_auth'><code>azr::InteractiveCredential$req_auth()</code></a></span></li>
+  <li><code>Credential$print()</code></li>
+  <li><code>Credential$validate()</code></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="get_token"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-get_token'><code>InteractiveCredential$get_token()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="is_interactive"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-is_interactive'><code>InteractiveCredential$is_interactive()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="InteractiveCredential" data-id="req_auth"><a href='../../azr/html/InteractiveCredential.html#method-InteractiveCredential-req_auth'><code>InteractiveCredential$req_auth()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AuthCodeCredential-new"></a>}}
-\if{latex}{\out{\hypertarget{method-AuthCodeCredential-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new authorization code credential
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AuthCodeCredential$new(
+\if{html}{\out{<a id="method-AuthCodeCredential-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-AuthCodeCredential-initialize}{}}}
+\subsection{\code{AuthCodeCredential$new()}}{
+  Create a new authorization code credential
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AuthCodeCredential$new(
   scope = NULL,
   tenant_id = NULL,
   client_id = default_azure_cli_client_id(),
@@ -81,59 +80,54 @@ Create a new authorization code credential
   allow_prompt = TRUE,
   use_refresh_token = TRUE,
   interactive = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to \code{NULL}.}
-
-\item{\code{tenant_id}}{A character string specifying the Azure Active Directory
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to \code{NULL}.}
+      \item{\code{tenant_id}}{A character string specifying the Azure Active Directory
 tenant ID. Defaults to \code{NULL}.}
-
-\item{\code{client_id}}{A character string specifying the application (client) ID.
+      \item{\code{client_id}}{A character string specifying the application (client) ID.
 Defaults to the Azure CLI public client ID.}
-
-\item{\code{use_cache}}{A character string specifying the cache type. Use \code{"disk"}
+      \item{\code{use_cache}}{A character string specifying the cache type. Use \code{"disk"}
 for disk-based caching or \code{"memory"} for in-memory caching. Defaults to \code{"disk"}.}
-
-\item{\code{offline}}{A logical value indicating whether to request offline access
+      \item{\code{offline}}{A logical value indicating whether to request offline access
 (refresh tokens). Defaults to \code{TRUE}.}
-
-\item{\code{redirect_uri}}{A character string specifying the redirect URI registered
+      \item{\code{redirect_uri}}{A character string specifying the redirect URI registered
 with the application. Defaults to \code{\link[=default_redirect_uri]{default_redirect_uri()}}.}
-
-\item{\code{allow_prompt}}{A logical value indicating whether this credential
+      \item{\code{allow_prompt}}{A logical value indicating whether this credential
 may prompt the user (vs. only reading cached/refresh tokens). Defaults
 to \code{TRUE}.}
-
-\item{\code{use_refresh_token}}{A logical value indicating whether to use the login flow
+      \item{\code{use_refresh_token}}{A logical value indicating whether to use the login flow
 (acquire tokens via refresh token exchange). Defaults to \code{TRUE}.}
+      \item{\code{interactive}}{Deprecated. Use \code{allow_prompt} instead.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{AuthCodeCredential} object
+  }
+}
 
-\item{\code{interactive}}{Deprecated. Use \code{allow_prompt} instead.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{AuthCodeCredential} object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AuthCodeCredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-AuthCodeCredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AuthCodeCredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{AuthCodeCredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AuthCodeCredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

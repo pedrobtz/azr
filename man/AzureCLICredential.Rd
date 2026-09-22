@@ -34,208 +34,216 @@ resp <- httr2::req_perform(cred$req_auth(req))
 }
 }
 \section{Super class}{
-\code{azr::Credential} -> \code{AzureCLICredential}
+\code{Credential} -> \code{AzureCLICredential}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{auto_login}}{Logical indicating whether to check login status and
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{auto_login}}{Logical indicating whether to check login status and
 perform login if needed}
 
-\item{\code{use_bridge}}{Logical indicating whether to use the device code bridge
+    \item{\code{use_bridge}}{Logical indicating whether to use the device code bridge
 webpage during interactive login}
 
-\item{\code{.process_timeout}}{Timeout in seconds for Azure CLI command execution}
-}
-\if{html}{\out{</div>}}
+    \item{\code{.process_timeout}}{Timeout in seconds for Azure CLI command execution}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-AzureCLICredential-new}{\code{AzureCLICredential$new()}}
-\item \href{#method-AzureCLICredential-get_token}{\code{AzureCLICredential$get_token()}}
-\item \href{#method-AzureCLICredential-req_auth}{\code{AzureCLICredential$req_auth()}}
-\item \href{#method-AzureCLICredential-account_show}{\code{AzureCLICredential$account_show()}}
-\item \href{#method-AzureCLICredential-login}{\code{AzureCLICredential$login()}}
-\item \href{#method-AzureCLICredential-is_interactive}{\code{AzureCLICredential$is_interactive()}}
-\item \href{#method-AzureCLICredential-logout}{\code{AzureCLICredential$logout()}}
-\item \href{#method-AzureCLICredential-clone}{\code{AzureCLICredential$clone()}}
+  \itemize{
+    \item \href{#method-AzureCLICredential-initialize}{\code{AzureCLICredential$new()}}
+    \item \href{#method-AzureCLICredential-get_token}{\code{AzureCLICredential$get_token()}}
+    \item \href{#method-AzureCLICredential-req_auth}{\code{AzureCLICredential$req_auth()}}
+    \item \href{#method-AzureCLICredential-account_show}{\code{AzureCLICredential$account_show()}}
+    \item \href{#method-AzureCLICredential-login}{\code{AzureCLICredential$login()}}
+    \item \href{#method-AzureCLICredential-is_interactive}{\code{AzureCLICredential$is_interactive()}}
+    \item \href{#method-AzureCLICredential-logout}{\code{AzureCLICredential$logout()}}
+    \item \href{#method-AzureCLICredential-clone}{\code{AzureCLICredential$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="validate"><a href='../../azr/html/Credential.html#method-Credential-validate'><code>azr::Credential$validate()</code></a></span></li>
+  <li><code>Credential$print()</code></li>
+  <li><code>Credential$validate()</code></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-AzureCLICredential-new"></a>}}
-\if{latex}{\out{\hypertarget{method-AzureCLICredential-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new Azure CLI credential
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$new(
+\if{html}{\out{<a id="method-AzureCLICredential-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-AzureCLICredential-initialize}{}}}
+\subsection{\code{AzureCLICredential$new()}}{
+  Create a new Azure CLI credential
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$new(
   scope = NULL,
   tenant_id = NULL,
   process_timeout = NULL,
   auto_login = opts$get("cli_auto_login"),
   use_bridge = TRUE,
   interactive = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 \code{NULL}, which uses the scope set during initialization.}
-
-\item{\code{tenant_id}}{A character string specifying the Azure Active Directory
+      \item{\code{tenant_id}}{A character string specifying the Azure Active Directory
 tenant ID. Defaults to \code{NULL}, which uses the default tenant from Azure CLI.}
-
-\item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
+      \item{\code{process_timeout}}{A numeric value specifying the timeout in seconds
 for the Azure CLI process. Defaults to \code{10}.}
-
-\item{\code{auto_login}}{A logical value indicating whether \code{get_token()} may
+      \item{\code{auto_login}}{A logical value indicating whether \code{get_token()} may
 launch \verb{az login} when the user is not logged in. Defaults to the
 \code{cli_auto_login} option (\code{options(azr.cli_auto_login = ...)} or
 \code{AZR_CLI_AUTO_LOGIN}); see \code{\link[=azr_options]{azr_options()}}.}
-
-\item{\code{use_bridge}}{A logical value indicating whether to use the device code
+      \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
 to the Microsoft device login page. Only used when \code{auto_login = TRUE}. Defaults to \code{TRUE}.}
+      \item{\code{interactive}}{Deprecated. Use \code{auto_login} instead.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{AzureCLICredential} object
+  }
+}
 
-\item{\code{interactive}}{Deprecated. Use \code{auto_login} instead.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{AzureCLICredential} object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token from Azure CLI
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$get_token(scope = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{AzureCLICredential$get_token()}}{
+  Get an access token from Azure CLI
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$get_token(scope = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. If \code{NULL},
+uses the scope specified during initialization.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{A character string specifying the OAuth2 scope. If \code{NULL},
-uses the scope specified during initialization.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-req_auth"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$req_auth(req, scope = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-
-\item{\code{scope}}{A character string specifying the OAuth2 scope. If \code{NULL},
+\subsection{\code{AzureCLICredential$req_auth()}}{
+  Add authentication to an httr2 request
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$req_auth(req, scope = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. If \code{NULL},
 uses the scope specified during initialization.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The request object with authentication header added
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with authentication header added
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-account_show"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-account_show}{}}}
-\subsection{Method \code{account_show()}}{
-Show the currently active Azure CLI account information
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$account_show(timeout = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{timeout}}{A numeric value specifying the timeout in seconds for the
+\subsection{\code{AzureCLICredential$account_show()}}{
+  Show the currently active Azure CLI account information
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$account_show(timeout = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{timeout}}{A numeric value specifying the timeout in seconds for the
 Azure CLI command. If \code{NULL}, uses the process timeout specified during
 initialization.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list containing the account information from Azure CLI
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A list containing the account information from Azure CLI
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-login"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-login}{}}}
-\subsection{Method \code{login()}}{
-Perform Azure CLI login using device code flow
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$login()}\if{html}{\out{</div>}}
+\subsection{\code{AzureCLICredential$login()}}{
+  Perform Azure CLI login using device code flow
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$login()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Invisibly returns the exit status (0 for success, non-zero for failure)
+  }
 }
 
-\subsection{Returns}{
-Invisibly returns the exit status (0 for success, non-zero for failure)
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-is_interactive"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-is_interactive}{}}}
-\subsection{Method \code{is_interactive()}}{
-Check if the credential requires user interaction
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$is_interactive()}\if{html}{\out{</div>}}
+\subsection{\code{AzureCLICredential$is_interactive()}}{
+  Check if the credential requires user interaction
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$is_interactive()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Logical indicating whether this credential is interactive
+  }
 }
 
-\subsection{Returns}{
-Logical indicating whether this credential is interactive
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-logout"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-logout}{}}}
-\subsection{Method \code{logout()}}{
-Log out from Azure CLI
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$logout()}\if{html}{\out{</div>}}
+\subsection{\code{AzureCLICredential$logout()}}{
+  Log out from Azure CLI
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$logout()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Invisibly returns \code{NULL}
+  }
 }
 
-\subsection{Returns}{
-Invisibly returns \code{NULL}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-AzureCLICredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-AzureCLICredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{AzureCLICredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{AzureCLICredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{AzureCLICredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

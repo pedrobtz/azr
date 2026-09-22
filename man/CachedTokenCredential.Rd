@@ -38,116 +38,121 @@ req <- cred$req_auth(req)
 }
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.scope}}{Character string specifying the authentication scope.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.scope}}{Character string specifying the authentication scope.}
 
-\item{\code{.tenant_id}}{Character string specifying the tenant ID.}
+    \item{\code{.tenant_id}}{Character string specifying the tenant ID.}
 
-\item{\code{.client_id}}{Character string specifying the client ID.}
+    \item{\code{.client_id}}{Character string specifying the client ID.}
 
-\item{\code{.chain}}{List of credential classes to attempt for cached tokens.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{.chain}}{List of credential classes to attempt for cached tokens.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{provider}}{Lazily initialized credential provider}
-}
-\if{html}{\out{</div>}}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{provider}}{Lazily initialized credential provider}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CachedTokenCredential-new}{\code{CachedTokenCredential$new()}}
-\item \href{#method-CachedTokenCredential-get_token}{\code{CachedTokenCredential$get_token()}}
-\item \href{#method-CachedTokenCredential-req_auth}{\code{CachedTokenCredential$req_auth()}}
-\item \href{#method-CachedTokenCredential-clone}{\code{CachedTokenCredential$clone()}}
-}
+  \itemize{
+    \item \href{#method-CachedTokenCredential-initialize}{\code{CachedTokenCredential$new()}}
+    \item \href{#method-CachedTokenCredential-get_token}{\code{CachedTokenCredential$get_token()}}
+    \item \href{#method-CachedTokenCredential-req_auth}{\code{CachedTokenCredential$req_auth()}}
+    \item \href{#method-CachedTokenCredential-clone}{\code{CachedTokenCredential$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CachedTokenCredential-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CachedTokenCredential-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new CachedTokenCredential object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CachedTokenCredential$new(
+\if{html}{\out{<a id="method-CachedTokenCredential-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-CachedTokenCredential-initialize}{}}}
+\subsection{\code{CachedTokenCredential$new()}}{
+  Create a new CachedTokenCredential object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CachedTokenCredential$new(
   scope = NULL,
   tenant_id = NULL,
   client_id = NULL,
   chain = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scope}}{Optional character string specifying the authentication scope.}
-
-\item{\code{tenant_id}}{Optional character string specifying the tenant ID for
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{scope}}{Optional character string specifying the authentication scope.}
+      \item{\code{tenant_id}}{Optional character string specifying the tenant ID for
 authentication.}
-
-\item{\code{client_id}}{Optional character string specifying the client ID for
+      \item{\code{client_id}}{Optional character string specifying the client ID for
 authentication.}
-
-\item{\code{chain}}{A list of credential classes to attempt for cached tokens.
+      \item{\code{chain}}{A list of credential classes to attempt for cached tokens.
 Defaults to AuthCodeCredential and DeviceCodeCredential.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{CachedTokenCredential} object
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{CachedTokenCredential} object
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CachedTokenCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-CachedTokenCredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token from the cache
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CachedTokenCredential$get_token()}\if{html}{\out{</div>}}
+\subsection{\code{CachedTokenCredential$get_token()}}{
+  Get an access token from the cache
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CachedTokenCredential$get_token()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+  }
 }
 
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CachedTokenCredential-req_auth"></a>}}
 \if{latex}{\out{\hypertarget{method-CachedTokenCredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CachedTokenCredential$req_auth(req)}\if{html}{\out{</div>}}
+\subsection{\code{CachedTokenCredential$req_auth()}}{
+  Add authentication to an httr2 request
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CachedTokenCredential$req_auth(req)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The request object with authentication configured
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with authentication configured
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CachedTokenCredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CachedTokenCredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CachedTokenCredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CachedTokenCredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CachedTokenCredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -22,5 +22,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Pedro Baltazar \email{pedrobtz@gmail.com}
 
+Authors:
+\itemize{
+  \item Pedro Baltazar \email{pedrobtz@gmail.com}
+}
+
 }
 \keyword{internal}

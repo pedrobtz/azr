@@ -34,89 +34,94 @@ resp <- httr2::req_perform(cred$req_auth(req))
 }
 }
 \section{Super class}{
-\code{azr::Credential} -> \code{ClientSecretCredential}
+\code{Credential} -> \code{ClientSecretCredential}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ClientSecretCredential-validate}{\code{ClientSecretCredential$validate()}}
-\item \href{#method-ClientSecretCredential-get_token}{\code{ClientSecretCredential$get_token()}}
-\item \href{#method-ClientSecretCredential-req_auth}{\code{ClientSecretCredential$req_auth()}}
-\item \href{#method-ClientSecretCredential-clone}{\code{ClientSecretCredential$clone()}}
+  \itemize{
+    \item \href{#method-ClientSecretCredential-validate}{\code{ClientSecretCredential$validate()}}
+    \item \href{#method-ClientSecretCredential-get_token}{\code{ClientSecretCredential$get_token()}}
+    \item \href{#method-ClientSecretCredential-req_auth}{\code{ClientSecretCredential$req_auth()}}
+    \item \href{#method-ClientSecretCredential-clone}{\code{ClientSecretCredential$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="initialize"><a href='../../azr/html/Credential.html#method-Credential-initialize'><code>azr::Credential$initialize()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="is_interactive"><a href='../../azr/html/Credential.html#method-Credential-is_interactive'><code>azr::Credential$is_interactive()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="Credential" data-id="print"><a href='../../azr/html/Credential.html#method-Credential-print'><code>azr::Credential$print()</code></a></span></li>
+  <li><code>Credential$initialize()</code></li>
+  <li><code>Credential$is_interactive()</code></li>
+  <li><code>Credential$print()</code></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ClientSecretCredential-validate"></a>}}
 \if{latex}{\out{\hypertarget{method-ClientSecretCredential-validate}{}}}
-\subsection{Method \code{validate()}}{
-Validate the credential configuration
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ClientSecretCredential$validate()}\if{html}{\out{</div>}}
-}
-
-\subsection{Details}{
-Checks that the client secret is provided and not NA or NULL. Calls the parent
+\subsection{\code{ClientSecretCredential$validate()}}{
+  Validate the credential configuration
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ClientSecretCredential$validate()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    Checks that the client secret is provided and not NA or NULL. Calls the parent
 class validation method.
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ClientSecretCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-ClientSecretCredential-get_token}{}}}
-\subsection{Method \code{get_token()}}{
-Get an access token using client credentials flow
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ClientSecretCredential$get_token()}\if{html}{\out{</div>}}
+\subsection{\code{ClientSecretCredential$get_token()}}{
+  Get an access token using client credentials flow
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ClientSecretCredential$get_token()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
+  }
 }
 
-\subsection{Returns}{
-An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ClientSecretCredential-req_auth"></a>}}
 \if{latex}{\out{\hypertarget{method-ClientSecretCredential-req_auth}{}}}
-\subsection{Method \code{req_auth()}}{
-Add OAuth client credentials authentication to an httr2 request
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ClientSecretCredential$req_auth(req)}\if{html}{\out{</div>}}
+\subsection{\code{ClientSecretCredential$req_auth()}}{
+  Add OAuth client credentials authentication to an httr2 request
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ClientSecretCredential$req_auth(req)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The request object with OAuth client credentials authentication configured
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{req}}{An \code{\link[httr2:request]{httr2::request()}} object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The request object with OAuth client credentials authentication configured
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ClientSecretCredential-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ClientSecretCredential-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ClientSecretCredential$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ClientSecretCredential$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ClientSecretCredential$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

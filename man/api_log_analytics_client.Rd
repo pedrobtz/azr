@@ -32,47 +32,46 @@ la$query(
 }
 }
 \section{Super class}{
-\code{\link[azr:api_client]{azr::api_client}} -> \code{api_log_analytics_client}
+\code{\link[azr:api_client]{api_client}} -> \code{api_log_analytics_client}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{.subscription_id}}{The Azure subscription ID the client is bound to.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{.subscription_id}}{The Azure subscription ID the client is bound to.}
 
-\item{\code{.resource_id}}{The Azure resource group name the client is bound to.}
+    \item{\code{.resource_id}}{The Azure resource group name the client is bound to.}
 
-\item{\code{.api_version}}{The API version segment prepended to all query paths.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{.api_version}}{The API version segment prepended to all query paths.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-api_log_analytics_client-new}{\code{api_log_analytics_client$new()}}
-\item \href{#method-api_log_analytics_client-query}{\code{api_log_analytics_client$query()}}
-\item \href{#method-api_log_analytics_client-clone}{\code{api_log_analytics_client$clone()}}
+  \itemize{
+    \item \href{#method-api_log_analytics_client-initialize}{\code{api_log_analytics_client$new()}}
+    \item \href{#method-api_log_analytics_client-query}{\code{api_log_analytics_client$query()}}
+    \item \href{#method-api_log_analytics_client-clone}{\code{api_log_analytics_client$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href='../../azr/html/api_client.html#method-api_client-.build_request'><code>azr::api_client$.build_request()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href='../../azr/html/api_client.html#method-api_client-.fetch'><code>azr::api_client$.fetch()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href='../../azr/html/api_client.html#method-api_client-.get_token'><code>azr::api_client$.get_token()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_body_content'><code>azr::api_client$.resp_body_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_content'><code>azr::api_client$.resp_content()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href='../../azr/html/api_client.html#method-api_client-.send_request'><code>azr::api_client$.send_request()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".build_request"><a href='../../azr/html/api_client.html#method-api_client-.build_request'><code>api_client$.build_request()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".fetch"><a href='../../azr/html/api_client.html#method-api_client-.fetch'><code>api_client$.fetch()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".get_token"><a href='../../azr/html/api_client.html#method-api_client-.get_token'><code>api_client$.get_token()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_body_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_body_content'><code>api_client$.resp_body_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".resp_content"><a href='../../azr/html/api_client.html#method-api_client-.resp_content'><code>api_client$.resp_content()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="azr" data-topic="api_client" data-id=".send_request"><a href='../../azr/html/api_client.html#method-api_client-.send_request'><code>api_client$.send_request()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-api_log_analytics_client-new"></a>}}
-\if{latex}{\out{\hypertarget{method-api_log_analytics_client-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new Azure Log Analytics API client instance bound to a specific
+\if{html}{\out{<a id="method-api_log_analytics_client-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-api_log_analytics_client-initialize}{}}}
+\subsection{\code{api_log_analytics_client$new()}}{
+  Create a new Azure Log Analytics API client instance bound to a specific
 subscription and resource group.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_log_analytics_client$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_log_analytics_client$new(
   subscription_id,
   resource_id,
   endpoint = default_log_analytics_endpoint(),
@@ -82,53 +81,47 @@ subscription and resource group.
   chain = NULL,
   tenant_id = NULL,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{subscription_id}}{A character string specifying the Azure
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{subscription_id}}{A character string specifying the Azure
 subscription ID (GUID) to bind the client to.}
-
-\item{\code{resource_id}}{A character string specifying the Azure resource
+      \item{\code{resource_id}}{A character string specifying the Azure resource
 group name to bind the client to.}
-
-\item{\code{endpoint}}{A character string specifying the Log Analytics query
+      \item{\code{endpoint}}{A character string specifying the Log Analytics query
 endpoint host (e.g. \code{"api.loganalytics.io"}). Defaults to
 \code{\link[=default_log_analytics_endpoint]{default_log_analytics_endpoint()}}. Any leading \verb{https?://} scheme or
 trailing slashes are stripped.}
-
-\item{\code{api_version}}{A character string specifying the API version segment
+      \item{\code{api_version}}{A character string specifying the API version segment
 prepended to the query path. Defaults to \code{"v1"}.}
-
-\item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
+      \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 \code{default_azure_scope("azure_log_analytics")}.}
-
-\item{\code{provider}}{An optional credential provider object that inherits from
+      \item{\code{provider}}{An optional credential provider object that inherits from
 \code{Credential} or \code{DefaultCredential}. If provided, \code{chain} is ignored.}
-
-\item{\code{chain}}{A \link{credential_chain} instance for authentication. If \code{NULL},
+      \item{\code{chain}}{A \link{credential_chain} instance for authentication. If \code{NULL},
 a default credential chain is created using \link{DefaultCredential}.}
-
-\item{\code{tenant_id}}{A character string specifying the Azure tenant ID. Passed
+      \item{\code{tenant_id}}{A character string specifying the Azure tenant ID. Passed
 to \link{DefaultCredential} when \code{chain} is \code{NULL}.}
+      \item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new \code{api_log_analytics_client} object
+  }
+}
 
-\item{\code{...}}{Additional arguments passed to the parent \link{api_client} constructor.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{api_log_analytics_client} object
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_log_analytics_client-query"></a>}}
 \if{latex}{\out{\hypertarget{method-api_log_analytics_client-query}{}}}
-\subsection{Method \code{query()}}{
-Issue a KQL query against the bound subscription and resource group.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_log_analytics_client$query(
+\subsection{\code{api_log_analytics_client$query()}}{
+  Issue a KQL query against the bound subscription and resource group.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_log_analytics_client$query(
   query,
   date_from = Sys.Date() - 3,
   date_to = Sys.Date() + 1,
@@ -139,70 +132,64 @@ Issue a KQL query against the bound subscription and resource group.
   ...,
   raw = FALSE,
   coerce_types = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{query}}{A character string containing the KQL query to execute.}
-
-\item{\code{date_from}}{Start of the time range as a \code{Date} or \code{POSIXct}. When
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{query}}{A character string containing the KQL query to execute.}
+      \item{\code{date_from}}{Start of the time range as a \code{Date} or \code{POSIXct}. When
 provided together with \code{date_to}, appends
 \verb{| where TimeGenerated between(datetime(...), datetime(...))} to the
 query and sets \code{timespan} to \code{NULL}. Defaults to \code{Sys.Date() - 3}.}
-
-\item{\code{date_to}}{End of the time range as a \code{Date} or \code{POSIXct}. Defaults
+      \item{\code{date_to}}{End of the time range as a \code{Date} or \code{POSIXct}. Defaults
 to \code{Sys.Date() + 1}.}
-
-\item{\code{timespan}}{An ISO 8601 duration (e.g. \code{"PT12H"}) or start/end pair
+      \item{\code{timespan}}{An ISO 8601 duration (e.g. \code{"PT12H"}) or start/end pair
 separated by \code{/} (e.g. \code{"2024-01-01/2024-01-02"}). Passed as a URL
 query parameter. Ignored when \code{date_from} and \code{date_to} are set.
 Defaults to \code{NULL}.}
-
-\item{\code{max_rows}}{Maximum number of rows to return. Defaults to \code{500001}.}
-
-\item{\code{options}}{A named list of query options. Defaults to
+      \item{\code{max_rows}}{Maximum number of rows to return. Defaults to \code{500001}.}
+      \item{\code{options}}{A named list of query options. Defaults to
 \code{list(truncationMaxSize = 67108864)}.}
-
-\item{\code{workspace_filters}}{A named list of workspace filters. Defaults to
+      \item{\code{workspace_filters}}{A named list of workspace filters. Defaults to
 \code{list(regions = list())}.}
-
-\item{\code{...}}{Additional URL query parameters. Override defaults (e.g.
+      \item{\code{...}}{Additional URL query parameters. Override defaults (e.g.
 \code{scope = "resource"} to change from the default \code{"hierarchy"}).}
-
-\item{\code{raw}}{If \code{TRUE}, returns the parsed JSON response as a list. If
+      \item{\code{raw}}{If \code{TRUE}, returns the parsed JSON response as a list. If
 \code{FALSE} (the default), returns a named list of \code{data.frame}s — one per
 table in the response — or the single table directly if only one is
 returned.}
-
-\item{\code{coerce_types}}{If \code{TRUE} (the default), columns are coerced to their
+      \item{\code{coerce_types}}{If \code{TRUE} (the default), columns are coerced to their
 native R types based on the Log Analytics schema (e.g. \code{datetime} →
 \code{POSIXct}, \code{bool} → \code{logical}). Set to \code{FALSE} to keep all values as
 character.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Either a single \code{data.frame}, a named list of \code{data.frame}s, or
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Either a single \code{data.frame}, a named list of \code{data.frame}s, or
 the raw parsed response (when \code{raw = TRUE}).
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-api_log_analytics_client-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-api_log_analytics_client-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{api_log_analytics_client$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{api_log_analytics_client$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{api_log_analytics_client$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

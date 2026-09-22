@@ -18,3 +18,4 @@
 ^\.claude$
 ^tests/testthat/_problems$
 ^AGENTS\.md$
+^CLAUDE\.md$
