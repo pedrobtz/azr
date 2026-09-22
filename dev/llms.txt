@@ -1,0 +1,362 @@
+# azr
+
+azr implements a credential chain for seamless OAuth 2.0 authentication
+to Azure services. It builds on [httr2](https://httr2.r-lib.org/)’s
+OAuth framework to provide cache and automatic credential discovery,
+trying different authentication methods in sequence until one succeeds.
+
+## Installation
+
+You can install httr2 from CRAN with:
+
+``` r
+
+install.packages("azr")
+```
+
+## Overview
+
+The package supports creating Credential chains for Authentication with:
+
+- **Client Secret Credential**: Service principal authentication with
+  client ID and secret
+- **Workload Identity Credential**: Federated token exchange for
+  Kubernetes/AKS workloads
+- **Managed Identity Credential**: System- or user-assigned managed
+  identity via the IMDS endpoint
+- **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
+- **Authorization Code Flow**: Interactive browser-based authentication
+- **Device Code Flow**: Authentication for headless or CLI environments
+
+During interactive development, azr allows browser-based login flows,
+while in batch/production mode it seamlessly falls back to
+non-interactive methods.
+
+## Usage
+
+The simplest way to authenticate is using
+[`get_token()`](https://pedrobtz.github.io/azr/dev/reference/get_token.md),
+which automatically tries different authentication methods until one
+succeeds:
+
+``` r
+
+library(azr)
+
+# Get a token using the default credential chain
+token <- get_token(
+  tenant_id = "your-tenant-id",
+  scope = "https://management.azure.com/.default"
+)
+
+# Use the token with httr2
+library(httr2)
+req <- request("https://management.azure.com/subscriptions?api-version=2020-01-01") |>
+  req_auth_bearer_token(token$access_token)
+
+resp <- req_perform(req)
+```
+
+Alternatively, use
+[`get_request_authorizer()`](https://pedrobtz.github.io/azr/dev/reference/get_request_authorizer.md)
+to get a function that adds authentication to requests:
+
+``` r
+
+library(azr)
+library(httr2)
+
+# Get a request authorizer for Microsoft Graph API
+azr_req_auth <- get_request_authorizer(
+  tenant_id = "your-tenant-id",
+  scope = "https://graph.microsoft.com/.default"
+)
+
+# Use it to authenticate requests
+resp <- request("https://graph.microsoft.com/v1.0/me") |>
+  azr_req_auth() |>
+  req_perform()
+```
+
+You can customize which authentication methods are tried and in what
+order:
+
+``` r
+
+# Define a custom credential chain: try a service principal first, then fall
+# back to the developer's Azure CLI login ('az login')
+custom_chain <- credential_chain(
+  client_secret = ClientSecretCredential,
+  azure_cli     = AzureCLICredential
+)
+
+# Use the custom chain - scope, tenant_id, client_id, and client_secret are
+# forwarded to whichever entry ends up succeeding
+token <- get_token(
+  scope         = "https://management.azure.com/.default",
+  tenant_id     = "mycompany-tenant-id",
+  # the 'Application Id' and secret used in production/batch mode
+  client_id     = Sys.getenv("APP_CLIENT_ID"),
+  client_secret = Sys.getenv("APP_CLIENT_SECRET"),
+  chain         = custom_chain
+)
+```
+
+### Using with Azure OpenAI and elmer
+
+You can use
+[`get_credential_auth()`](https://pedrobtz.github.io/azr/dev/reference/get_credential_auth.md)
+to create a chat connection to Azure OpenAI with the
+[elmer](https://github.com/hadley/elmer) package:
+
+``` r
+
+library(elmer)
+
+# Create an authentication function for Azure OpenAI
+credentials <- azr::get_credential_auth(
+  scope = "https://cognitiveservices.azure.com/.default"
+)
+
+# Create a chat interface to Azure OpenAI
+chat <- chat_azure_openai(
+  endpoint = "https://your-resource.openai.azure.com",
+  model =  "gpt-4o",
+  credentials  = credentials
+)
+
+# Use the chat
+chat$chat("What is the capital of France?")
+```
+
+## Related work
+
+azr is inspired by Python’s
+[azure-identity](https://learn.microsoft.com/en-us/python/api/overview/azure/identity-readme),
+which introduced the credential chain pattern for automatic
+authentication method discovery.
+
+The R package [AzureAuth](https://github.com/Azure/AzureAuth) (based on
+[httr](https://httr.r-lib.org/)) also handles Azure token acquisition,
+but does not offer explicit credential chains. azr fills that gap by
+letting you define custom chains with method-specific configurations,
+enabling seamless fallback between authentication approaches.
+
+## Code of Conduct
+
+Please note that the azr project is released with a [Contributor Code of
+Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
+
+# Package index
+
+## All functions
+
+- [`AuthCodeCredential`](https://pedrobtz.github.io/azr/dev/reference/AuthCodeCredential.md)
+  : Authorization code credential authentication
+
+- [`AzureCLICredential`](https://pedrobtz.github.io/azr/dev/reference/AzureCLICredential.md)
+  : Azure CLI credential authentication
+
+- [`CachedTokenCredential`](https://pedrobtz.github.io/azr/dev/reference/CachedTokenCredential.md)
+  : Cached token credential authentication
+
+- [`ClientSecretCredential`](https://pedrobtz.github.io/azr/dev/reference/ClientSecretCredential.md)
+  : Client secret credential authentication
+
+- [`DefaultCredential`](https://pedrobtz.github.io/azr/dev/reference/DefaultCredential.md)
+  : Default credential authentication
+
+- [`DeviceCodeCredential`](https://pedrobtz.github.io/azr/dev/reference/DeviceCodeCredential.md)
+  : Device code credential authentication
+
+- [`ManagedIdentityCredential`](https://pedrobtz.github.io/azr/dev/reference/ManagedIdentityCredential.md)
+  : Managed identity credential authentication
+
+- [`RefreshTokenCredential`](https://pedrobtz.github.io/azr/dev/reference/RefreshTokenCredential.md)
+  : Refresh token credential authentication
+
+- [`WorkloadIdentityCredential`](https://pedrobtz.github.io/azr/dev/reference/WorkloadIdentityCredential.md)
+  : Workload Identity credential authentication
+
+- [`api_client`](https://pedrobtz.github.io/azr/dev/reference/api_client.md)
+  : Azure API Client
+
+- [`api_log_analytics_client`](https://pedrobtz.github.io/azr/dev/reference/api_log_analytics_client.md)
+  : Azure Log Analytics API Class
+
+- [`api_resource`](https://pedrobtz.github.io/azr/dev/reference/api_resource.md)
+  : Azure API Resource
+
+- [`api_service`](https://pedrobtz.github.io/azr/dev/reference/api_service.md)
+  : API Service Base Class
+
+- [`api_storage_client`](https://pedrobtz.github.io/azr/dev/reference/api_storage_client.md)
+  : Azure Storage API Class
+
+- [`az_cli_account_show()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_account_show.md)
+  : Show Azure CLI Account Information
+
+- [`az_cli_get_cached_token()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_get_cached_token.md)
+  : Get Cached Token from MSAL Token Cache
+
+- [`az_cli_get_token()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_get_token.md)
+  : Get Access Token from Azure CLI
+
+- [`az_cli_is_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_is_login.md)
+  : Check if User is Logged in to Azure CLI
+
+- [`az_cli_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_login.md)
+  : Azure CLI Device Code Login
+
+- [`az_cli_logout()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_logout.md)
+  : Azure CLI Logout
+
+- [`az_config()`](https://pedrobtz.github.io/azr/dev/reference/az_config.md)
+  : Report the Azure environment configuration
+
+- [`azr_catalog()`](https://pedrobtz.github.io/azr/dev/reference/azr_catalog.md)
+  : Azure Storage dataset catalog
+
+- [`azr_catalog_read()`](https://pedrobtz.github.io/azr/dev/reference/azr_catalog_read.md)
+  : Read a dataset catalog from JSON
+
+- [`azr_catalog_write()`](https://pedrobtz.github.io/azr/dev/reference/azr_catalog_write.md)
+  : Write a dataset catalog to JSON
+
+- [`azr_dataset()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset.md)
+  : Azure Storage dataset
+
+- [`azr_dataset_from_uri()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset_from_uri.md)
+  :
+
+  Create an `azr_dataset` from a full Azure Storage URI
+
+- [`azr_dataset_manifest()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset_manifest.md)
+  : Azure Storage dataset manifest
+
+- [`azr_dataset_uri()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset_uri.md)
+  :
+
+  Build a URI for an `azr_dataset` or look one up in an `azr_catalog`
+
+- [`azr_graph_client()`](https://pedrobtz.github.io/azr/dev/reference/azr_graph_client.md)
+  : Create a Microsoft Graph API Client
+
+- [`azr_logs_client()`](https://pedrobtz.github.io/azr/dev/reference/azr_logs_client.md)
+  : Create an Azure Log Analytics Client
+
+- [`azr_options()`](https://pedrobtz.github.io/azr/dev/reference/azr_options.md)
+  : List all azr options and their current values
+
+- [`azr_resolve_dataset()`](https://pedrobtz.github.io/azr/dev/reference/azr_resolve_dataset.md)
+  :
+
+  Build a URI + format manifest for an `azr_dataset` or `azr_catalog`
+
+- [`azr_storage_client()`](https://pedrobtz.github.io/azr/dev/reference/azr_storage_client.md)
+  : Create an Azure Storage Client
+
+- [`azure_spark_storage_conf()`](https://pedrobtz.github.io/azr/dev/reference/azure_spark_storage_conf.md)
+  : Azure Storage Spark / Hadoop configuration
+
+- [`cached_token_credential_chain()`](https://pedrobtz.github.io/azr/dev/reference/cached_token_credential_chain.md)
+  : Create Cached Token Credential Chain
+
+- [`credential_chain()`](https://pedrobtz.github.io/azr/dev/reference/credential_chain.md)
+  : Create Custom Credential Chain
+
+- [`default_azure_cli_client_id()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_cli_client_id.md)
+  : Get the Azure CLI public client ID
+
+- [`default_azure_client_id()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_client_id.md)
+  : Get default Azure client ID
+
+- [`default_azure_client_secret()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_client_secret.md)
+  : Get default Azure client secret
+
+- [`default_azure_config_dir()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_config_dir.md)
+  : Get default Azure configuration directory
+
+- [`default_azure_host()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_host.md)
+  : Get default Azure authority host
+
+- [`default_azure_oauth_client()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_oauth_client.md)
+  : Create default Azure OAuth client
+
+- [`default_azure_scope()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_scope.md)
+  : Get default Azure OAuth scope
+
+- [`default_azure_tenant_id()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_tenant_id.md)
+  : Get default Azure tenant ID
+
+- [`default_azure_url()`](https://pedrobtz.github.io/azr/dev/reference/default_azure_url.md)
+  : Get default Azure OAuth URLs
+
+- [`default_credential_chain()`](https://pedrobtz.github.io/azr/dev/reference/default_credential_chain.md)
+  : Create Default Credential Chain
+
+- [`default_federated_token_file()`](https://pedrobtz.github.io/azr/dev/reference/default_federated_token_file.md)
+  : Get default federated token file path
+
+- [`default_graph_endpoint()`](https://pedrobtz.github.io/azr/dev/reference/default_graph_endpoint.md)
+  : Get default Microsoft Graph endpoint
+
+- [`default_log_analytics_endpoint()`](https://pedrobtz.github.io/azr/dev/reference/default_log_analytics_endpoint.md)
+  : Get default Azure Log Analytics query endpoint
+
+- [`default_msal_token_cache()`](https://pedrobtz.github.io/azr/dev/reference/default_msal_token_cache.md)
+  : Get default MSAL token cache path
+
+- [`default_non_auth()`](https://pedrobtz.github.io/azr/dev/reference/default_non_auth.md)
+  : Default No Authentication
+
+- [`default_redirect_uri()`](https://pedrobtz.github.io/azr/dev/reference/default_redirect_uri.md)
+  : Get default OAuth redirect URI
+
+- [`default_refresh_token()`](https://pedrobtz.github.io/azr/dev/reference/default_refresh_token.md)
+  : Get default Azure refresh token
+
+- [`default_response_handler()`](https://pedrobtz.github.io/azr/dev/reference/default_response_handler.md)
+  : Default response handler
+
+- [`default_storage_endpoint()`](https://pedrobtz.github.io/azr/dev/reference/default_storage_endpoint.md)
+  : Get default Azure Storage DFS endpoint suffix
+
+- [`get_credential_auth()`](https://pedrobtz.github.io/azr/dev/reference/get_credential_auth.md)
+  : Get Credential Authentication Function
+
+- [`get_credential_provider()`](https://pedrobtz.github.io/azr/dev/reference/get_credential_provider.md)
+  : Get Credential Provider
+
+- [`get_request_authorizer()`](https://pedrobtz.github.io/azr/dev/reference/get_request_authorizer.md)
+  : Get Default Request Authorizer Function
+
+- [`get_token()`](https://pedrobtz.github.io/azr/dev/reference/get_token.md)
+  : Get Authentication Token
+
+- [`get_token_provider()`](https://pedrobtz.github.io/azr/dev/reference/get_token_provider.md)
+  : Get Default Token Provider Function
+
+- [`get_user_token()`](https://pedrobtz.github.io/azr/dev/reference/get_user_token.md)
+  : Get an Access Token for the Signed-In User
+
+- [`is_hosted_session()`](https://pedrobtz.github.io/azr/dev/reference/is_hosted_session.md)
+  : Detect if running in a hosted session
+
+- [`parse_storage_path()`](https://pedrobtz.github.io/azr/dev/reference/parse_storage_path.md)
+  : Parse an Azure Storage path
+
+- [`write_msal_token()`](https://pedrobtz.github.io/azr/dev/reference/write_msal_token.md)
+  : Write an httr2 Token to the MSAL Token Cache
+
+# Articles
+
+### Articles
+
+- [Building credential
+  chains](https://pedrobtz.github.io/azr/dev/articles/credential-chains.md):
+- [Declaring Azure Storage
+  datasets](https://pedrobtz.github.io/azr/dev/articles/datasets.md):
+- [Configuring azr
+  options](https://pedrobtz.github.io/azr/dev/articles/options.md):

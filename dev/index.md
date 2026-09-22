@@ -1,0 +1,149 @@
+# azr
+
+azr implements a credential chain for seamless OAuth 2.0 authentication
+to Azure services. It builds on [httr2](https://httr2.r-lib.org/)’s
+OAuth framework to provide cache and automatic credential discovery,
+trying different authentication methods in sequence until one succeeds.
+
+## Installation
+
+You can install httr2 from CRAN with:
+
+``` r
+
+install.packages("azr")
+```
+
+## Overview
+
+The package supports creating Credential chains for Authentication with:
+
+- **Client Secret Credential**: Service principal authentication with
+  client ID and secret
+- **Workload Identity Credential**: Federated token exchange for
+  Kubernetes/AKS workloads
+- **Managed Identity Credential**: System- or user-assigned managed
+  identity via the IMDS endpoint
+- **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
+- **Authorization Code Flow**: Interactive browser-based authentication
+- **Device Code Flow**: Authentication for headless or CLI environments
+
+During interactive development, azr allows browser-based login flows,
+while in batch/production mode it seamlessly falls back to
+non-interactive methods.
+
+## Usage
+
+The simplest way to authenticate is using
+[`get_token()`](https://pedrobtz.github.io/azr/dev/reference/get_token.md),
+which automatically tries different authentication methods until one
+succeeds:
+
+``` r
+
+library(azr)
+
+# Get a token using the default credential chain
+token <- get_token(
+  tenant_id = "your-tenant-id",
+  scope = "https://management.azure.com/.default"
+)
+
+# Use the token with httr2
+library(httr2)
+req <- request("https://management.azure.com/subscriptions?api-version=2020-01-01") |>
+  req_auth_bearer_token(token$access_token)
+
+resp <- req_perform(req)
+```
+
+Alternatively, use
+[`get_request_authorizer()`](https://pedrobtz.github.io/azr/dev/reference/get_request_authorizer.md)
+to get a function that adds authentication to requests:
+
+``` r
+
+library(azr)
+library(httr2)
+
+# Get a request authorizer for Microsoft Graph API
+azr_req_auth <- get_request_authorizer(
+  tenant_id = "your-tenant-id",
+  scope = "https://graph.microsoft.com/.default"
+)
+
+# Use it to authenticate requests
+resp <- request("https://graph.microsoft.com/v1.0/me") |>
+  azr_req_auth() |>
+  req_perform()
+```
+
+You can customize which authentication methods are tried and in what
+order:
+
+``` r
+
+# Define a custom credential chain: try a service principal first, then fall
+# back to the developer's Azure CLI login ('az login')
+custom_chain <- credential_chain(
+  client_secret = ClientSecretCredential,
+  azure_cli     = AzureCLICredential
+)
+
+# Use the custom chain - scope, tenant_id, client_id, and client_secret are
+# forwarded to whichever entry ends up succeeding
+token <- get_token(
+  scope         = "https://management.azure.com/.default",
+  tenant_id     = "mycompany-tenant-id",
+  # the 'Application Id' and secret used in production/batch mode
+  client_id     = Sys.getenv("APP_CLIENT_ID"),
+  client_secret = Sys.getenv("APP_CLIENT_SECRET"),
+  chain         = custom_chain
+)
+```
+
+### Using with Azure OpenAI and elmer
+
+You can use
+[`get_credential_auth()`](https://pedrobtz.github.io/azr/dev/reference/get_credential_auth.md)
+to create a chat connection to Azure OpenAI with the
+[elmer](https://github.com/hadley/elmer) package:
+
+``` r
+
+library(elmer)
+
+# Create an authentication function for Azure OpenAI
+credentials <- azr::get_credential_auth(
+  scope = "https://cognitiveservices.azure.com/.default"
+)
+
+# Create a chat interface to Azure OpenAI
+chat <- chat_azure_openai(
+  endpoint = "https://your-resource.openai.azure.com",
+  model =  "gpt-4o",
+  credentials  = credentials
+)
+
+# Use the chat
+chat$chat("What is the capital of France?")
+```
+
+## Related work
+
+azr is inspired by Python’s
+[azure-identity](https://learn.microsoft.com/en-us/python/api/overview/azure/identity-readme),
+which introduced the credential chain pattern for automatic
+authentication method discovery.
+
+The R package [AzureAuth](https://github.com/Azure/AzureAuth) (based on
+[httr](https://httr.r-lib.org/)) also handles Azure token acquisition,
+but does not offer explicit credential chains. azr fills that gap by
+letting you define custom chains with method-specific configurations,
+enabling seamless fallback between authentication approaches.
+
+## Code of Conduct
+
+Please note that the azr project is released with a [Contributor Code of
+Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
