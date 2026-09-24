@@ -12,7 +12,7 @@ azr implements a credential chain for seamless OAuth 2.0 authentication to Azure
 
 ## Installation
 
-You can install httr2 from CRAN with:
+You can install azr from CRAN with:
 
 ``` r
 install.packages("azr")
@@ -92,12 +92,12 @@ token <- get_token(
 )
 ```
 
-### Using with Azure OpenAI and elmer
+### Using with Azure OpenAI and ellmer
 
-You can use `get_credential_auth()` to create a chat connection to Azure OpenAI with the [elmer](https://github.com/hadley/elmer) package:
+You can use `get_credential_auth()` to create a chat connection to Azure OpenAI with the [ellmer](https://ellmer.tidyverse.org/) package:
 
 ``` r
-library(elmer)
+library(ellmer)
 
 # Create an authentication function for Azure OpenAI
 credentials <- azr::get_credential_auth(
@@ -114,6 +114,23 @@ chat <- chat_azure_openai(
 # Use the chat
 chat$chat("What is the capital of France?")
 ```
+
+## Beyond authentication
+
+azr also ships the pieces that usually come next once a token is in hand.
+`get_user_token()` authenticates the person signed in on the machine rather
+than the host's service identity, and `az_config()` reports the Azure
+environment variables that credential discovery reads. `azr_storage_client()`
+and `azr_logs_client()` wrap the Storage and Log Analytics REST APIs, and
+`azr_dataset()` declares a storage dataset bound to one or more storage
+accounts keyed by environment tier, so that every consumer resolves it the
+same way.
+
+## Learn more
+
+* `vignette("credential-chains")` on building credential chains.
+* `vignette("datasets")` on declaring Azure Storage datasets.
+* `vignette("options")` on configuring azr options.
 
 ## Related work
 
