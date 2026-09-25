@@ -7,7 +7,7 @@ trying different authentication methods in sequence until one succeeds.
 
 ## Installation
 
-You can install httr2 from CRAN with:
+You can install azr from CRAN with:
 
 ``` r
 
@@ -102,16 +102,16 @@ token <- get_token(
 )
 ```
 
-### Using with Azure OpenAI and elmer
+### Using with Azure OpenAI and ellmer
 
 You can use
 [`get_credential_auth()`](https://pedrobtz.github.io/azr/dev/reference/get_credential_auth.md)
 to create a chat connection to Azure OpenAI with the
-[elmer](https://github.com/hadley/elmer) package:
+[ellmer](https://ellmer.tidyverse.org/) package:
 
 ``` r
 
-library(elmer)
+library(ellmer)
 
 # Create an authentication function for Azure OpenAI
 credentials <- azr::get_credential_auth(
@@ -128,6 +128,32 @@ chat <- chat_azure_openai(
 # Use the chat
 chat$chat("What is the capital of France?")
 ```
+
+## Beyond authentication
+
+azr also ships the pieces that usually come next once a token is in
+hand.
+[`get_user_token()`](https://pedrobtz.github.io/azr/dev/reference/get_user_token.md)
+authenticates the person signed in on the machine rather than the host’s
+service identity, and
+[`az_config()`](https://pedrobtz.github.io/azr/dev/reference/az_config.md)
+reports the Azure environment variables that credential discovery reads.
+[`azr_storage_client()`](https://pedrobtz.github.io/azr/dev/reference/azr_storage_client.md)
+and
+[`azr_logs_client()`](https://pedrobtz.github.io/azr/dev/reference/azr_logs_client.md)
+wrap the Storage and Log Analytics REST APIs, and
+[`azr_dataset()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset.md)
+declares a storage dataset bound to one or more storage accounts keyed
+by environment tier, so that every consumer resolves it the same way.
+
+## Learn more
+
+- [`vignette("credential-chains")`](https://pedrobtz.github.io/azr/dev/articles/credential-chains.md)
+  on building credential chains.
+- [`vignette("datasets")`](https://pedrobtz.github.io/azr/dev/articles/datasets.md)
+  on declaring Azure Storage datasets.
+- [`vignette("options")`](https://pedrobtz.github.io/azr/dev/articles/options.md)
+  on configuring azr options.
 
 ## Related work
 
