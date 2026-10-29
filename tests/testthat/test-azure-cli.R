@@ -61,7 +61,9 @@ test_that("AzureCLICredential validates tenant_id at construction", {
 test_that("AzureCLICredential reports the Azure CLI client, not AZURE_CLIENT_ID", {
   withr::local_envvar(AZURE_CLIENT_ID = "some-other-app")
 
-  cred <- AzureCLICredential$new(scope = "https://management.azure.com/.default")
+  cred <- AzureCLICredential$new(
+    scope = "https://management.azure.com/.default"
+  )
 
   expect_equal(cred$.client_id, default_azure_cli_client_id())
   expect_false(identical(cred$.client_id, "some-other-app"))
@@ -78,18 +80,24 @@ test_that("UserAzureCLICredential accepts a user sign-in", {
     az_cli_get_token = function(...) httr2::oauth_token("a-user-token")
   )
 
-  cred <- UserAzureCLICredential$new(scope = "https://management.azure.com/.default")
+  cred <- UserAzureCLICredential$new(
+    scope = "https://management.azure.com/.default"
+  )
 
   expect_equal(cred$get_token()$access_token, "a-user-token")
 })
 
 test_that("UserAzureCLICredential rejects a service principal sign-in", {
   local_mocked_bindings(
-    az_cli_account_show = function(...) cli_account("servicePrincipal", "an-app-id"),
+    az_cli_account_show = function(...) {
+      cli_account("servicePrincipal", "an-app-id")
+    },
     az_cli_get_token = function(...) httr2::oauth_token("an-app-token")
   )
 
-  cred <- UserAzureCLICredential$new(scope = "https://management.azure.com/.default")
+  cred <- UserAzureCLICredential$new(
+    scope = "https://management.azure.com/.default"
+  )
 
   err <- expect_error(cred$get_token(), class = "azr_cli_not_user_account")
   expect_match(conditionMessage(err), "servicePrincipal")
@@ -98,13 +106,79 @@ test_that("UserAzureCLICredential rejects a service principal sign-in", {
 
 test_that("AzureCLICredential still accepts a service principal sign-in", {
   local_mocked_bindings(
-    az_cli_account_show = function(...) cli_account("servicePrincipal", "an-app-id"),
+    az_cli_account_show = function(...) {
+      cli_account("servicePrincipal", "an-app-id")
+    },
     az_cli_get_token = function(...) httr2::oauth_token("an-app-token")
   )
 
-  cred <- AzureCLICredential$new(scope = "https://management.azure.com/.default")
+  cred <- AzureCLICredential$new(
+    scope = "https://management.azure.com/.default"
+  )
 
   # authenticating as a service principal through the CLI stays a valid way to
   # use get_token(); only get_user_token() insists on a person
   expect_equal(cred$get_token()$access_token, "an-app-token")
+})
+
+test_that("find_browser() returns NULL when no browser command exists", {
+  skip_if(.Platform$OS.type == "windows")
+  withr::local_options(browser = "azr-no-such-browser")
+  withr::local_envvar(BROWSER = "")
+
+  expect_null(find_browser())
+  expect_false(open_browser("https://example.com"))
+})
+
+test_that("find_browser() falls back to $BROWSER except for local files", {
+  skip_if(.Platform$OS.type == "windows")
+  skip_if_not(nzchar(Sys.which("true")))
+  withr::local_options(browser = "azr-no-such-browser")
+  withr::local_envvar(BROWSER = "true")
+
+  expect_equal(find_browser(), "true")
+  expect_null(find_browser(local_file = TRUE))
+})
+
+test_that("open_browser() calls a function-valued browser option", {
+  skip_if(.Platform$OS.type == "windows")
+  opened <- NULL
+  withr::local_options(browser = function(url, ...) opened <<- url)
+
+  expect_true(open_browser("https://example.com"))
+  expect_equal(opened, "https://example.com")
+})
+
+test_that("present_device_code() prints the URL and code without a browser", {
+  skip_if(.Platform$OS.type == "windows")
+  local_mocked_bindings(copy_device_code = function(code) invisible(FALSE))
+  withr::local_options(browser = "azr-no-such-browser")
+  withr::local_envvar(BROWSER = "")
+
+  expect_snapshot(
+    res <- present_device_code(
+      "ABC123XYZ",
+      "https://microsoft.com/devicelogin",
+      use_bridge = TRUE
+    )
+  )
+  expect_false(res)
+})
+
+test_that("present_device_code() falls back to the login page when the bridge cannot open", {
+  skip_if(.Platform$OS.type == "windows")
+  local_mocked_bindings(copy_device_code = function(code) invisible(FALSE))
+  opened <- NULL
+  local_mocked_bindings(
+    find_browser = function(local_file = FALSE) {
+      if (local_file) NULL else function(url, ...) opened <<- url
+    }
+  )
+
+  expect_true(present_device_code(
+    "ABC123XYZ",
+    "https://microsoft.com/devicelogin",
+    use_bridge = TRUE
+  ))
+  expect_equal(opened, "https://microsoft.com/devicelogin")
 })

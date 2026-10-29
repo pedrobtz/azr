@@ -1,5 +1,7 @@
 # azr (development version)
 
+* `az_cli_login()` now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without `xdg-open`, and falls back from the bridge page to the login page (@pedrobtz, #noissue).
+
 # azr 0.3.6
 
 * Added `get_user_token()`, which authenticates the person signed in on this machine rather than the host's service identity. `get_token()` tries workload and managed identity ahead of the Azure CLI, so on a host configured for a service identity it returns the workload's token even when a user is at the console.

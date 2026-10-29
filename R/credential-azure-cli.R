@@ -485,39 +485,7 @@ az_cli_login <- function(
 
         cli::cli_alert_success("Found Device Code: {.val {device_code}}")
 
-        if (isTRUE(use_bridge)) {
-          tryCatch(
-            {
-              launch_device_code(device_code)
-              cli::cli_alert_info(
-                "Launch web bridge to copy code to clipboard!"
-              )
-            },
-            error = function(e) {
-              cli::cli_alert_warning(
-                "Could not use browser. Please copy manually."
-              )
-            }
-          )
-        } else {
-          # Copy to clipboard, if clipr is available
-          if (rlang::is_installed("clipr")) {
-            tryCatch(
-              {
-                clipr::write_clip(device_code)
-                cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
-              },
-              error = function(e) {
-                cli::cli_alert_warning(
-                  "Could not write to clipboard. Please copy manually."
-                )
-              }
-            )
-          }
-
-          cli::cli_alert_info("Opening browser to {.url {login_url}}...")
-          utils::browseURL(login_url)
-        }
+        present_device_code(device_code, login_url, use_bridge)
       }
     }
 
@@ -1103,7 +1071,93 @@ az_cli_get_cached_token <- function(
 }
 
 
-launch_device_code <- function(code) {
+# Shows the device code to the user, preferring the bridge page, then the
+# login page, then plain text. The text fallback matters on remote hosts
+# (VS Code Remote, containers) where no browser opener exists and
+# `browseURL()` fails silently.
+present_device_code <- function(device_code, login_url, use_bridge) {
+  if (isTRUE(use_bridge)) {
+    bridge_file <- write_device_code_bridge(device_code)
+    if (open_browser(bridge_file, local_file = TRUE)) {
+      cli::cli_alert_info("Launch web bridge to copy code to clipboard!")
+      return(invisible(TRUE))
+    }
+  }
+
+  copy_device_code(device_code)
+
+  if (open_browser(login_url)) {
+    cli::cli_alert_info("Opening browser to {.url {login_url}}...")
+    return(invisible(TRUE))
+  }
+
+  cli::cli_alert_info(
+    "Open {.url {login_url}} and enter the code {.val {device_code}}."
+  )
+  invisible(FALSE)
+}
+
+copy_device_code <- function(code) {
+  if (!rlang::is_installed("clipr")) {
+    return(invisible(FALSE))
+  }
+  tryCatch(
+    {
+      clipr::write_clip(code)
+      cli::cli_alert_info("Code copied to clipboard! [Cmd/Ctrl + V]")
+      invisible(TRUE)
+    },
+    error = function(e) {
+      cli::cli_alert_warning(
+        "Could not write to clipboard. Please copy manually."
+      )
+      invisible(FALSE)
+    }
+  )
+}
+
+# `browseURL()` on Unix runs the browser through `system()` and reports
+# nothing when the command is missing, so check for it up front.
+open_browser <- function(url, local_file = FALSE) {
+  if (.Platform$OS.type == "windows") {
+    utils::browseURL(url)
+    return(TRUE)
+  }
+
+  browser <- find_browser(local_file)
+  if (is.null(browser)) {
+    return(FALSE)
+  }
+  utils::browseURL(url, browser = browser)
+  TRUE
+}
+
+# `$BROWSER` is how VS Code Remote and Codespaces forward URLs to the local
+# machine, but a remote file path means nothing there, so it is skipped for
+# local files.
+find_browser <- function(local_file = FALSE) {
+  browser <- getOption("browser")
+  if (is.function(browser) || is_runnable_command(browser)) {
+    return(browser)
+  }
+
+  env_browser <- Sys.getenv("BROWSER")
+  if (!local_file && is_runnable_command(env_browser)) {
+    return(env_browser)
+  }
+
+  NULL
+}
+
+is_runnable_command <- function(cmd) {
+  is.character(cmd) &&
+    length(cmd) == 1L &&
+    !is.na(cmd) &&
+    nzchar(cmd) &&
+    nzchar(Sys.which(cmd))
+}
+
+write_device_code_bridge <- function(code) {
   html_content <- system.file("www/code.html", package = "azr") |>
     readLines() |>
     paste(collapse = "\n") |>
@@ -1111,5 +1165,5 @@ launch_device_code <- function(code) {
 
   temp_file <- tempfile(fileext = ".html")
   writeLines(html_content, temp_file)
-  utils::browseURL(temp_file)
+  temp_file
 }
