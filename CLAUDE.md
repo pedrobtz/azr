@@ -1,6 +1,19 @@
 # CLAUDE.md
 
+<!-- markdownlint-disable-next-line MD013 -->
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Shared conventions
+
+The portfolio's shared rules are synced into `.claude/shared/` from
+`pedrobtz/packages:claude/shared/`. Never edit them here. Where this file and
+a shared file disagree, this file wins for this package.
+
+@.claude/shared/workflow.md
+@.claude/shared/r-package.md
+@.claude/shared/ci.md
+@.claude/shared/correctness.md
+@.claude/shared/assurance.md
 
 ## What this is
 
@@ -16,16 +29,18 @@ there is no ambition to wrap every Azure service, and a new service wrapper
 belongs here only when it exercises the credential layer.
 
 **Dependency stance.** Hard dependencies stay at the current set (`httr2`,
-`cli`, `rlang`, `R6`, `S7`, `jsonlite`, `utils`). Everything else is a Suggest
-and every code path that touches one must work without it — see the invariant
-below.
+`cli`, `rlang`, `R6`, `S7`, `jsonlite`, `utils`), a deliberate deviation from
+the zero-dependency default in `.claude/shared/r-package.md`. Everything else
+is a Suggest and every code path that touches one must work without it — see
+the invariant below.
 
 Three documents in `.dev/` outrank this file on their own subjects:
 `.dev/AGENTS.md` (working agreement and the NEWS entry rules),
 `.dev/TODO.md` (known defects and roadmap, with file:line references) and
 `.dev/moniker.md` (design for consolidating the storage interfaces). **`.dev/`
 is gitignored**, so those files live only in a working copy — read them when
-they are present, and do not assume a fresh clone has them.
+they are present, and do not assume a fresh clone has them. azr has no
+`.agents/` directory.
 
 ## Current state
 
@@ -38,9 +53,11 @@ problem to fix.
 `tests/testthat/test-workload-identity.R`, which defines the file-scope
 helpers `new_wi_cred()` and `wi_inject_token()` that shuffled blocks run
 ahead of. This is a defect in that test file, not in the package, and not a
-reason to stop treating shuffled runs as the standard — fix the file.
+reason to stop treating shuffled runs as the standard — fix the file. The
+helpers were still at file scope on 2026-11-11.
 
-Released on CRAN at 0.3.5; the working tree is 0.3.6.
+Verified 2026-11-11: 0.3.6 is on CRAN, published 2026-09-22, and `main` is
+`0.3.6.9000`.
 
 Not implemented, as opposed to broken: `EnvironmentCredential` and
 `CertificateCredential`. Known and deliberate-for-now defects, each with a
@@ -48,38 +65,46 @@ file:line reference in `.dev/TODO.md`: `AzureCLICredential` has no in-object
 token cache and shells out to `az` on every call, and `new_instance()` cannot
 distinguish an explicit `NULL` from an absent argument.
 
-## Versioning
+## Versions and dependents
 
-azr is released, so it follows the `.9000` development convention: bump to
-`x.y.z.9000` after a release, and drop the suffix when cutting the next one.
-Retitle the `# azr (development version)` NEWS heading to the release number
-at that point.
+The current version's parent issue is
+[`#33`](https://github.com/pedrobtz/azr/issues/33) for `v0.3.7`. Sibling
+packages that depend on this one: none recorded.
+
+azr has no `cran-release.yaml`, so the `.9000` bump after a release is made by
+hand rather than arriving as a pull request: bump to `x.y.z.9000` after a
+release, and drop the suffix when cutting the next one. Retitle the
+`# azr (development version)` NEWS heading to the release number at that
+point.
 
 ## Commands
 
-Run from the package root. Always invoke R with `--quiet --vanilla`.
+Run from the package root. Always invoke R with `--quiet --vanilla`; that and
+the arguments below override the shared commands.
 
 ```sh
 Rscript --quiet --vanilla -e 'devtools::load_all()'
-Rscript --quiet --vanilla -e 'devtools::document()'              # roxygen -> NAMESPACE, man/
+Rscript --quiet --vanilla -e 'devtools::document()'
 Rscript --quiet --vanilla -e 'devtools::test(reporter = "check")'
-Rscript --quiet --vanilla -e 'devtools::test(filter = "azure-cli")'   # one test file
+Rscript --quiet --vanilla -e 'devtools::test(filter = "azure-cli")'
 Rscript --quiet --vanilla -e 'devtools::test(shuffle = TRUE)'
 Rscript --quiet --vanilla -e 'devtools::check(error_on = "warning")'
-Rscript --quiet --vanilla -e 'pkgdown::check_pkgdown()'          # after adding a doc topic
+Rscript --quiet --vanilla -e 'pkgdown::check_pkgdown()'
 Rscript --quiet --vanilla -e 'lintr::lint_package()'
-air format .                                                      # after generating any R code
+air format .
 ```
+
+Run `pkgdown::check_pkgdown()` after adding a documentation topic, and
+`air format .` after generating any R code.
 
 `devtools::test()` is the development loop; it is fast enough to run on every
 change. `check()` and `pkgdown::check_pkgdown()` are release-gate commands.
 
 **Check the roxygen2 version before documenting.** `DESCRIPTION` records
-`RoxygenNote: 7.3.3`. roxygen2 8.0.0 regenerates every file under `man/` and
-migrates that field to `Config/roxygen2/version`, producing a ~30-file diff
-that has nothing to do with the change in hand. If the installed roxygen2 is
-8.x, either install 7.3.3 or raise the upgrade as its own piece of work — do
-not let it ride along in an unrelated commit.
+`Config/roxygen2/version: 8.0.0`. A different roxygen2 major version
+regenerates every file under `man/`, producing a diff of about 30 files that
+has nothing to do with the change in hand. Raise a roxygen2 change as its own
+piece of work; do not let it ride along in an unrelated commit.
 
 ## Architecture
 
@@ -147,20 +172,16 @@ actually see.
 - **A new top-level file needs an `.Rbuildignore` entry** or `R CMD check`
   raises a NOTE for a non-standard file at the package root.
 
-## Testing conventions
+## Testing
 
-- testthat edition 3. Tests for `R/{name}.R` live in
-  `tests/testthat/test-{name}.R`.
-- **Build inputs inside the `test_that()` block.** File-scope helpers shared
-  between blocks are what breaks `shuffle = TRUE`; shared fixtures belong in
-  `tests/testthat/helper-*.R`, which is sourced before any block runs.
+- Tests for `R/{name}.R` live in `tests/testthat/test-{name}.R`.
 - **No live Azure calls.** HTTP-layer tests replay vcr cassettes from
   `tests/testthat/_vcr/`, recorded against the public Swagger Petstore rather
   than Azure, so they exercise `api_client` without credentials.
-- **Assert on condition classes, not message text** — the package raises
-  classed conditions such as `azr_credential_chain_failed`,
-  `azr_cli_not_logged_in`, `azr_cli_timeout_error` and
-  `azr_requires_interactive_session`. Wording belongs in snapshot tests.
+- The package raises classed conditions such as
+  `azr_credential_chain_failed`, `azr_cli_not_logged_in`,
+  `azr_cli_timeout_error` and `azr_requires_interactive_session`; assert on
+  those.
 - **Isolate the environment.** These tests read the same `AZURE_*` variables as
   production code; set them through `withr::local_envvar()`. A test that reads a
   variable it did not set will pass or fail depending on whose laptop it runs
@@ -171,12 +192,11 @@ actually see.
   that the `api_resource` and `api_service` tests build on.
 - Keep the suite near its current ~11 seconds.
 
-## Definition of done
+## Definition of done, beyond the shared one
 
-`devtools::document()` and `devtools::check(error_on = "warning")` clean: 0
-errors, 0 warnings, 0 notes. `devtools::test(shuffle = TRUE)` green, with the
-one known exception recorded under Current state. `air format .` run. A user-facing change also needs a test, roxygen documentation
-and a `NEWS.md` bullet.
+`devtools::check(error_on = "warning")` is the check, and `air format .` has
+been run. `devtools::test(shuffle = TRUE)` must be green, with the one known
+exception recorded under Current state.
 
 NEWS bullets are one line, present tense, positively framed, with the function
 name in backticks near the start, and the issue number before the final period:
@@ -184,12 +204,8 @@ name in backticks near the start, and the issue number before the final period:
 take it from the prompt, the branch name or `gh issue list`, and use
 `#noissue` if there is none.
 
-## Editing rules
+## Editing rules, beyond the shared ones
 
-- roxygen comments are the source. Never edit `man/` or `NAMESPACE` by hand;
-  they come from `devtools::document()`.
-- Every user-facing function is exported with roxygen docs; internal ones get
-  no roxygen topic.
 - A new documentation topic goes into `_pkgdown.yml`, verified with
   `pkgdown::check_pkgdown()`.
 - Errors use `cli::cli_abort()` with a condition class, following tidyverse
@@ -198,24 +214,19 @@ take it from the prompt, the branch name or `gh issue list`, and use
   functions inside functions.
 - Comments explain why, not what. Sentence case for headings.
 
+When you find a defect, in this package or upstream, record it in
+`.dev/TODO.md` with a file:line reference or open an issue, rather than only
+working around it.
+
 ## Continuous integration
 
 Workflows live in `.github/workflows/` and are derived from `r-lib/actions`
 examples rather than called from the shared `pedrobtz/r-actions` repository, so
 they are maintained here: `R-CMD-check.yaml` (a 10-job matrix across macOS,
 Windows and Linux, R release back to oldrel-4), plus `lint.yaml`,
-`test-coverage.yaml`, `pkgdown.yaml`, `rhub.yaml` and `pr-commands.yaml`.
-
-## Commits and pull requests
-
-Short, imperative, sentence-case commit subjects. Keep each commit focused and
-do not sweep in unrelated files. A pull request explains the user-visible
-outcome and the rationale, links related issues, and lists the checks that were
-run and the tests that were skipped.
-
-Never commit or push to `main`. Work on a branch, open a pull request, and
-leave it for review. Do not merge a pull request unless you are told to.
-
-When you find a defect, in this package or upstream, record it in
-`.dev/TODO.md` with a file:line reference or open an issue, rather than only
-working around it.
+`test-coverage.yaml`, `pkgdown.yaml`, `rhub.yaml` (manual dispatch only) and
+`pr-commands.yaml`. This is a deviation from `.claude/shared/ci.md`: until
+[#36](https://github.com/pedrobtz/azr/issues/36) moves azr onto r-actions,
+there is no `changes` gate, the CI labels have no effect, and the hand-rolled
+R CMD check does not count as the pre-submission check. r-actions comes before
+the next `Pre-flight`.

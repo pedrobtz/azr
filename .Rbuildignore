@@ -19,3 +19,6 @@
 ^tests/testthat/_problems$
 ^AGENTS\.md$
 ^CLAUDE\.md$
+^\.agents$
+^\.superpowers$
+^\.worktrees$
