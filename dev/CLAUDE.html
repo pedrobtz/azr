@@ -39,39 +39,47 @@
 
 <div id="claudemd" class="section level1">
 
+<!-- markdownlint-disable-next-line MD013 -->
 <p>This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.</p>
+<div class="section level2">
+<h2 id="shared-conventions">Shared conventions<a class="anchor" aria-label="anchor" href="#shared-conventions"></a></h2>
+<p>The portfolio’s shared rules are synced into <code>.claude/shared/</code> from <code>pedrobtz/packages:claude/shared/</code>. Never edit them here. Where this file and a shared file disagree, this file wins for this package.</p>
+<p>@.claude/shared/workflow.md @.claude/shared/r-package.md @.claude/shared/ci.md @.claude/shared/correctness.md @.claude/shared/assurance.md</p>
+</div>
 <div class="section level2">
 <h2 id="what-this-is">What this is<a class="anchor" aria-label="anchor" href="#what-this-is"></a></h2>
 <p>azr implements a credential chain for Azure OAuth 2.0, built on httr2’s OAuth framework. It sequentially attempts authentication methods until one succeeds, so the same code authenticates from a laptop, a CI runner and an AKS pod. On top of that sits a thin HTTP client layer (<code>api_client</code> / <code>api_resource</code> / <code>api_service</code>) that service wrappers such as <code>AzureGraphClient</code> and <code>AzureStorageClient</code> are built from.</p>
 <p>The package acquires tokens and authorizes requests. It is not an Azure SDK: there is no ambition to wrap every Azure service, and a new service wrapper belongs here only when it exercises the credential layer.</p>
-<p><strong>Dependency stance.</strong> Hard dependencies stay at the current set (<code>httr2</code>, <code>cli</code>, <code>rlang</code>, <code>R6</code>, <code>S7</code>, <code>jsonlite</code>, <code>utils</code>). Everything else is a Suggest and every code path that touches one must work without it — see the invariant below.</p>
-<p>Three documents in <code>.dev/</code> outrank this file on their own subjects: <code>.dev/AGENTS.md</code> (working agreement and the NEWS entry rules), <code>.dev/TODO.md</code> (known defects and roadmap, with <a href="file:line" class="uri">file:line</a> references) and <code>.dev/moniker.md</code> (design for consolidating the storage interfaces). <strong><code>.dev/</code> is gitignored</strong>, so those files live only in a working copy — read them when they are present, and do not assume a fresh clone has them.</p>
+<p><strong>Dependency stance.</strong> Hard dependencies stay at the current set (<code>httr2</code>, <code>cli</code>, <code>rlang</code>, <code>R6</code>, <code>S7</code>, <code>jsonlite</code>, <code>utils</code>), a deliberate deviation from the zero-dependency default in <code>.claude/shared/r-package.md</code>. Everything else is a Suggest and every code path that touches one must work without it — see the invariant below.</p>
+<p>Three documents in <code>.dev/</code> outrank this file on their own subjects: <code>.dev/AGENTS.md</code> (working agreement and the NEWS entry rules), <code>.dev/TODO.md</code> (known defects and roadmap, with <a href="file:line" class="uri">file:line</a> references) and <code>.dev/moniker.md</code> (design for consolidating the storage interfaces). <strong><code>.dev/</code> is gitignored</strong>, so those files live only in a working copy — read them when they are present, and do not assume a fresh clone has them. azr has no <code>.agents/</code> directory.</p>
 </div>
 <div class="section level2">
 <h2 id="current-state">Current state<a class="anchor" aria-label="anchor" href="#current-state"></a></h2>
 <p>Verified 2026-09-22. <code>devtools::test()</code> is green: 769 passing, 0 failures, 24 skipped, about 11 seconds. Every skip requires an interactive session or a live <code>az login</code>; a local run with 24 skips is the expected result, not a problem to fix.</p>
-<p><code>devtools::test(shuffle = TRUE)</code> is <strong>not</strong> green: 11 failures, all in <code>tests/testthat/test-workload-identity.R</code>, which defines the file-scope helpers <code>new_wi_cred()</code> and <code>wi_inject_token()</code> that shuffled blocks run ahead of. This is a defect in that test file, not in the package, and not a reason to stop treating shuffled runs as the standard — fix the file.</p>
-<p>Released on CRAN at 0.3.5; the working tree is 0.3.6.</p>
+<p><code>devtools::test(shuffle = TRUE)</code> is <strong>not</strong> green: 11 failures, all in <code>tests/testthat/test-workload-identity.R</code>, which defines the file-scope helpers <code>new_wi_cred()</code> and <code>wi_inject_token()</code> that shuffled blocks run ahead of. This is a defect in that test file, not in the package, and not a reason to stop treating shuffled runs as the standard — fix the file. The helpers were still at file scope on 2026-11-11.</p>
+<p>Verified 2026-11-11: 0.3.6 is on CRAN, published 2026-09-22, and <code>main</code> is <code>0.3.6.9000</code>.</p>
 <p>Not implemented, as opposed to broken: <code>EnvironmentCredential</code> and <code>CertificateCredential</code>. Known and deliberate-for-now defects, each with a <a href="file:line" class="uri">file:line</a> reference in <code>.dev/TODO.md</code>: <code>AzureCLICredential</code> has no in-object token cache and shells out to <code>az</code> on every call, and <code>new_instance()</code> cannot distinguish an explicit <code>NULL</code> from an absent argument.</p>
 </div>
 <div class="section level2">
-<h2 id="versioning">Versioning<a class="anchor" aria-label="anchor" href="#versioning"></a></h2>
-<p>azr is released, so it follows the <code>.9000</code> development convention: bump to <code>x.y.z.9000</code> after a release, and drop the suffix when cutting the next one. Retitle the <code># azr (development version)</code> NEWS heading to the release number at that point.</p>
+<h2 id="versions-and-dependents">Versions and dependents<a class="anchor" aria-label="anchor" href="#versions-and-dependents"></a></h2>
+<p>The current version’s parent issue is <a href="https://github.com/pedrobtz/azr/issues/33" class="external-link"><code>#33</code></a> for <code>v0.3.7</code>. Sibling packages that depend on this one: none recorded.</p>
+<p>azr has no <code>cran-release.yaml</code>, so the <code>.9000</code> bump after a release is made by hand rather than arriving as a pull request: bump to <code>x.y.z.9000</code> after a release, and drop the suffix when cutting the next one. Retitle the <code># azr (development version)</code> NEWS heading to the release number at that point.</p>
 </div>
 <div class="section level2">
 <h2 id="commands">Commands<a class="anchor" aria-label="anchor" href="#commands"></a></h2>
-<p>Run from the package root. Always invoke R with <code>--quiet --vanilla</code>.</p>
+<p>Run from the package root. Always invoke R with <code>--quiet --vanilla</code>; that and the arguments below override the shared commands.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::load_all()'</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::document()'</span>              <span class="co"># roxygen -&gt; NAMESPACE, man/</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::document()'</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::test(reporter = "check")'</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::test(filter = "azure-cli")'</span>   <span class="co"># one test file</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::test(filter = "azure-cli")'</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::test(shuffle = TRUE)'</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'devtools::check(error_on = "warning")'</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'pkgdown::check_pkgdown()'</span>          <span class="co"># after adding a doc topic</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'pkgdown::check_pkgdown()'</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">--quiet</span> <span class="at">--vanilla</span> <span class="at">-e</span> <span class="st">'lintr::lint_package()'</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="ex">air</span> format .                                                      <span class="co"># after generating any R code</span></span></code></pre></div>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="ex">air</span> format .</span></code></pre></div>
+<p>Run <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> after adding a documentation topic, and <code>air format .</code> after generating any R code.</p>
 <p><code>devtools::test()</code> is the development loop; it is fast enough to run on every change. <code>check()</code> and <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code> are release-gate commands.</p>
-<p><strong>Check the roxygen2 version before documenting.</strong> <code>DESCRIPTION</code> records <code>RoxygenNote: 7.3.3</code>. roxygen2 8.0.0 regenerates every file under <code>man/</code> and migrates that field to <code>Config/roxygen2/version</code>, producing a ~30-file diff that has nothing to do with the change in hand. If the installed roxygen2 is 8.x, either install 7.3.3 or raise the upgrade as its own piece of work — do not let it ride along in an unrelated commit.</p>
+<p><strong>Check the roxygen2 version before documenting.</strong> <code>DESCRIPTION</code> records <code>Config/roxygen2/version: 8.0.0</code>. A different roxygen2 major version regenerates every file under <code>man/</code>, producing a diff of about 30 files that has nothing to do with the change in hand. Raise a roxygen2 change as its own piece of work; do not let it ride along in an unrelated commit.</p>
 </div>
 <div class="section level2">
 <h2 id="architecture">Architecture<a class="anchor" aria-label="anchor" href="#architecture"></a></h2>
@@ -104,14 +112,11 @@
 <strong>A new top-level file needs an <code>.Rbuildignore</code> entry</strong> or <code>R CMD check</code> raises a NOTE for a non-standard file at the package root.</li>
 </ul></div>
 <div class="section level2">
-<h2 id="testing-conventions">Testing conventions<a class="anchor" aria-label="anchor" href="#testing-conventions"></a></h2>
-<ul><li>testthat edition 3. Tests for <code>R/{name}.R</code> live in <code>tests/testthat/test-{name}.R</code>.</li>
-<li>
-<strong>Build inputs inside the <code>test_that()</code> block.</strong> File-scope helpers shared between blocks are what breaks <code>shuffle = TRUE</code>; shared fixtures belong in <code>tests/testthat/helper-*.R</code>, which is sourced before any block runs.</li>
+<h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a></h2>
+<ul><li>Tests for <code>R/{name}.R</code> live in <code>tests/testthat/test-{name}.R</code>.</li>
 <li>
 <strong>No live Azure calls.</strong> HTTP-layer tests replay vcr cassettes from <code>tests/testthat/_vcr/</code>, recorded against the public Swagger Petstore rather than Azure, so they exercise <code>api_client</code> without credentials.</li>
-<li>
-<strong>Assert on condition classes, not message text</strong> — the package raises classed conditions such as <code>azr_credential_chain_failed</code>, <code>azr_cli_not_logged_in</code>, <code>azr_cli_timeout_error</code> and <code>azr_requires_interactive_session</code>. Wording belongs in snapshot tests.</li>
+<li>The package raises classed conditions such as <code>azr_credential_chain_failed</code>, <code>azr_cli_not_logged_in</code>, <code>azr_cli_timeout_error</code> and <code>azr_requires_interactive_session</code>; assert on those.</li>
 <li>
 <strong>Isolate the environment.</strong> These tests read the same <code>AZURE_*</code> variables as production code; set them through <code><a href="https://withr.r-lib.org/reference/with_envvar.html" class="external-link">withr::local_envvar()</a></code>. A test that reads a variable it did not set will pass or fail depending on whose laptop it runs on.</li>
 <li>Gate on capability, not platform: <code>skip_if_not(rlang::is_interactive())</code>, <code>skip_if_not_installed("httpuv")</code>, <code>skip_if_not(nzchar(Sys.which("az")))</code>.</li>
@@ -120,28 +125,21 @@
 <li>Keep the suite near its current ~11 seconds.</li>
 </ul></div>
 <div class="section level2">
-<h2 id="definition-of-done">Definition of done<a class="anchor" aria-label="anchor" href="#definition-of-done"></a></h2>
-<p><code>devtools::document()</code> and <code>devtools::check(error_on = "warning")</code> clean: 0 errors, 0 warnings, 0 notes. <code>devtools::test(shuffle = TRUE)</code> green, with the one known exception recorded under Current state. <code>air format .</code> run. A user-facing change also needs a test, roxygen documentation and a <code>NEWS.md</code> bullet.</p>
+<h2 id="definition-of-done-beyond-the-shared-one">Definition of done, beyond the shared one<a class="anchor" aria-label="anchor" href="#definition-of-done-beyond-the-shared-one"></a></h2>
+<p><code>devtools::check(error_on = "warning")</code> is the check, and <code>air format .</code> has been run. <code>devtools::test(shuffle = TRUE)</code> must be green, with the one known exception recorded under Current state.</p>
 <p>NEWS bullets are one line, present tense, positively framed, with the function name in backticks near the start, and the issue number before the final period: <code>* `fn()` now accepts ... (@user, #N).</code>. <strong>Never invent an issue number</strong> — take it from the prompt, the branch name or <code>gh issue list</code>, and use <code>#noissue</code> if there is none.</p>
 </div>
 <div class="section level2">
-<h2 id="editing-rules">Editing rules<a class="anchor" aria-label="anchor" href="#editing-rules"></a></h2>
-<ul><li>roxygen comments are the source. Never edit <code>man/</code> or <code>NAMESPACE</code> by hand; they come from <code>devtools::document()</code>.</li>
-<li>Every user-facing function is exported with roxygen docs; internal ones get no roxygen topic.</li>
-<li>A new documentation topic goes into <code>_pkgdown.yml</code>, verified with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code>.</li>
+<h2 id="editing-rules-beyond-the-shared-ones">Editing rules, beyond the shared ones<a class="anchor" aria-label="anchor" href="#editing-rules-beyond-the-shared-ones"></a></h2>
+<ul><li>A new documentation topic goes into <code>_pkgdown.yml</code>, verified with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code>.</li>
 <li>Errors use <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort()</a></code> with a condition class, following tidyverse style.</li>
 <li>Newspaper style: main logic at the top, helpers below. Avoid defining functions inside functions.</li>
 <li>Comments explain why, not what. Sentence case for headings.</li>
-</ul></div>
-<div class="section level2">
-<h2 id="continuous-integration">Continuous integration<a class="anchor" aria-label="anchor" href="#continuous-integration"></a></h2>
-<p>Workflows live in <code>.github/workflows/</code> and are derived from <code>r-lib/actions</code> examples rather than called from the shared <code>pedrobtz/r-actions</code> repository, so they are maintained here: <code>R-CMD-check.yaml</code> (a 10-job matrix across macOS, Windows and Linux, R release back to oldrel-4), plus <code>lint.yaml</code>, <code>test-coverage.yaml</code>, <code>pkgdown.yaml</code>, <code>rhub.yaml</code> and <code>pr-commands.yaml</code>.</p>
+</ul><p>When you find a defect, in this package or upstream, record it in <code>.dev/TODO.md</code> with a <a href="file:line" class="uri">file:line</a> reference or open an issue, rather than only working around it.</p>
 </div>
 <div class="section level2">
-<h2 id="commits-and-pull-requests">Commits and pull requests<a class="anchor" aria-label="anchor" href="#commits-and-pull-requests"></a></h2>
-<p>Short, imperative, sentence-case commit subjects. Keep each commit focused and do not sweep in unrelated files. A pull request explains the user-visible outcome and the rationale, links related issues, and lists the checks that were run and the tests that were skipped.</p>
-<p>Never commit or push to <code>main</code>. Work on a branch, open a pull request, and leave it for review. Do not merge a pull request unless you are told to.</p>
-<p>When you find a defect, in this package or upstream, record it in <code>.dev/TODO.md</code> with a <a href="file:line" class="uri">file:line</a> reference or open an issue, rather than only working around it.</p>
+<h2 id="continuous-integration">Continuous integration<a class="anchor" aria-label="anchor" href="#continuous-integration"></a></h2>
+<p>Workflows live in <code>.github/workflows/</code> and are derived from <code>r-lib/actions</code> examples rather than called from the shared <code>pedrobtz/r-actions</code> repository, so they are maintained here: <code>R-CMD-check.yaml</code> (a 10-job matrix across macOS, Windows and Linux, R release back to oldrel-4), plus <code>lint.yaml</code>, <code>test-coverage.yaml</code>, <code>pkgdown.yaml</code>, <code>rhub.yaml</code> (manual dispatch only) and <code>pr-commands.yaml</code>. This is a deviation from <code>.claude/shared/ci.md</code>: until <a href="https://github.com/pedrobtz/azr/issues/36" class="external-link">#36</a> moves azr onto r-actions, there is no <code>changes</code> gate, the CI labels have no effect, and the hand-rolled R CMD check does not count as the pre-submission check. r-actions comes before the next <code>Pre-flight</code>.</p>
 </div>
 </div>
 
