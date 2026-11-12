@@ -1,5 +1,6 @@
 # azr (development version)
 
+* `ManagedIdentityCredential$new()` now selects a user-assigned identity through `managed_identity_client_id`, which defaults to the new `managed_identity_client_id` option (`AZR_MANAGED_IDENTITY_CLIENT_ID`). The `client_id` given to `get_token()` and the other provider functions names an app registration and is no longer sent to the managed identity endpoint; `client_id` remains as a deprecated alias in the constructor (@pedrobtz, #38).
 * `az_cli_login()` now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without `xdg-open`, and falls back from the bridge page to the login page (@pedrobtz, #noissue).
 
 # azr 0.3.6

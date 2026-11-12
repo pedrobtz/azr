@@ -13,8 +13,17 @@
 #' No credentials need to be stored — the identity is granted by the Azure
 #' platform.
 #'
-#' To use a **system-assigned** managed identity, leave `client_id` as `NULL`.
-#' To use a **user-assigned** managed identity, supply its `client_id`.
+#' To use a **system-assigned** managed identity, leave
+#' `managed_identity_client_id` as `NULL`. To use a **user-assigned** managed
+#' identity, supply its client ID as `managed_identity_client_id`, or set the
+#' `managed_identity_client_id` option (`options(azr.managed_identity_client_id
+#' = ...)` or `AZR_MANAGED_IDENTITY_CLIENT_ID`) so the credential chain in
+#' [get_token()] picks it up.
+#'
+#' A user-assigned identity is a different principal from an app registration,
+#' so the `client_id` given to [get_token()] and friends is not forwarded to
+#' this credential: it identifies the app registration that
+#' [ClientSecretCredential] and the interactive credentials authenticate as.
 #'
 #' This credential fails immediately (2-second timeout) when not running inside
 #' Azure, so it is safe to include early in a credential chain.
@@ -22,7 +31,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' # System-assigned managed identity (no client_id needed)
+#' # System-assigned managed identity
 #' cred <- ManagedIdentityCredential$new(
 #'   scope = "https://management.azure.com/.default"
 #' )
@@ -30,7 +39,7 @@
 #' # User-assigned managed identity
 #' cred <- ManagedIdentityCredential$new(
 #'   scope = "https://management.azure.com/.default",
-#'   client_id = "your-user-assigned-client-id"
+#'   managed_identity_client_id = "your-user-assigned-client-id"
 #' )
 #'
 #' token <- cred$get_token()
@@ -48,13 +57,32 @@ ManagedIdentityCredential <- R6::R6Class(
     #'
     #' @param scope A character string specifying the OAuth2 scope. Defaults to
     #'   the Azure Resource Manager scope.
-    #' @param client_id A character string specifying the client ID of a
-    #'   user-assigned managed identity. Leave `NULL` (the default) to use the
-    #'   system-assigned managed identity.
+    #' @param managed_identity_client_id A character string specifying the
+    #'   client ID of a user-assigned managed identity. Defaults to the
+    #'   `managed_identity_client_id` option; when that is unset, `NULL` selects
+    #'   the system-assigned managed identity.
+    #' @param ... Accepts the deprecated `client_id` argument, an alias for
+    #'   `managed_identity_client_id`. It is taken through `...` so that the
+    #'   credential chain, which forwards only named constructor arguments,
+    #'   never passes an app registration's client ID here.
     #'
     #' @return A new `ManagedIdentityCredential` object
-    initialize = function(scope = NULL, client_id = NULL) {
-      self$.msi_client_id <- client_id
+    initialize = function(
+      scope = NULL,
+      managed_identity_client_id = opts$get("managed_identity_client_id"),
+      ...
+    ) {
+      managed_identity_client_id <- mi_take_deprecated_client_id(
+        managed_identity_client_id,
+        ...
+      )
+      if (!is.null(managed_identity_client_id)) {
+        validate_required_string(
+          managed_identity_client_id,
+          "managed_identity_client_id"
+        )
+      }
+      self$.msi_client_id <- managed_identity_client_id
       super$initialize(scope = scope)
       lockBinding(".msi_client_id", self)
     },
@@ -110,6 +138,31 @@ ManagedIdentityCredential <- R6::R6Class(
     }
   )
 )
+
+
+# `client_id` is read from `...` rather than declared, because new_instance()
+# forwards every context name that matches a formal, and the chain's
+# `client_id` names an app registration, not a managed identity.
+mi_take_deprecated_client_id <- function(managed_identity_client_id, ...) {
+  dots <- list(...)
+  unknown <- setdiff(names(dots), "client_id")
+  if (length(unknown) > 0L || (length(dots) > 0L && is.null(names(dots)))) {
+    cli::cli_abort(
+      "Unused argument{?s} to {.fn ManagedIdentityCredential$new}: {.arg {unknown}}.",
+      class = "azr_managed_identity_unused_argument",
+      call = call("initialize")
+    )
+  }
+  if (!"client_id" %in% names(dots)) {
+    return(managed_identity_client_id)
+  }
+  deprecated_arg(
+    "client_id",
+    "managed_identity_client_id",
+    "ManagedIdentityCredential$new"
+  )
+  dots$client_id
+}
 
 
 mi_imds_endpoint <- "http://169.254.169.254/metadata/identity/oauth2/token"

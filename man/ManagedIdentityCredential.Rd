@@ -15,15 +15,23 @@ Authentication is performed by querying the Azure Instance Metadata Service
 No credentials need to be stored — the identity is granted by the Azure
 platform.
 
-To use a \strong{system-assigned} managed identity, leave \code{client_id} as \code{NULL}.
-To use a \strong{user-assigned} managed identity, supply its \code{client_id}.
+To use a \strong{system-assigned} managed identity, leave
+\code{managed_identity_client_id} as \code{NULL}. To use a \strong{user-assigned} managed
+identity, supply its client ID as \code{managed_identity_client_id}, or set the
+\code{managed_identity_client_id} option (\code{options(azr.managed_identity_client_id = ...)} or \code{AZR_MANAGED_IDENTITY_CLIENT_ID}) so the credential chain in
+\code{\link[=get_token]{get_token()}} picks it up.
+
+A user-assigned identity is a different principal from an app registration,
+so the \code{client_id} given to \code{\link[=get_token]{get_token()}} and friends is not forwarded to
+this credential: it identifies the app registration that
+\link{ClientSecretCredential} and the interactive credentials authenticate as.
 
 This credential fails immediately (2-second timeout) when not running inside
 Azure, so it is safe to include early in a credential chain.
 }
 \examples{
 \dontrun{
-# System-assigned managed identity (no client_id needed)
+# System-assigned managed identity
 cred <- ManagedIdentityCredential$new(
   scope = "https://management.azure.com/.default"
 )
@@ -31,7 +39,7 @@ cred <- ManagedIdentityCredential$new(
 # User-assigned managed identity
 cred <- ManagedIdentityCredential$new(
   scope = "https://management.azure.com/.default",
-  client_id = "your-user-assigned-client-id"
+  managed_identity_client_id = "your-user-assigned-client-id"
 )
 
 token <- cred$get_token()
@@ -71,7 +79,11 @@ token <- cred$get_token()
   Create a new managed identity credential
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{ManagedIdentityCredential$new(scope = NULL, client_id = NULL)}
+    \preformatted{ManagedIdentityCredential$new(
+  scope = NULL,
+  managed_identity_client_id = opts$get("managed_identity_client_id"),
+  ...
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -79,9 +91,14 @@ token <- cred$get_token()
     \describe{
       \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 the Azure Resource Manager scope.}
-      \item{\code{client_id}}{A character string specifying the client ID of a
-user-assigned managed identity. Leave \code{NULL} (the default) to use the
-system-assigned managed identity.}
+      \item{\code{managed_identity_client_id}}{A character string specifying the
+client ID of a user-assigned managed identity. Defaults to the
+\code{managed_identity_client_id} option; when that is unset, \code{NULL} selects
+the system-assigned managed identity.}
+      \item{\code{...}}{Accepts the deprecated \code{client_id} argument, an alias for
+\code{managed_identity_client_id}. It is taken through \code{...} so that the
+credential chain, which forwards only named constructor arguments,
+never passes an app registration's client ID here.}
     }
     \if{html}{\out{</div>}}
   }

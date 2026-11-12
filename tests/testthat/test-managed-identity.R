@@ -1,26 +1,58 @@
-new_mi_cred <- function(client_id = NULL) {
-  ManagedIdentityCredential$new(
-    scope = "https://management.azure.com/.default",
-    client_id = client_id
-  )
-}
-
-mi_inject_token <- function(cred, token) {
-  key <- rlang::hash(list(cred$.scope, cred$.msi_client_id))
-  cred$.__enclos_env__$private$.token_cache[[key]] <- token
-}
-
 # Construction ----
 
-test_that("constructs with system-assigned identity (NULL client_id)", {
+test_that("constructs with system-assigned identity by default", {
   cred <- new_mi_cred()
   expect_s3_class(cred, "ManagedIdentityCredential")
   expect_null(cred$.msi_client_id)
 })
 
-test_that("constructs with user-assigned identity (explicit client_id)", {
-  cred <- new_mi_cred(client_id = "my-user-assigned-id")
+test_that("constructs with user-assigned identity (explicit client ID)", {
+  cred <- new_mi_cred(managed_identity_client_id = "my-user-assigned-id")
   expect_equal(cred$.msi_client_id, "my-user-assigned-id")
+})
+
+test_that("managed_identity_client_id defaults to the azr option", {
+  withr::local_envvar(AZR_MANAGED_IDENTITY_CLIENT_ID = "from-env")
+  expect_equal(ManagedIdentityCredential$new()$.msi_client_id, "from-env")
+
+  withr::local_options(azr.managed_identity_client_id = "from-option")
+  expect_equal(ManagedIdentityCredential$new()$.msi_client_id, "from-option")
+})
+
+test_that("deprecated client_id argument still selects the identity", {
+  expect_warning(
+    cred <- ManagedIdentityCredential$new(client_id = "legacy-id"),
+    class = "azr_deprecated_argument"
+  )
+  expect_equal(cred$.msi_client_id, "legacy-id")
+})
+
+test_that("unknown constructor arguments are rejected", {
+  expect_error(
+    ManagedIdentityCredential$new(tenant = "x"),
+    class = "azr_managed_identity_unused_argument"
+  )
+})
+
+test_that("chain context client_id is not forwarded as the managed identity", {
+  withr::local_envvar(AZR_MANAGED_IDENTITY_CLIENT_ID = NA)
+  seen <- new.env()
+  local_mocked_bindings(
+    mi_fetch_token = function(resource, client_id = NULL, ...) {
+      seen$client_id <- client_id
+      httr2::oauth_token(access_token = "mi_token", expires_in = 3600)
+    }
+  )
+
+  cred <- get_credential_provider(
+    scope = "https://management.azure.com/.default",
+    client_id = "app-registration-id",
+    chain = credential_chain(managed_identity = ManagedIdentityCredential)
+  )
+
+  expect_s3_class(cred, "ManagedIdentityCredential")
+  expect_null(cred$.msi_client_id)
+  expect_null(seen$client_id)
 })
 
 test_that(".msi_client_id is locked after initialize", {
@@ -98,7 +130,7 @@ test_that("get_token stores fetched token in cache", {
 
 test_that("system and user-assigned identities use separate cache keys", {
   cred_sys <- new_mi_cred()
-  cred_usr <- new_mi_cred(client_id = "user-id")
+  cred_usr <- new_mi_cred(managed_identity_client_id = "user-id")
 
   sys_token <- httr2::oauth_token(access_token = "sys_token", expires_in = 3600)
   usr_token <- httr2::oauth_token(access_token = "usr_token", expires_in = 3600)

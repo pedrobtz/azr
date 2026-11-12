@@ -28,6 +28,12 @@ opts <- local({
         env = "AZR_DATASET_TIER",
         type = NULL,
         default = "prod"
+      ),
+      managed_identity_client_id = list(
+        value = NULL,
+        env = "AZR_MANAGED_IDENTITY_CLIENT_ID",
+        type = NULL,
+        default = NULL
       )
     ),
     parent = emptyenv()
@@ -229,6 +235,7 @@ print_azr_opts <- function(x, mask = TRUE) {
 #' | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose api_client request/response |
 #' | `"cli_auto_login"` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Auto Azure CLI login |
 #' | `"dataset_tier"` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for [azr_dataset_uri()] |
+#' | `"managed_identity_client_id"` | `azr.managed_identity_client_id` | `AZR_MANAGED_IDENTITY_CLIENT_ID` | `NULL` | User-assigned identity for [ManagedIdentityCredential] |
 #'
 #' @param mask Logical. When `TRUE` (default), sensitive option values are
 #'   shown as `"<hidden>"` when set.
