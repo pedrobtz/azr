@@ -223,9 +223,10 @@ working around it.
 Workflows live in `.github/workflows/`. `R-CMD-check.yaml`, `coverage.yaml` and
 `pkgdown.yaml` call the shared `pedrobtz/r-actions` workflows, copied from its
 `examples/` and gated by the CI labels in `.claude/shared/ci.md`: R CMD check
-runs the quick profile on pull requests and the full set, CRAN-like containers
-included, on the weekly schedule, on dispatch and under `full-ci`. Coverage
+runs one Ubuntu R-release check on pull requests and the full runner matrix
+on the weekly schedule, on dispatch and under `full-ci`; the CRAN-compiler
+containers are turned off because azr has no compiled code. Coverage
 commits its badge to `badges/coverage.svg` on gh-pages, and holds a write token,
-so it is pinned to a commit SHA rather than `@v1`. `lint.yaml`, `rhub.yaml`
-(manual dispatch only) and `pr-commands.yaml` are derived from `r-lib/actions`
-examples and maintained here; they carry no `changes` gate yet.
+so it is pinned to a commit SHA rather than `@v1`. `lint.yaml` and
+`pr-commands.yaml` are derived from `r-lib/actions` examples and maintained
+here; they carry no `changes` gate yet.

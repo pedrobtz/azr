@@ -35,3 +35,6 @@ jobs:
       # Quick on pull requests. Full on the weekly schedule, on a manual
       # dispatch, and on a pull request labelled `full-ci`.
       profile: auto
+      # azr is pure R: the CRAN-compiler containers have nothing to compile.
+      containers: '[]'
+      quick-containers: '[]'
