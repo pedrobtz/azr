@@ -22,6 +22,7 @@ this order:
 | `api_verbose` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | `>>>`/`<<<` request and response logging in `api_client` |
 | `cli_auto_login` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Whether `AzureCLICredential` runs `az login` automatically |
 | `dataset_tier` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for [`azr_dataset_uri()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset_uri.md) / [`azr_resolve_dataset()`](https://pedrobtz.github.io/azr/dev/reference/azr_resolve_dataset.md) (see the datasets vignette) |
+| `managed_identity_client_id` | `azr.managed_identity_client_id` | `AZR_MANAGED_IDENTITY_CLIENT_ID` | `NULL` | Client ID of the user-assigned identity `ManagedIdentityCredential` requests; unset uses the system-assigned identity |
 
 ## Setting an option
 
@@ -63,6 +64,8 @@ azr_options()
 #>   `AZR_CLI_AUTO_LOGIN`: (not set)
 #> dataset_tier = "prod" (default)
 #>   `AZR_DATASET_TIER`: (not set)
+#> managed_identity_client_id = (not set) (default)
+#>   `AZR_MANAGED_IDENTITY_CLIENT_ID`: (not set)
 ```
 
 After setting `options(azr.dataset_tier = "preprod")`, the same call

@@ -49,6 +49,7 @@ az_config()
 #> 4       AZURE_AUTHORITY_HOST            login.microsoftonline.com
 #> 5           AZURE_CONFIG_DIR                             ~/.azure
 #> 6 AZURE_FEDERATED_TOKEN_FILE                                 <NA>
+#> 7    AZURE_TOKEN_CREDENTIALS                                 <NA>
 #>    source
 #> 1 default
 #> 2 default
@@ -56,6 +57,7 @@ az_config()
 #> 4 default
 #> 5 default
 #> 6   unset
+#> 7   unset
 
 # which variables are actually set in the environment?
 config <- az_config()

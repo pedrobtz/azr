@@ -13,6 +13,7 @@ default.
 | `"api_verbose"` | `azr.api_verbose` | `AZR_API_VERBOSE` | `FALSE` | Verbose api_client request/response |
 | `"cli_auto_login"` | `azr.cli_auto_login` | `AZR_CLI_AUTO_LOGIN` | `FALSE` | Auto Azure CLI login |
 | `"dataset_tier"` | `azr.dataset_tier` | `AZR_DATASET_TIER` | `"prod"` | Default tier for [`azr_dataset_uri()`](https://pedrobtz.github.io/azr/dev/reference/azr_dataset_uri.md) |
+| `"managed_identity_client_id"` | `azr.managed_identity_client_id` | `AZR_MANAGED_IDENTITY_CLIENT_ID` | `NULL` | User-assigned identity for [ManagedIdentityCredential](https://pedrobtz.github.io/azr/dev/reference/ManagedIdentityCredential.md) |
 
 ## Usage
 
@@ -47,6 +48,8 @@ azr_options()
 #>   `AZR_CLI_AUTO_LOGIN`: (not set)
 #> dataset_tier = "prod" (default)
 #>   `AZR_DATASET_TIER`: (not set)
+#> managed_identity_client_id = (not set) (default)
+#>   `AZR_MANAGED_IDENTITY_CLIENT_ID`: (not set)
 
 # Set for the session
 options(azr.chain_verbose = TRUE)
