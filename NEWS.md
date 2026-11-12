@@ -1,5 +1,6 @@
 # azr (development version)
 
+* `default_credential_chain()` now honours `AZURE_TOKEN_CREDENTIALS` as the Azure SDKs do: `dev` keeps the Azure CLI and interactive credentials, `prod` keeps client secret, workload identity and managed identity, and a credential name such as `AzureCliCredential` keeps that one. `az_config()` reports the variable (@pedrobtz, #noissue).
 * `AzureCLICredential$new()` now defaults to `use_bridge = FALSE`, matching `az_cli_login()`, so automatic login opens the Microsoft device login page directly (@pedrobtz, #noissue).
 * `ManagedIdentityCredential` now detects App Service, Azure Functions, Container Apps, Azure Arc and Cloud Shell from their environment variables and requests tokens from their local endpoints, falling back to IMDS elsewhere. The detected source is shown by `print()` and in verbose chain output (@pedrobtz, #37).
 * `ManagedIdentityCredential$new()` now selects a user-assigned identity through `managed_identity_client_id`, which defaults to the new `managed_identity_client_id` option (`AZR_MANAGED_IDENTITY_CLIENT_ID`). The `client_id` given to `get_token()` and the other provider functions names an app registration and is no longer sent to the managed identity endpoint; `client_id` remains as a deprecated alias in the constructor (@pedrobtz, #38).

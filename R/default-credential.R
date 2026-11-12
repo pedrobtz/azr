@@ -746,10 +746,35 @@ try_build_credential <- function(
 #' The default chain includes:
 #' \enumerate{
 #'   \item Client Secret Credential - Uses client ID and secret
+#'   \item Workload Identity Credential - Federated token, e.g. an AKS pod
+#'   \item Managed Identity Credential - The host's managed identity
+#'   \item Azure CLI Credential - Uses credentials from Azure CLI
 #'   \item Authorization Code Credential - Interactive browser-based authentication
 #'   \item Device Code Credential - Interactive device code flow
-#'   \item Azure CLI Credential - Uses credentials from Azure CLI
 #' }
+#'
+#' @section Narrowing the chain with `AZURE_TOKEN_CREDENTIALS`:
+#' Like `DefaultAzureCredential` in the Azure SDKs, the chain honours the
+#' `AZURE_TOKEN_CREDENTIALS` environment variable, read each time the chain is
+#' built. Matching is case-insensitive:
+#'
+#' | Value | Entries kept |
+#' |-------|--------------|
+#' | `"dev"` | `azure_cli`, `auth_code`, `device_code` |
+#' | `"prod"` | `client_secret`, `workload_identity`, `managed_identity` |
+#' | `"EnvironmentCredential"` or `"ClientSecretCredential"` | `client_secret` |
+#' | `"WorkloadIdentityCredential"` | `workload_identity` |
+#' | `"ManagedIdentityCredential"` | `managed_identity` |
+#' | `"AzureCliCredential"` | `azure_cli` |
+#' | `"InteractiveBrowserCredential"` or `"AuthCodeCredential"` | `auth_code` |
+#' | `"DeviceCodeCredential"` | `device_code` |
+#'
+#' Setting `"dev"` is how to keep a person's Azure CLI login from losing to a
+#' workload or managed identity the host also offers. Unset or empty keeps the
+#' whole chain. Any other value is an error, including the Azure SDK names for
+#' credentials azr does not implement (`AzureDeveloperCliCredential`,
+#' `AzurePowerShellCredential`, `VisualStudioCodeCredential`). Chains built
+#' with [credential_chain()] are never filtered.
 #'
 #' @return A `credential_chain` object containing the default sequence of
 #'   credential providers.
@@ -758,7 +783,7 @@ try_build_credential <- function(
 #'
 #' @export
 default_credential_chain <- function() {
-  credential_chain(
+  chain <- credential_chain(
     client_secret = ClientSecretCredential,
     workload_identity = WorkloadIdentityCredential,
     managed_identity = ManagedIdentityCredential,
@@ -766,6 +791,93 @@ default_credential_chain <- function() {
     auth_code = AuthCodeCredential,
     device_code = DeviceCodeCredential
   )
+
+  keep <- token_credentials_entries(Sys.getenv("AZURE_TOKEN_CREDENTIALS"))
+  if (is.null(keep)) {
+    return(chain)
+  }
+  subset_credential_chain(chain, keep)
+}
+
+token_credentials_groups <- list(
+  dev = c("azure_cli", "auth_code", "device_code"),
+  prod = c("client_secret", "workload_identity", "managed_identity")
+)
+
+# The names azure-identity accepts, plus azr's own class names, lower-cased
+# because azure-identity matches case-insensitively.
+token_credentials_names <- c(
+  environmentcredential = "client_secret",
+  clientsecretcredential = "client_secret",
+  workloadidentitycredential = "workload_identity",
+  managedidentitycredential = "managed_identity",
+  azureclicredential = "azure_cli",
+  interactivebrowsercredential = "auth_code",
+  authcodecredential = "auth_code",
+  devicecodecredential = "device_code"
+)
+
+token_credentials_unsupported <- c(
+  "azuredeveloperclicredential",
+  "azurepowershellcredential",
+  "visualstudiocodecredential"
+)
+
+# Returns the default-chain entry names to keep, or NULL for the whole chain.
+token_credentials_entries <- function(value) {
+  value <- trimws(value)
+  if (is.na(value) || !nzchar(value)) {
+    return(NULL)
+  }
+
+  key <- tolower(value)
+  if (key %in% names(token_credentials_groups)) {
+    return(token_credentials_groups[[key]])
+  }
+  if (key %in% names(token_credentials_names)) {
+    return(unname(token_credentials_names[[key]]))
+  }
+
+  if (key %in% token_credentials_unsupported) {
+    cli::cli_abort(
+      c(
+        "{.envvar AZURE_TOKEN_CREDENTIALS} names {.val {value}}, which {.pkg azr} does not implement.",
+        "i" = "Use {.val dev}, {.val prod} or one of {.val {token_credentials_valid()}}."
+      ),
+      class = "azr_token_credentials_unsupported",
+      call = NULL
+    )
+  }
+
+  cli::cli_abort(
+    c(
+      "Invalid {.envvar AZURE_TOKEN_CREDENTIALS} value {.val {value}}.",
+      "i" = "Use {.val dev}, {.val prod} or one of {.val {token_credentials_valid()}}.",
+      "i" = "Unset it to try the whole default chain."
+    ),
+    class = "azr_token_credentials_invalid",
+    call = NULL
+  )
+}
+
+token_credentials_valid <- function() {
+  c(
+    "EnvironmentCredential",
+    "ClientSecretCredential",
+    "WorkloadIdentityCredential",
+    "ManagedIdentityCredential",
+    "AzureCliCredential",
+    "InteractiveBrowserCredential",
+    "AuthCodeCredential",
+    "DeviceCodeCredential"
+  )
+}
+
+# `[` on a quosure list drops the credential_chain class.
+subset_credential_chain <- function(chain, keep) {
+  res <- unclass(chain)[intersect(names(chain), keep)]
+  class(res) <- class(chain)
+  res
 }
 
 
