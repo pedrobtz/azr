@@ -564,7 +564,7 @@ test_that("build_credential: omitted argument falls through to constructor defau
 
   cred <- build_credential(AzureCLICredential, context = context)
 
-  expect_true(cred$use_bridge)
+  expect_false(cred$use_bridge)
 })
 
 test_that("build_credential: pre-built instance receives no context merge", {

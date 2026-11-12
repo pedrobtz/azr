@@ -39,7 +39,7 @@ AzureCLICredential <- R6::R6Class(
     auto_login = NULL,
     #' @field use_bridge Logical indicating whether to use the device code bridge
     #'   webpage during interactive login
-    use_bridge = TRUE,
+    use_bridge = FALSE,
     #' @field .process_timeout Timeout in seconds for Azure CLI command execution
     .process_timeout = 10,
 
@@ -59,7 +59,9 @@ AzureCLICredential <- R6::R6Class(
     #' @param use_bridge A logical value indicating whether to use the device code
     #'   bridge webpage during login. If `TRUE`, launches an intermediate local webpage
     #'   that displays the device code and facilitates copy-pasting before redirecting
-    #'   to the Microsoft device login page. Only used when `auto_login = TRUE`. Defaults to `TRUE`.
+    #'   to the Microsoft device login page. Only used when `auto_login = TRUE`.
+    #'   Defaults to `FALSE`. Ignored inside VS Code, which cannot open the local
+    #'   page.
     #' @param interactive Deprecated. Use `auto_login` instead.
     #'
     #' @return A new `AzureCLICredential` object
@@ -68,7 +70,7 @@ AzureCLICredential <- R6::R6Class(
       tenant_id = NULL,
       process_timeout = NULL,
       auto_login = opts$get("cli_auto_login"),
-      use_bridge = TRUE,
+      use_bridge = FALSE,
       interactive = NULL
     ) {
       if (!is.null(interactive)) {
