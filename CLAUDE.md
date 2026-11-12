@@ -220,6 +220,10 @@ runs one Ubuntu R-release check on pull requests and the full runner matrix
 on the weekly schedule, on dispatch and under `full-ci`; the CRAN-compiler
 containers are turned off because azr has no compiled code. Coverage
 commits its badge to `badges/coverage.svg` on gh-pages, and holds a write token,
-so it is pinned to a commit SHA rather than `@v1`. Every workflow calls
+so it is pinned to a commit SHA rather than `@v1`. `cran-release.yaml`, also
+pinned to a commit, runs when a commit changing `CRAN-SUBMISSION` reaches
+`main`: it tags the submitted SHA with the bare version, creates the GitHub
+release from that version's NEWS section, and opens the `.9000` bump pull
+request, to be merged once CRAN accepts. Every workflow calls
 r-actions; there are no hand-rolled ones. Lint locally with
 `lintr::lint_package()`.
