@@ -1087,7 +1087,9 @@ present_device_code <- function(device_code, login_url, use_bridge) {
   copy_device_code(device_code)
 
   if (open_browser(login_url)) {
-    cli::cli_alert_info("Opening browser to {.url {login_url}}...")
+    cli::cli_alert_info(
+      "Opening browser to {.url {login_url}}, enter the code {.val {device_code}}."
+    )
     return(invisible(TRUE))
   }
 
@@ -1134,8 +1136,15 @@ open_browser <- function(url, local_file = FALSE) {
 
 # `$BROWSER` is how VS Code Remote and Codespaces forward URLs to the local
 # machine, but a remote file path means nothing there, so it is skipped for
-# local files.
+# local files. In VS Code no local file is opened at all: vscode-R's
+# function-valued `browser` option cannot show a file:// page in its webview
+# and hands it to an external browser, which on a remote host gets a path that
+# does not exist, while still reporting success.
 find_browser <- function(local_file = FALSE) {
+  if (local_file && is_vscode_session()) {
+    return(NULL)
+  }
+
   browser <- getOption("browser")
   if (is.function(browser) || is_runnable_command(browser)) {
     return(browser)
@@ -1147,6 +1156,15 @@ find_browser <- function(local_file = FALSE) {
   }
 
   NULL
+}
+
+# VS Code sets these in its integrated terminal and in the R sessions
+# vscode-R starts there, locally and over Remote.
+is_vscode_session <- function() {
+  identical(Sys.getenv("TERM_PROGRAM"), "vscode") ||
+    nzchar(Sys.getenv("VSCODE_PID")) ||
+    nzchar(Sys.getenv("VSCODE_INJECTION")) ||
+    nzchar(Sys.getenv("VSCODE_IPC_HOOK_CLI"))
 }
 
 is_runnable_command <- function(cmd) {

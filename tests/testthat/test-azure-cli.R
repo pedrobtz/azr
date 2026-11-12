@@ -140,6 +140,58 @@ test_that("find_browser() falls back to $BROWSER except for local files", {
   expect_null(find_browser(local_file = TRUE))
 })
 
+test_that("find_browser() opens no local file in VS Code", {
+  withr::local_options(browser = function(url, ...) NULL)
+  withr::local_envvar(
+    TERM_PROGRAM = "vscode",
+    VSCODE_PID = NA,
+    VSCODE_INJECTION = NA,
+    VSCODE_IPC_HOOK_CLI = NA
+  )
+
+  expect_null(find_browser(local_file = TRUE))
+  expect_true(is.function(find_browser()))
+})
+
+test_that("is_vscode_session() reads the VS Code variables", {
+  vars <- c(
+    TERM_PROGRAM = NA,
+    VSCODE_PID = NA,
+    VSCODE_INJECTION = NA,
+    VSCODE_IPC_HOOK_CLI = NA
+  )
+  withr::local_envvar(vars)
+  expect_false(is_vscode_session())
+
+  withr::with_envvar(
+    c(TERM_PROGRAM = "vscode"),
+    expect_true(is_vscode_session())
+  )
+  withr::with_envvar(c(VSCODE_PID = "123"), expect_true(is_vscode_session()))
+  withr::with_envvar(
+    c(VSCODE_IPC_HOOK_CLI = "/tmp/vscode-ipc.sock"),
+    expect_true(is_vscode_session())
+  )
+})
+
+test_that("present_device_code() skips the bridge in VS Code", {
+  local_mocked_bindings(copy_device_code = function(code) invisible(FALSE))
+  opened <- NULL
+  withr::local_options(browser = function(url, ...) opened <<- url)
+  withr::local_envvar(TERM_PROGRAM = "vscode")
+
+  expect_message(
+    res <- present_device_code(
+      "ABC123XYZ",
+      "https://microsoft.com/devicelogin",
+      use_bridge = TRUE
+    ),
+    "ABC123XYZ"
+  )
+  expect_true(res)
+  expect_equal(opened, "https://microsoft.com/devicelogin")
+})
+
 test_that("open_browser() calls a function-valued browser option", {
   skip_if(.Platform$OS.type == "windows")
   opened <- NULL
@@ -175,10 +227,10 @@ test_that("present_device_code() falls back to the login page when the bridge ca
     }
   )
 
-  expect_true(present_device_code(
+  expect_true(suppressMessages(present_device_code(
     "ABC123XYZ",
     "https://microsoft.com/devicelogin",
     use_bridge = TRUE
-  ))
+  )))
   expect_equal(opened, "https://microsoft.com/devicelogin")
 })

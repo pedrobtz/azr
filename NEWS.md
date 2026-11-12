@@ -2,7 +2,7 @@
 
 * `ManagedIdentityCredential` now detects App Service, Azure Functions, Container Apps, Azure Arc and Cloud Shell from their environment variables and requests tokens from their local endpoints, falling back to IMDS elsewhere. The detected source is shown by `print()` and in verbose chain output (@pedrobtz, #37).
 * `ManagedIdentityCredential$new()` now selects a user-assigned identity through `managed_identity_client_id`, which defaults to the new `managed_identity_client_id` option (`AZR_MANAGED_IDENTITY_CLIENT_ID`). The `client_id` given to `get_token()` and the other provider functions names an app registration and is no longer sent to the managed identity endpoint; `client_id` remains as a deprecated alias in the constructor (@pedrobtz, #38).
-* `az_cli_login()` now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without `xdg-open`, and falls back from the bridge page to the login page (@pedrobtz, #noissue).
+* `az_cli_login()` now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without `xdg-open`, skips the bridge page inside VS Code, where vscode-R cannot show a local file, and falls back from the bridge page to the login page (@pedrobtz, #noissue).
 
 # azr 0.3.6
 
