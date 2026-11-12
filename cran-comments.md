@@ -2,10 +2,13 @@
 
 0 errors | 0 warnings | 0 notes
 
-## revdepcheck results
+## Test environments
 
-We checked 1 reverse dependency, comparing R CMD check results across CRAN and
-dev versions of this package.
+GitHub Actions through pedrobtz/r-actions: macOS, Windows and Ubuntu on
+R-release, and Ubuntu on R-oldrel-1.
 
- * We saw 0 new problems
- * We failed to check 0 packages
+## Reverse dependencies
+
+azr has 1 reverse dependency, quak, which lists azr under Suggests only. Its R
+code and tests do not call azr, so this release cannot change its check
+results.
