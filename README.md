@@ -24,7 +24,7 @@ The package supports creating Credential chains for Authentication with:
 
 * **Client Secret Credential**: Service principal authentication with client ID and secret
 * **Workload Identity Credential**: Federated token exchange for Kubernetes/AKS workloads
-* **Managed Identity Credential**: System- or user-assigned managed identity via the IMDS endpoint
+* **Managed Identity Credential**: System- or user-assigned managed identity on VMs, AKS, App Service, Functions, Container Apps, Azure Arc and Cloud Shell
 * **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
 * **Authorization Code Flow**: Interactive browser-based authentication
 * **Device Code Flow**: Authentication for headless or CLI environments

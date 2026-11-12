@@ -608,6 +608,11 @@ get_credential_provider <- function(
         " " = "Attempting to get token from {.strong {crd_name}}...",
         " " = "client_id: {.val {obj$.client_id}}, scope: {.val {obj$.scope}}"
       ))
+      if (!is.null(obj$.msi_source)) {
+        cli::cli_inform(c(
+          " " = "managed identity source: {.val {obj$.msi_source}}"
+        ))
+      }
     }
 
     token <- tryCatch(
