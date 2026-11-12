@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">azr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Configuring azr options</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/0.3.6/vignettes/options.Rmd" class="external-link"><code>vignettes/options.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/main/vignettes/options.Rmd" class="external-link"><code>vignettes/options.Rmd</code></a></small>
       <div class="d-none name"><code>options.Rmd</code></div>
     </div>
 
@@ -136,6 +136,15 @@ automatically</td>
 <td>Default tier for <code><a href="../reference/azr_dataset_uri.html">azr_dataset_uri()</a></code> /
 <code><a href="../reference/azr_resolve_dataset.html">azr_resolve_dataset()</a></code> (see the datasets vignette)</td>
 </tr>
+<tr class="odd">
+<td><code>managed_identity_client_id</code></td>
+<td><code>azr.managed_identity_client_id</code></td>
+<td><code>AZR_MANAGED_IDENTITY_CLIENT_ID</code></td>
+<td><code>NULL</code></td>
+<td>Client ID of the user-assigned identity
+<code>ManagedIdentityCredential</code> requests; unset uses the
+system-assigned identity</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -170,7 +179,9 @@ environment variable:</p>
 <span><span class="co">#&gt; cli_auto_login = "FALSE" (default)</span></span>
 <span><span class="co">#&gt;   `AZR_CLI_AUTO_LOGIN`: (not set)</span></span>
 <span><span class="co">#&gt; dataset_tier = "prod" (default)</span></span>
-<span><span class="co">#&gt;   `AZR_DATASET_TIER`: (not set)</span></span></code></pre></div>
+<span><span class="co">#&gt;   `AZR_DATASET_TIER`: (not set)</span></span>
+<span><span class="co">#&gt; managed_identity_client_id = (not set) (default)</span></span>
+<span><span class="co">#&gt;   `AZR_MANAGED_IDENTITY_CLIENT_ID`: (not set)</span></span></code></pre></div>
 <p>After setting <code>options(azr.dataset_tier = "preprod")</code>, the
 same call shows where the new value came from:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">

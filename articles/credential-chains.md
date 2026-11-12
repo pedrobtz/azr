@@ -47,6 +47,30 @@ and
 all take a `chain =` argument that defaults to
 [`default_credential_chain()`](https://pedrobtz.github.io/azr/reference/default_credential_chain.md).
 
+### Narrowing the default chain from the environment
+
+The `AZURE_TOKEN_CREDENTIALS` environment variable, which the Azure SDKs
+also read, trims the default chain without touching code. `dev` keeps
+the credentials that represent a person (Azure CLI, auth code, device
+code), so a workload or managed identity on the same host can’t win;
+`prod` keeps the deployed-service ones (client secret, workload
+identity, managed identity); and a credential name such as
+`AzureCliCredential` keeps just that entry:
+
+``` sh
+export AZURE_TOKEN_CREDENTIALS=dev
+```
+
+``` r
+
+names(default_credential_chain())
+#> [1] "azure_cli"   "auth_code"   "device_code"
+```
+
+Chains you build with
+[`credential_chain()`](https://pedrobtz.github.io/azr/reference/credential_chain.md)
+are never filtered.
+
 ## Building a custom chain
 
 Use
@@ -87,9 +111,11 @@ token <- get_token(
 When you call `get_token(scope = ..., tenant_id = ..., ...)`, those
 values form a *context* that is handed to each class entry as it is
 tried. Each credential only receives the context arguments its own
-constructor accepts – a `ManagedIdentityCredential` takes `scope` and
-`client_id`, so a `tenant_id` in the context is simply ignored for that
-entry.
+constructor accepts – a `ManagedIdentityCredential` takes only `scope`,
+so a `tenant_id` or `client_id` in the context is simply ignored for
+that entry. The context’s `client_id` names an app registration; a
+user-assigned managed identity is a different principal, selected with
+the `managed_identity_client_id` option instead.
 
 This is why a single `get_token(scope = ...)` call works across every
 method in the chain: the scope is forwarded to whichever credential ends

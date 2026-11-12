@@ -7,7 +7,7 @@ trying different authentication methods in sequence until one succeeds.
 
 ## Installation
 
-You can install httr2 from CRAN with:
+You can install azr from CRAN with:
 
 ``` r
 
@@ -23,7 +23,8 @@ The package supports creating Credential chains for Authentication with:
 - **Workload Identity Credential**: Federated token exchange for
   Kubernetes/AKS workloads
 - **Managed Identity Credential**: System- or user-assigned managed
-  identity via the IMDS endpoint
+  identity on VMs, AKS, App Service, Functions, Container Apps, Azure
+  Arc and Cloud Shell
 - **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
 - **Authorization Code Flow**: Interactive browser-based authentication
 - **Device Code Flow**: Authentication for headless or CLI environments
@@ -102,16 +103,16 @@ token <- get_token(
 )
 ```
 
-### Using with Azure OpenAI and elmer
+### Using with Azure OpenAI and ellmer
 
 You can use
 [`get_credential_auth()`](https://pedrobtz.github.io/azr/reference/get_credential_auth.md)
 to create a chat connection to Azure OpenAI with the
-[elmer](https://github.com/hadley/elmer) package:
+[ellmer](https://ellmer.tidyverse.org/) package:
 
 ``` r
 
-library(elmer)
+library(ellmer)
 
 # Create an authentication function for Azure OpenAI
 credentials <- azr::get_credential_auth(
@@ -128,6 +129,32 @@ chat <- chat_azure_openai(
 # Use the chat
 chat$chat("What is the capital of France?")
 ```
+
+## Beyond authentication
+
+azr also ships the pieces that usually come next once a token is in
+hand.
+[`get_user_token()`](https://pedrobtz.github.io/azr/reference/get_user_token.md)
+authenticates the person signed in on the machine rather than the host’s
+service identity, and
+[`az_config()`](https://pedrobtz.github.io/azr/reference/az_config.md)
+reports the Azure environment variables that credential discovery reads.
+[`azr_storage_client()`](https://pedrobtz.github.io/azr/reference/azr_storage_client.md)
+and
+[`azr_logs_client()`](https://pedrobtz.github.io/azr/reference/azr_logs_client.md)
+wrap the Storage and Log Analytics REST APIs, and
+[`azr_dataset()`](https://pedrobtz.github.io/azr/reference/azr_dataset.md)
+declares a storage dataset bound to one or more storage accounts keyed
+by environment tier, so that every consumer resolves it the same way.
+
+## Learn more
+
+- [`vignette("credential-chains")`](https://pedrobtz.github.io/azr/articles/credential-chains.md)
+  on building credential chains.
+- [`vignette("datasets")`](https://pedrobtz.github.io/azr/articles/datasets.md)
+  on declaring Azure Storage datasets.
+- [`vignette("options")`](https://pedrobtz.github.io/azr/articles/options.md)
+  on configuring azr options.
 
 ## Related work
 

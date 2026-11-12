@@ -15,7 +15,7 @@ is returned as &amp;lt;&amp;lt;REDACTED&amp;gt;&amp;gt;."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">azr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ is returned as &amp;lt;&amp;lt;REDACTED&amp;gt;&amp;gt;."><meta property="og:ima
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Report the Azure environment configuration</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/0.3.6/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pedrobtz/azr/blob/main/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
       <div class="d-none name"><code>az_config.Rd</code></div>
     </div>
 
@@ -92,6 +92,7 @@ environment, <code>"default"</code> when it falls back to a built-in value, or
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4       AZURE_AUTHORITY_HOST            login.microsoftonline.com</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5           AZURE_CONFIG_DIR                             ~/.azure</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 AZURE_FEDERATED_TOKEN_FILE                                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    AZURE_TOKEN_CREDENTIALS                                 &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 default</span>
@@ -99,6 +100,7 @@ environment, <code>"default"</code> when it falls back to a built-in value, or
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   unset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   unset</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># which variables are actually set in the environment?</span></span></span>
 <span class="r-in"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu">az_config</span><span class="op">(</span><span class="op">)</span></span></span>

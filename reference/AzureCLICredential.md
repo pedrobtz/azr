@@ -68,7 +68,7 @@ Create a new Azure CLI credential
       tenant_id = NULL,
       process_timeout = NULL,
       auto_login = opts$get("cli_auto_login"),
-      use_bridge = TRUE,
+      use_bridge = FALSE,
       interactive = NULL
     )
 
@@ -104,7 +104,8 @@ Create a new Azure CLI credential
   webpage during login. If `TRUE`, launches an intermediate local
   webpage that displays the device code and facilitates copy-pasting
   before redirecting to the Microsoft device login page. Only used when
-  `auto_login = TRUE`. Defaults to `TRUE`.
+  `auto_login = TRUE`. Defaults to `FALSE`. Ignored inside VS Code,
+  which cannot open the local page.
 
 - `interactive`:
 
