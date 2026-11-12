@@ -80,7 +80,7 @@ webpage during interactive login}
   tenant_id = NULL,
   process_timeout = NULL,
   auto_login = opts$get("cli_auto_login"),
-  use_bridge = TRUE,
+  use_bridge = FALSE,
   interactive = NULL
 )}
     \if{html}{\out{</div>}}
@@ -101,7 +101,9 @@ launch \verb{az login} when the user is not logged in. Defaults to the
       \item{\code{use_bridge}}{A logical value indicating whether to use the device code
 bridge webpage during login. If \code{TRUE}, launches an intermediate local webpage
 that displays the device code and facilitates copy-pasting before redirecting
-to the Microsoft device login page. Only used when \code{auto_login = TRUE}. Defaults to \code{TRUE}.}
+to the Microsoft device login page. Only used when \code{auto_login = TRUE}.
+Defaults to \code{FALSE}. Ignored inside VS Code, which cannot open the local
+page.}
       \item{\code{interactive}}{Deprecated. Use \code{auto_login} instead.}
     }
     \if{html}{\out{</div>}}

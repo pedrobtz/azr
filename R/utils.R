@@ -3,7 +3,10 @@ deprecated_arg <- function(old_name, new_name, fn_name) {
   rlang::warn(
     c(
       paste0(
-        "The `", old_name, "` argument to `", fn_name,
+        "The `",
+        old_name,
+        "` argument to `",
+        fn_name,
         "()` is deprecated."
       ),
       i = paste0("Use `", new_name, "` instead.")
@@ -64,8 +67,12 @@ validate_required_string <- function(x, arg) {
 
 
 validate_use_cache <- function(x) {
-  if (!is.character(x) || length(x) != 1L || is.na(x) ||
-    !x %in% c("disk", "memory")) {
+  if (
+    !is.character(x) ||
+      length(x) != 1L ||
+      is.na(x) ||
+      !x %in% c("disk", "memory")
+  ) {
     cli::cli_abort(
       "Argument {.arg use_cache} must be one of {.val disk} or {.val memory}."
     )
@@ -225,7 +232,8 @@ az_config <- function() {
       default = azure_authority_hosts$azure_public_cloud
     ),
     entry("AZURE_CONFIG_DIR", default = default_azure_config_dir()),
-    entry("AZURE_FEDERATED_TOKEN_FILE")
+    entry("AZURE_FEDERATED_TOKEN_FILE"),
+    entry("AZURE_TOKEN_CREDENTIALS")
   )
 }
 

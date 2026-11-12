@@ -564,7 +564,7 @@ test_that("build_credential: omitted argument falls through to constructor defau
 
   cred <- build_credential(AzureCLICredential, context = context)
 
-  expect_true(cred$use_bridge)
+  expect_false(cred$use_bridge)
 })
 
 test_that("build_credential: pre-built instance receives no context merge", {
@@ -732,4 +732,87 @@ test_that("get_user_token skips a service principal Azure CLI session", {
   )
   expect_match(conditionMessage(err), "not as a user")
   expect_false(grepl("an-app-token", conditionMessage(err), fixed = TRUE))
+})
+
+# AZURE_TOKEN_CREDENTIALS ----
+
+test_that("default_credential_chain keeps every entry when AZURE_TOKEN_CREDENTIALS is unset", {
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = NA)
+  chain <- default_credential_chain()
+
+  expect_s3_class(chain, "credential_chain")
+  expect_named(
+    chain,
+    c(
+      "client_secret",
+      "workload_identity",
+      "managed_identity",
+      "azure_cli",
+      "auth_code",
+      "device_code"
+    )
+  )
+
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = "  ")
+  expect_length(default_credential_chain(), 6L)
+})
+
+test_that("AZURE_TOKEN_CREDENTIALS=dev keeps the developer credentials", {
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = "dev")
+  chain <- default_credential_chain()
+
+  expect_s3_class(chain, "credential_chain")
+  expect_named(chain, c("azure_cli", "auth_code", "device_code"))
+})
+
+test_that("AZURE_TOKEN_CREDENTIALS=prod keeps the deployed-service credentials", {
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = "PROD")
+  expect_named(
+    default_credential_chain(),
+    c("client_secret", "workload_identity", "managed_identity")
+  )
+})
+
+test_that("AZURE_TOKEN_CREDENTIALS accepts a single credential name", {
+  cases <- c(
+    AzureCliCredential = "azure_cli",
+    AZURECLICREDENTIAL = "azure_cli",
+    ManagedIdentityCredential = "managed_identity",
+    WorkloadIdentityCredential = "workload_identity",
+    EnvironmentCredential = "client_secret",
+    ClientSecretCredential = "client_secret",
+    InteractiveBrowserCredential = "auth_code",
+    DeviceCodeCredential = "device_code"
+  )
+
+  for (value in names(cases)) {
+    withr::with_envvar(
+      c(AZURE_TOKEN_CREDENTIALS = value),
+      expect_named(default_credential_chain(), cases[[value]])
+    )
+  }
+})
+
+test_that("AZURE_TOKEN_CREDENTIALS rejects unknown and unimplemented names", {
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = "staging")
+  expect_error(
+    default_credential_chain(),
+    class = "azr_token_credentials_invalid"
+  )
+
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = "AzurePowerShellCredential")
+  expect_error(
+    default_credential_chain(),
+    class = "azr_token_credentials_unsupported"
+  )
+})
+
+test_that("AZURE_TOKEN_CREDENTIALS leaves explicit chains alone", {
+  withr::local_envvar(AZURE_TOKEN_CREDENTIALS = "dev")
+  chain <- credential_chain(managed_identity = ManagedIdentityCredential)
+  expect_named(chain, "managed_identity")
+  expect_named(
+    user_credential_chain(),
+    c("azure_cli", "auth_code", "device_code")
+  )
 })

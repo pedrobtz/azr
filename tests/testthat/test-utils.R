@@ -125,7 +125,8 @@ test_that("az_config returns one row per variable", {
     AZURE_CLIENT_SECRET = NA,
     AZURE_AUTHORITY_HOST = NA,
     AZURE_CONFIG_DIR = NA,
-    AZURE_FEDERATED_TOKEN_FILE = NA
+    AZURE_FEDERATED_TOKEN_FILE = NA,
+    AZURE_TOKEN_CREDENTIALS = NA
   )
 
   result <- az_config()
@@ -140,7 +141,8 @@ test_that("az_config returns one row per variable", {
       "AZURE_CLIENT_SECRET",
       "AZURE_AUTHORITY_HOST",
       "AZURE_CONFIG_DIR",
-      "AZURE_FEDERATED_TOKEN_FILE"
+      "AZURE_FEDERATED_TOKEN_FILE",
+      "AZURE_TOKEN_CREDENTIALS"
     )
   )
   expect_true(all(result$source %in% c("env", "default", "unset")))
@@ -156,7 +158,7 @@ test_that("az_config reports environment variables as source env", {
 
   result <- az_config()
   value_of <- function(var) result$value[result$variable == var]
-  source_of <- function(var) result$source[result$variable == var]
+  source_of <- function(var) result$source[match(var, result$variable)]
 
   expect_equal(value_of("AZURE_TENANT_ID"), "my-tenant")
   expect_equal(value_of("AZURE_CLIENT_ID"), "my-client")

@@ -2,7 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^\.github$
-^codecov\.yml$
 ^_pkgdown\.yml$
 ^pkgdown$
 ^vignettes$

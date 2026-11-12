@@ -1,5 +1,11 @@
 # azr (development version)
 
+* `default_credential_chain()` now honours `AZURE_TOKEN_CREDENTIALS` as the Azure SDKs do: `dev` keeps the Azure CLI and interactive credentials, `prod` keeps client secret, workload identity and managed identity, and a credential name such as `AzureCliCredential` keeps that one. `az_config()` reports the variable (@pedrobtz, #noissue).
+* `AzureCLICredential$new()` now defaults to `use_bridge = FALSE`, matching `az_cli_login()`, so automatic login opens the Microsoft device login page directly (@pedrobtz, #noissue).
+* `ManagedIdentityCredential` now detects App Service, Azure Functions, Container Apps, Azure Arc and Cloud Shell from their environment variables and requests tokens from their local endpoints, falling back to IMDS elsewhere. The detected source is shown by `print()` and in verbose chain output (@pedrobtz, #37).
+* `ManagedIdentityCredential$new()` now selects a user-assigned identity through `managed_identity_client_id`, which defaults to the new `managed_identity_client_id` option (`AZR_MANAGED_IDENTITY_CLIENT_ID`). The `client_id` given to `get_token()` and the other provider functions names an app registration and is no longer sent to the managed identity endpoint; `client_id` remains as a deprecated alias in the constructor (@pedrobtz, #38).
+* `az_cli_login()` now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without `xdg-open`, skips the bridge page inside VS Code, where vscode-R cannot show a local file, and falls back from the bridge page to the login page (@pedrobtz, #noissue).
+
 # azr 0.3.6
 
 * Added `get_user_token()`, which authenticates the person signed in on this machine rather than the host's service identity. `get_token()` tries workload and managed identity ahead of the Azure CLI, so on a host configured for a service identity it returns the workload's token even when a user is at the console.

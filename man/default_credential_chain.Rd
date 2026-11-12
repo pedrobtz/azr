@@ -16,11 +16,38 @@ The credentials are tried in order until one successfully authenticates.
 The default chain includes:
 \enumerate{
 \item Client Secret Credential - Uses client ID and secret
+\item Workload Identity Credential - Federated token, e.g. an AKS pod
+\item Managed Identity Credential - The host's managed identity
+\item Azure CLI Credential - Uses credentials from Azure CLI
 \item Authorization Code Credential - Interactive browser-based authentication
 \item Device Code Credential - Interactive device code flow
-\item Azure CLI Credential - Uses credentials from Azure CLI
 }
 }
+\section{Narrowing the chain with \code{AZURE_TOKEN_CREDENTIALS}}{
+
+Like \code{DefaultAzureCredential} in the Azure SDKs, the chain honours the
+\code{AZURE_TOKEN_CREDENTIALS} environment variable, read each time the chain is
+built. Matching is case-insensitive:\tabular{ll}{
+   Value \tab Entries kept \cr
+   \code{"dev"} \tab \code{azure_cli}, \code{auth_code}, \code{device_code} \cr
+   \code{"prod"} \tab \code{client_secret}, \code{workload_identity}, \code{managed_identity} \cr
+   \code{"EnvironmentCredential"} or \code{"ClientSecretCredential"} \tab \code{client_secret} \cr
+   \code{"WorkloadIdentityCredential"} \tab \code{workload_identity} \cr
+   \code{"ManagedIdentityCredential"} \tab \code{managed_identity} \cr
+   \code{"AzureCliCredential"} \tab \code{azure_cli} \cr
+   \code{"InteractiveBrowserCredential"} or \code{"AuthCodeCredential"} \tab \code{auth_code} \cr
+   \code{"DeviceCodeCredential"} \tab \code{device_code} \cr
+}
+
+
+Setting \code{"dev"} is how to keep a person's Azure CLI login from losing to a
+workload or managed identity the host also offers. Unset or empty keeps the
+whole chain. Any other value is an error, including the Azure SDK names for
+credentials azr does not implement (\code{AzureDeveloperCliCredential},
+\code{AzurePowerShellCredential}, \code{VisualStudioCodeCredential}). Chains built
+with \code{\link[=credential_chain]{credential_chain()}} are never filtered.
+}
+
 \seealso{
 \code{\link[=credential_chain]{credential_chain()}}, \code{\link[=get_token_provider]{get_token_provider()}}
 }

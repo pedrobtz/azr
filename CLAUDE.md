@@ -220,13 +220,13 @@ working around it.
 
 ## Continuous integration
 
-Workflows live in `.github/workflows/` and are derived from `r-lib/actions`
-examples rather than called from the shared `pedrobtz/r-actions` repository, so
-they are maintained here: `R-CMD-check.yaml` (a 10-job matrix across macOS,
-Windows and Linux, R release back to oldrel-4), plus `lint.yaml`,
-`test-coverage.yaml`, `pkgdown.yaml`, `rhub.yaml` (manual dispatch only) and
-`pr-commands.yaml`. This is a deviation from `.claude/shared/ci.md`: until
-[#36](https://github.com/pedrobtz/azr/issues/36) moves azr onto r-actions,
-there is no `changes` gate, the CI labels have no effect, and the hand-rolled
-R CMD check does not count as the pre-submission check. r-actions comes before
-the next `Pre-flight`.
+Workflows live in `.github/workflows/`. `R-CMD-check.yaml`, `coverage.yaml` and
+`pkgdown.yaml` call the shared `pedrobtz/r-actions` workflows, copied from its
+`examples/` and gated by the CI labels in `.claude/shared/ci.md`: R CMD check
+runs one Ubuntu R-release check on pull requests and the full runner matrix
+on the weekly schedule, on dispatch and under `full-ci`; the CRAN-compiler
+containers are turned off because azr has no compiled code. Coverage
+commits its badge to `badges/coverage.svg` on gh-pages, and holds a write token,
+so it is pinned to a commit SHA rather than `@v1`. Every workflow calls
+r-actions; there are no hand-rolled ones. Lint locally with
+`lintr::lint_package()`.

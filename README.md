@@ -5,7 +5,7 @@
 [![PackageVersion](https://www.r-pkg.org/badges/version/azr)](https://www.r-pkg.org/pkg/azr)
 [![R-CMD-check](https://github.com/pedrobtz/azr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pedrobtz/azr/actions/workflows/R-CMD-check.yaml)
 [![downloads](https://cranlogs.r-pkg.org/badges/grand-total/azr)](https://cranlogs.r-pkg.org/badges/grand-total/azr)
-[![Codecov test coverage](https://codecov.io/gh/pedrobtz/azr/graph/badge.svg)](https://app.codecov.io/gh/pedrobtz/azr)
+[![Coverage](https://raw.githubusercontent.com/pedrobtz/azr/gh-pages/badges/coverage.svg)](https://github.com/pedrobtz/azr/actions/workflows/coverage.yaml)
 <!-- badges: end -->
 
 azr implements a credential chain for seamless OAuth 2.0 authentication to Azure services. It builds on [httr2](https://httr2.r-lib.org/)'s OAuth framework to provide cache and automatic credential discovery, trying different authentication methods in sequence until one succeeds.
@@ -24,7 +24,7 @@ The package supports creating Credential chains for Authentication with:
 
 * **Client Secret Credential**: Service principal authentication with client ID and secret
 * **Workload Identity Credential**: Federated token exchange for Kubernetes/AKS workloads
-* **Managed Identity Credential**: System- or user-assigned managed identity via the IMDS endpoint
+* **Managed Identity Credential**: System- or user-assigned managed identity on VMs, AKS, App Service, Functions, Container Apps, Azure Arc and Cloud Shell
 * **Azure CLI Credential**: Leverages existing Azure CLI (`az`) login
 * **Authorization Code Flow**: Interactive browser-based authentication
 * **Device Code Flow**: Authentication for headless or CLI environments

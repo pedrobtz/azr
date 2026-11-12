@@ -6,24 +6,50 @@
 \description{
 Authenticates using an Azure managed identity. Supports both system-assigned
 and user-assigned managed identities. This credential works when code is
-running inside an Azure environment that has a managed identity configured
-(e.g., VMs, App Service, Container Instances, AKS pods).
-}
-\details{
-Authentication is performed by querying the Azure Instance Metadata Service
-(IMDS) endpoint at \verb{http://169.254.169.254/metadata/identity/oauth2/token}.
+running inside an Azure environment that has a managed identity configured.
 No credentials need to be stored — the identity is granted by the Azure
 platform.
+}
+\details{
+The token endpoint depends on the host, which the credential detects from
+environment variables the platform sets, in the same order as the Azure
+SDKs:\tabular{lll}{
+   Source \tab Hosts \tab Detected by \cr
+   \code{"app_service"} \tab App Service, Azure Functions, Container Apps \tab \code{IDENTITY_ENDPOINT} and \code{IDENTITY_HEADER} \cr
+   \code{"azure_arc"} \tab Azure Arc-enabled servers \tab \code{IDENTITY_ENDPOINT} and \code{IMDS_ENDPOINT} \cr
+   \code{"app_service_2017"} \tab App Service (legacy API) \tab \code{MSI_ENDPOINT} and \code{MSI_SECRET} \cr
+   \code{"cloud_shell"} \tab Azure Cloud Shell \tab \code{MSI_ENDPOINT} alone \cr
+   \code{"imds"} \tab VMs, VM scale sets, Container Instances, AKS nodes \tab none of the above \cr
+}
 
-To use a \strong{system-assigned} managed identity, leave \code{client_id} as \code{NULL}.
-To use a \strong{user-assigned} managed identity, supply its \code{client_id}.
 
-This credential fails immediately (2-second timeout) when not running inside
-Azure, so it is safe to include early in a credential chain.
+The Instance Metadata Service (IMDS) at
+\verb{http://169.254.169.254/metadata/identity/oauth2/token} is the fallback.
+Service Fabric (\code{IDENTITY_SERVER_THUMBPRINT} alongside \code{IDENTITY_ENDPOINT}
+and \code{IDENTITY_HEADER}) is detected but not supported: \code{\link[=get_token]{get_token()}} fails
+with a classed error and the credential chain moves on. Azure Arc and Cloud
+Shell support only the system-assigned identity.
+
+The detected source is stored in the \code{.msi_source} field and shown by
+\code{print()} and in verbose credential-chain output.
+
+To use a \strong{system-assigned} managed identity, leave
+\code{managed_identity_client_id} as \code{NULL}. To use a \strong{user-assigned} managed
+identity, supply its client ID as \code{managed_identity_client_id}, or set the
+\code{managed_identity_client_id} option (\code{options(azr.managed_identity_client_id = ...)} or \code{AZR_MANAGED_IDENTITY_CLIENT_ID}) so the credential chain in
+\code{\link[=get_token]{get_token()}} picks it up.
+
+A user-assigned identity is a different principal from an app registration,
+so the \code{client_id} given to \code{\link[=get_token]{get_token()}} and friends is not forwarded to
+this credential: it identifies the app registration that
+\link{ClientSecretCredential} and the interactive credentials authenticate as.
+
+Against IMDS this credential fails fast (2-second timeout) when not running
+inside Azure, so it is safe to include early in a credential chain.
 }
 \examples{
 \dontrun{
-# System-assigned managed identity (no client_id needed)
+# System-assigned managed identity
 cred <- ManagedIdentityCredential$new(
   scope = "https://management.azure.com/.default"
 )
@@ -31,7 +57,7 @@ cred <- ManagedIdentityCredential$new(
 # User-assigned managed identity
 cred <- ManagedIdentityCredential$new(
   scope = "https://management.azure.com/.default",
-  client_id = "your-user-assigned-client-id"
+  managed_identity_client_id = "your-user-assigned-client-id"
 )
 
 token <- cred$get_token()
@@ -45,6 +71,10 @@ token <- cred$get_token()
   \describe{
     \item{\code{.msi_client_id}}{Client ID for user-assigned managed identity, or
 \code{NULL} for system-assigned.}
+
+    \item{\code{.msi_source}}{Token source detected from the environment: one of
+\code{"app_service"}, \code{"azure_arc"}, \code{"app_service_2017"}, \code{"cloud_shell"},
+\code{"service_fabric"} or \code{"imds"}.}
   }
   \if{html}{\out{</div>}}
 }
@@ -71,7 +101,11 @@ token <- cred$get_token()
   Create a new managed identity credential
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{ManagedIdentityCredential$new(scope = NULL, client_id = NULL)}
+    \preformatted{ManagedIdentityCredential$new(
+  scope = NULL,
+  managed_identity_client_id = opts$get("managed_identity_client_id"),
+  ...
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -79,9 +113,14 @@ token <- cred$get_token()
     \describe{
       \item{\code{scope}}{A character string specifying the OAuth2 scope. Defaults to
 the Azure Resource Manager scope.}
-      \item{\code{client_id}}{A character string specifying the client ID of a
-user-assigned managed identity. Leave \code{NULL} (the default) to use the
-system-assigned managed identity.}
+      \item{\code{managed_identity_client_id}}{A character string specifying the
+client ID of a user-assigned managed identity. Defaults to the
+\code{managed_identity_client_id} option; when that is unset, \code{NULL} selects
+the system-assigned managed identity.}
+      \item{\code{...}}{Accepts the deprecated \code{client_id} argument, an alias for
+\code{managed_identity_client_id}. It is taken through \code{...} so that the
+credential chain, which forwards only named constructor arguments,
+never passes an app registration's client ID here.}
     }
     \if{html}{\out{</div>}}
   }
@@ -94,7 +133,7 @@ system-assigned managed identity.}
 \if{html}{\out{<a id="method-ManagedIdentityCredential-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-ManagedIdentityCredential-get_token}{}}}
 \subsection{\code{ManagedIdentityCredential$get_token()}}{
-  Get an access token from the IMDS endpoint
+  Get an access token from the managed identity endpoint
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{ManagedIdentityCredential$get_token()}
@@ -102,8 +141,8 @@ system-assigned managed identity.}
   }
   \subsection{Details}{
     Returns a valid in-object cached token immediately if one exists.
-Otherwise queries the Azure Instance Metadata Service (IMDS) for a new
-token.
+Otherwise requests a new token from the endpoint of the detected
+source (see Details above).
   }
   \subsection{Returns}{
     An \code{\link[httr2:oauth_token]{httr2::oauth_token()}} object containing the access token
