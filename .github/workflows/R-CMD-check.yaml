@@ -1,16 +1,15 @@
 # Caller for pedrobtz/r-actions, copied from its examples/r-cmd-check.yml.
 on:
-  # No `push:`. A pull request already checks its merge with main, so the
-  # push after merge would check the same tree again. Main is checked by the
-  # schedule below, which skips a commit it has already checked.
+  # No `push:`: a pull request already checks its merge with main, and the
+  # schedule checks main (r-actions README, "Pushes to main").
   # `labeled`/`unlabeled` so that adding or removing a CI label (`full-ci`,
-  # `ci:minimal`, `skip-ci:<workflow>`) reruns it.
+  # `ci:docs`, `ci:minimal`, `skip-ci:<workflow>`) reruns it.
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
-  # The full set runs weekly and on demand:
+  # The full set runs weekly, in azr's Saturday slot, and on demand:
   # `gh workflow run R-CMD-check.yaml --ref main`.
   schedule:
-    - cron: "41 5 * * 3"
+    - cron: "41 1 * * 6"
   workflow_dispatch:
 
 name: R-CMD-check
@@ -24,6 +23,13 @@ concurrency:
 
 jobs:
   R-CMD-check:
+    # Decided without a runner. `ci:minimal` still runs one quick check, so
+    # it is not tested here.
+    if: >-
+      github.event_name != 'pull_request'
+      || contains(github.event.pull_request.labels.*.name, 'full-ci')
+      || !(contains(github.event.pull_request.labels.*.name, 'ci:docs')
+        || contains(github.event.pull_request.labels.*.name, 'skip-ci:R-CMD-check'))
     uses: pedrobtz/r-actions/.github/workflows/r-cmd-check.yml@v1
     with:
       # Quick on pull requests. Full on the weekly schedule, on a manual
