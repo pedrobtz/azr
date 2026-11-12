@@ -44,17 +44,11 @@ they are present, and do not assume a fresh clone has them. azr has no
 
 ## Current state
 
-Verified 2026-09-22. `devtools::test()` is green: 769 passing, 0 failures, 24
-skipped, about 11 seconds. Every skip requires an interactive session or a
-live `az login`; a local run with 24 skips is the expected result, not a
-problem to fix.
-
-`devtools::test(shuffle = TRUE)` is **not** green: 11 failures, all in
-`tests/testthat/test-workload-identity.R`, which defines the file-scope
-helpers `new_wi_cred()` and `wi_inject_token()` that shuffled blocks run
-ahead of. This is a defect in that test file, not in the package, and not a
-reason to stop treating shuffled runs as the standard — fix the file. The
-helpers were still at file scope on 2026-11-11.
+Verified 2026-11-12. `devtools::test()` and `devtools::test(shuffle = TRUE)`
+are both green: 866 passing, 0 failures, 24 skipped. Every skip requires an
+interactive session or a live `az login`; a local run with 24 skips is the
+expected result, not a problem to fix. Helpers shared between test blocks live
+in `tests/testthat/helper-*.R`.
 
 Verified 2026-11-11: 0.3.6 is on CRAN, published 2026-09-22, and `main` is
 `0.3.6.9000`.
@@ -195,8 +189,7 @@ actually see.
 ## Definition of done, beyond the shared one
 
 `devtools::check(error_on = "warning")` is the check, and `air format .` has
-been run. `devtools::test(shuffle = TRUE)` must be green, with the one known
-exception recorded under Current state.
+been run. `devtools::test(shuffle = TRUE)` must be green.
 
 NEWS bullets are one line, present tense, positively framed, with the function
 name in backticks near the start, and the issue number before the final period:
