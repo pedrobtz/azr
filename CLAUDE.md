@@ -200,11 +200,14 @@ take it from the prompt, the branch name or `gh issue list`, and use
 
 ## Continuous integration
 
-Workflows live in `.github/workflows/` and are derived from `r-lib/actions`
-examples rather than called from the shared `pedrobtz/r-actions` repository, so
-they are maintained here: `R-CMD-check.yaml` (a 10-job matrix across macOS,
-Windows and Linux, R release back to oldrel-4), plus `lint.yaml`,
-`test-coverage.yaml`, `pkgdown.yaml`, `rhub.yaml` and `pr-commands.yaml`.
+Workflows live in `.github/workflows/`. `R-CMD-check.yaml` and `coverage.yaml`
+call the shared `pedrobtz/r-actions` workflows (copied from its `examples/`):
+R CMD check runs a quick profile on pull requests and the full set, CRAN-like
+containers included, weekly and on a `full-ci` label; coverage commits its badge
+to `badges/coverage.svg` on gh-pages, so the pkgdown deploy must keep
+`force: false`. `coverage.yaml` holds a write token and is pinned to a commit
+SHA, not `@v1`. `lint.yaml`, `pkgdown.yaml`, `rhub.yaml` and `pr-commands.yaml`
+are derived from `r-lib/actions` examples and maintained here.
 
 ## Commits and pull requests
 

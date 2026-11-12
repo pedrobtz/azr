@@ -44,6 +44,10 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.9.0
         with:
+          # The coverage workflow commits its badge to gh-pages too; a
+          # force-push here would overwrite a badge commit that lands between
+          # this job's checkout and its push.
+          force: false
           clean: false
           branch: gh-pages
           folder: docs

@@ -1,0 +1,26 @@
+# Caller for pedrobtz/r-actions, copied from its examples/coverage.yml.
+on:
+  pull_request:
+  # Weekly on main rather than on every push to it, and on demand; the
+  # badge follows.
+  schedule:
+    - cron: "13 3 * * 0"
+  workflow_dispatch:
+
+name: coverage
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  coverage:
+    # Pinned to a commit rather than @v1 because this job holds a write token.
+    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@59c917ddee2cd0191f8f015016c4c76c4f2a8c87 # v1.18.0
+    permissions:
+      contents: write
+    with:
+      # main takes no direct pushes (its ruleset requires pull requests), so
+      # the badge goes to gh-pages, beside the pkgdown site.
+      badge-branch: gh-pages
+      badge-path: badges/coverage.svg

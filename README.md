@@ -5,7 +5,7 @@
 [![PackageVersion](https://www.r-pkg.org/badges/version/azr)](https://www.r-pkg.org/pkg/azr)
 [![R-CMD-check](https://github.com/pedrobtz/azr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pedrobtz/azr/actions/workflows/R-CMD-check.yaml)
 [![downloads](https://cranlogs.r-pkg.org/badges/grand-total/azr)](https://cranlogs.r-pkg.org/badges/grand-total/azr)
-[![Codecov test coverage](https://codecov.io/gh/pedrobtz/azr/graph/badge.svg)](https://app.codecov.io/gh/pedrobtz/azr)
+[![Coverage](https://raw.githubusercontent.com/pedrobtz/azr/gh-pages/badges/coverage.svg)](https://github.com/pedrobtz/azr/actions/workflows/coverage.yaml)
 <!-- badges: end -->
 
 azr implements a credential chain for seamless OAuth 2.0 authentication to Azure services. It builds on [httr2](https://httr2.r-lib.org/)'s OAuth framework to provide cache and automatic credential discovery, trying different authentication methods in sequence until one succeeds.
