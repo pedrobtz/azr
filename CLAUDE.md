@@ -227,6 +227,6 @@ runs one Ubuntu R-release check on pull requests and the full runner matrix
 on the weekly schedule, on dispatch and under `full-ci`; the CRAN-compiler
 containers are turned off because azr has no compiled code. Coverage
 commits its badge to `badges/coverage.svg` on gh-pages, and holds a write token,
-so it is pinned to a commit SHA rather than `@v1`. `lint.yaml` and
-`pr-commands.yaml` are derived from `r-lib/actions` examples and maintained
-here; they carry no `changes` gate yet.
+so it is pinned to a commit SHA rather than `@v1`. Every workflow calls
+r-actions; there are no hand-rolled ones. Lint locally with
+`lintr::lint_package()`.
