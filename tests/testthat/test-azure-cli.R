@@ -70,10 +70,6 @@ test_that("AzureCLICredential reports the Azure CLI client, not AZURE_CLIENT_ID"
 })
 
 
-cli_account <- function(type, name = "an-account") {
-  list(user = list(name = name, type = type), tenantId = "t", id = "sub")
-}
-
 test_that("UserAzureCLICredential accepts a user sign-in", {
   local_mocked_bindings(
     az_cli_account_show = function(...) cli_account("user", "jane@contoso.com"),
