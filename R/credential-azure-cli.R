@@ -135,9 +135,12 @@ AzureCLICredential <- R6::R6Class(
     #' @description
     #' Perform Azure CLI login using device code flow
     #'
-    #' @return Invisibly returns the exit status (0 for success, non-zero for failure)
-    login = function() {
-      az_cli_login()
+    #' @param force If `FALSE` (default), an existing login is reused. If
+    #'   `TRUE`, always runs `az login`.
+    #'
+    #' @return The value of [az_cli_login()], invisibly.
+    login = function(force = FALSE) {
+      az_cli_login(force = force)
     },
     #' @description
     #' Check if the credential requires user interaction
@@ -165,7 +168,9 @@ AzureCLICredential <- R6::R6Class(
 
       if (isTRUE(self$auto_login)) {
         cli::cli_alert_info("User is not logged in to Azure CLI")
-        az_cli_login(use_bridge = self$use_bridge)
+        # The login check above already failed, so skip the one in
+        # az_cli_login().
+        az_cli_login(use_bridge = self$use_bridge, force = TRUE)
       } else {
         cli::cli_abort(
           c(
@@ -387,9 +392,12 @@ az_cli_is_login <- function(timeout = 10L) {
 #' and opens the browser for authentication.
 #'
 #' @details
-#' This function runs `az login --use-device-code`, monitors the output
-#' to extract the device code, copies it to the clipboard, and opens
-#' the authentication URL in the default browser.
+#' Unless `force = TRUE`, the function first runs `az account show` and, when
+#' the Azure CLI is already logged in (to `tenant_id`, if given), returns that
+#' account without starting a new login. Otherwise it runs
+#' `az login --use-device-code`, monitors the output to extract the device
+#' code, copies it to the clipboard, and opens the authentication URL in the
+#' default browser.
 #'
 #' @param tenant_id A character string specifying the Azure Active Directory
 #'   tenant ID to authenticate against. If `NULL` (default), uses the default
@@ -402,15 +410,42 @@ az_cli_is_login <- function(timeout = 10L) {
 #' @param verbose A logical value indicating whether to print detailed process
 #'   output to the console, including error messages from the Azure CLI process.
 #'   If `FALSE` (default), only essential messages are displayed.
+#' @param force A logical value. If `FALSE` (default), an existing Azure CLI
+#'   login is reused and no new login is started. If `TRUE`, always runs
+#'   `az login`, for example to switch accounts.
 #'
-#' @return Invisibly returns the exit status (0 for success, non-zero for failure)
+#' @return Invisibly, the current account from `az account show` when an
+#'   existing login is reused; otherwise the accounts reported by `az login`
+#'   on success, or its non-zero exit status on failure.
+#'
+#' @examplesIf interactive() && nzchar(Sys.which("az"))
+#' # Reuses the current login if there is one
+#' az_cli_login()
+#'
+#' # Always start a new login
+#' az_cli_login(force = TRUE)
 #'
 #' @export
 az_cli_login <- function(
   tenant_id = NULL,
   use_bridge = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  force = FALSE
 ) {
+  if (!is.null(tenant_id)) {
+    validate_tenant_id(tenant_id)
+  }
+
+  if (!isTRUE(force)) {
+    account <- az_cli_current_account(tenant_id)
+    if (!is.null(account)) {
+      cli::cli_alert_info(
+        "Already logged in to Azure CLI as {.val {account$user$name}}; use {.code force = TRUE} to log in again."
+      )
+      return(invisible(account))
+    }
+  }
+
   if (!rlang::is_interactive()) {
     cli::cli_abort(
       c(
@@ -425,7 +460,6 @@ az_cli_login <- function(
   az_args <- c("login", "--use-device-code", "--output", "json")
 
   if (!is.null(tenant_id)) {
-    validate_tenant_id(tenant_id)
     az_args <- c(az_args, c("--tenant", tenant_id))
   }
 
@@ -522,6 +556,22 @@ az_cli_login <- function(
   }
 
   invisible(exit_status)
+}
+
+# The logged-in account, or NULL when the CLI is not logged in or is logged in
+# to a tenant other than the one asked for.
+az_cli_current_account <- function(tenant_id = NULL, timeout = 10L) {
+  account <- tryCatch(
+    az_cli_account_show(timeout = timeout),
+    error = function(e) NULL
+  )
+  if (is.null(account)) {
+    return(NULL)
+  }
+  if (!is.null(tenant_id) && !identical(account$tenantId, tenant_id)) {
+    return(NULL)
+  }
+  account
 }
 
 

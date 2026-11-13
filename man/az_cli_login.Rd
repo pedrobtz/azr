@@ -4,7 +4,12 @@
 \alias{az_cli_login}
 \title{Azure CLI Device Code Login}
 \usage{
-az_cli_login(tenant_id = NULL, use_bridge = FALSE, verbose = FALSE)
+az_cli_login(
+  tenant_id = NULL,
+  use_bridge = FALSE,
+  verbose = FALSE,
+  force = FALSE
+)
 }
 \arguments{
 \item{tenant_id}{A character string specifying the Azure Active Directory
@@ -20,9 +25,15 @@ directly to the clipboard and opens the Microsoft login page.}
 \item{verbose}{A logical value indicating whether to print detailed process
 output to the console, including error messages from the Azure CLI process.
 If \code{FALSE} (default), only essential messages are displayed.}
+
+\item{force}{A logical value. If \code{FALSE} (default), an existing Azure CLI
+login is reused and no new login is started. If \code{TRUE}, always runs
+\verb{az login}, for example to switch accounts.}
 }
 \value{
-Invisibly returns the exit status (0 for success, non-zero for failure)
+Invisibly, the current account from \verb{az account show} when an
+existing login is reused; otherwise the accounts reported by \verb{az login}
+on success, or its non-zero exit status on failure.
 }
 \description{
 Performs an interactive Azure CLI login using device code flow.
@@ -30,7 +41,19 @@ Automatically captures the device code, copies it to the clipboard,
 and opens the browser for authentication.
 }
 \details{
-This function runs \verb{az login --use-device-code}, monitors the output
-to extract the device code, copies it to the clipboard, and opens
-the authentication URL in the default browser.
+Unless \code{force = TRUE}, the function first runs \verb{az account show} and, when
+the Azure CLI is already logged in (to \code{tenant_id}, if given), returns that
+account without starting a new login. Otherwise it runs
+\verb{az login --use-device-code}, monitors the output to extract the device
+code, copies it to the clipboard, and opens the authentication URL in the
+default browser.
+}
+\examples{
+\dontshow{if (interactive() && nzchar(Sys.which("az"))) withAutoprint(\{ # examplesIf}
+# Reuses the current login if there is one
+az_cli_login()
+
+# Always start a new login
+az_cli_login(force = TRUE)
+\dontshow{\}) # examplesIf}
 }

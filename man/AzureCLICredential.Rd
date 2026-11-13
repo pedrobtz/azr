@@ -191,11 +191,19 @@ initialization.}
   Perform Azure CLI login using device code flow
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{AzureCLICredential$login()}
+    \preformatted{AzureCLICredential$login(force = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{force}}{If \code{FALSE} (default), an existing login is reused. If
+\code{TRUE}, always runs \verb{az login}.}
+    }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    Invisibly returns the exit status (0 for success, non-zero for failure)
+    The value of \code{\link[=az_cli_login]{az_cli_login()}}, invisibly.
   }
 }
 
