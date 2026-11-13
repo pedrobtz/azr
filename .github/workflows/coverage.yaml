@@ -24,7 +24,7 @@ jobs:
         || contains(github.event.pull_request.labels.*.name, 'ci:minimal')
         || contains(github.event.pull_request.labels.*.name, 'skip-ci:coverage'))
     # Pinned to a commit rather than @v1 because this job holds a write token.
-    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@59c917ddee2cd0191f8f015016c4c76c4f2a8c87 # v1.18.0
+    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@981302e34a9df42b165152f20b96a65c869b5c52 # v1.35.0
     permissions:
       contents: write
     with:
