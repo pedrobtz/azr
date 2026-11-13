@@ -23,13 +23,9 @@ jobs:
       || !(contains(github.event.pull_request.labels.*.name, 'ci:docs')
         || contains(github.event.pull_request.labels.*.name, 'ci:minimal')
         || contains(github.event.pull_request.labels.*.name, 'skip-ci:coverage'))
-    # Pinned to a commit rather than @v1 because this job holds a write token.
-    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@59c917ddee2cd0191f8f015016c4c76c4f2a8c87 # v1.18.0
+    # Pinned to a commit rather than @v1 because this job holds a write token:
+    # it commits the badge. From v1.41.0 the badge goes to badges/coverage.svg
+    # on gh-pages by default, beside the pkgdown site.
+    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@af3de72ac23bc0776ded7c934d84e03d3a406a46 # v1.41.0
     permissions:
       contents: write
-    with:
-      # main takes no direct pushes (its ruleset requires pull requests), so
-      # the badge goes to gh-pages, beside the pkgdown site, whose deploy
-      # neither force-pushes nor cleans.
-      badge-branch: gh-pages
-      badge-path: badges/coverage.svg
