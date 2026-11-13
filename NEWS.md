@@ -1,3 +1,5 @@
+# azr (development version)
+
 # azr 0.3.7
 
 * `az_cli_login()` now reuses an existing Azure CLI login instead of starting a new one, and gains `force = TRUE` to log in regardless; `AzureCLICredential$login()` gains the same argument (@pedrobtz, #noissue).

@@ -1,6 +1,6 @@
 Package: azr
 Title: Credential Chain for OAuth 2.0 Authentication to 'Azure'
-Version: 0.3.7
+Version: 0.3.7.9000
 Authors@R:
     person("Pedro", "Baltazar", , "pedrobtz@gmail.com", role = c("aut", "cre", "cph"))
 Description: Implements a credential chain for 'Azure' OAuth 2.0
