@@ -1,5 +1,6 @@
 # azr 0.3.7
 
+* `az_cli_login()` now reuses an existing Azure CLI login instead of starting a new one, and gains `force = TRUE` to log in regardless; `AzureCLICredential$login()` gains the same argument (@pedrobtz, #noissue).
 * `az_cli_login()` now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without `xdg-open`, skips the bridge page inside VS Code, where vscode-R cannot show a local file, and falls back from the bridge page to the login page (@pedrobtz, #noissue).
 * `AzureCLICredential$new()` now defaults to `use_bridge = FALSE`, matching `az_cli_login()`, so automatic login opens the Microsoft device login page directly (@pedrobtz, #noissue).
 * `default_credential_chain()` now honours `AZURE_TOKEN_CREDENTIALS` as the Azure SDKs do: `dev` keeps the Azure CLI and interactive credentials, `prod` keeps client secret, workload identity and managed identity, and a credential name such as `AzureCliCredential` keeps that one. `az_config()` reports the variable (@pedrobtz, #noissue).

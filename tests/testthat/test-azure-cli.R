@@ -230,3 +230,59 @@ test_that("present_device_code() falls back to the login page when the bridge ca
   )))
   expect_equal(opened, "https://microsoft.com/devicelogin")
 })
+
+# az_cli_login() reuses an existing login ----
+
+test_that("az_cli_login() reuses an existing login without force", {
+  local_mocked_bindings(
+    az_cli_account_show = function(...) cli_account("user", "jane@contoso.com")
+  )
+  local_mocked_bindings(is_interactive = function() FALSE, .package = "rlang")
+
+  expect_message(res <- az_cli_login(), "jane@contoso.com")
+  expect_equal(res$user$name, "jane@contoso.com")
+})
+
+test_that("az_cli_login() logs in again with force = TRUE", {
+  local_mocked_bindings(
+    az_cli_account_show = function(...) stop("must not be checked")
+  )
+  local_mocked_bindings(is_interactive = function() FALSE, .package = "rlang")
+
+  expect_error(
+    az_cli_login(force = TRUE),
+    class = "azr_cli_non_interactive"
+  )
+})
+
+test_that("az_cli_login() logs in when not logged in or in another tenant", {
+  local_mocked_bindings(is_interactive = function() FALSE, .package = "rlang")
+
+  local_mocked_bindings(az_cli_account_show = function(...) {
+    stop("not logged in")
+  })
+  expect_error(az_cli_login(), class = "azr_cli_non_interactive")
+
+  local_mocked_bindings(az_cli_account_show = function(...) cli_account("user"))
+  expect_error(
+    az_cli_login(tenant_id = "11111111-1111-1111-1111-111111111111"),
+    class = "azr_cli_non_interactive"
+  )
+})
+
+test_that("AzureCLICredential's auto login skips the second login check", {
+  seen <- new.env()
+  local_mocked_bindings(
+    az_cli_is_login = function(...) FALSE,
+    az_cli_login = function(...) {
+      seen$args <- list(...)
+      invisible(0L)
+    },
+    az_cli_get_token = function(...) httr2::oauth_token("a-token")
+  )
+
+  cred <- AzureCLICredential$new(auto_login = TRUE)
+  suppressMessages(cred$get_token())
+
+  expect_true(seen$args$force)
+})
