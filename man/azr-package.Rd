@@ -4,11 +4,11 @@
 \name{azr-package}
 \alias{azr}
 \alias{azr-package}
-\title{azr: Credential Chain for Seamless 'OAuth 2.0' Authentication to 'Azure Services'}
+\title{azr: Credential Chain for OAuth 2.0 Authentication to 'Azure'}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Implements a credential chain for 'Azure OAuth 2.0' authentication based on the package 'httr2''s 'OAuth' framework. Sequentially attempts authentication methods until one succeeds. During development allows interactive browser-based flows ('Device Code' and 'Auth Code' flows) and non-interactive flow ('Client Secret') in batch mode.
+Implements a credential chain for 'Azure' OAuth 2.0 authentication, built on the OAuth framework of the 'httr2' package. Tries authentication methods in turn until one succeeds, so the same code runs on a laptop, in continuous integration and on an 'Azure' host. Supports client secret, workload identity, managed identity and 'Azure CLI' credentials, plus interactive device code and authorization code flows during development.
 }
 \seealso{
 Useful links:
@@ -20,11 +20,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Pedro Baltazar \email{pedrobtz@gmail.com}
+\strong{Maintainer}: Pedro Baltazar \email{pedrobtz@gmail.com} [copyright holder]
 
 Authors:
 \itemize{
-  \item Pedro Baltazar \email{pedrobtz@gmail.com}
+  \item Pedro Baltazar \email{pedrobtz@gmail.com} [copyright holder]
 }
 
 }
