@@ -3,6 +3,11 @@
 ## azr 0.3.7
 
 - [`az_cli_login()`](https://pedrobtz.github.io/azr/reference/az_cli_login.md)
+  now reuses an existing Azure CLI login instead of starting a new one,
+  and gains `force = TRUE` to log in regardless;
+  `AzureCLICredential$login()` gains the same argument
+  ([@pedrobtz](https://github.com/pedrobtz), \#noissue).
+- [`az_cli_login()`](https://pedrobtz.github.io/azr/reference/az_cli_login.md)
   now prints the login URL and device code when no browser can be
   opened, such as in a remote VS Code session without `xdg-open`, skips
   the bridge page inside VS Code, where vscode-R cannot show a local

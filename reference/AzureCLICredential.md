@@ -195,11 +195,20 @@ Perform Azure CLI login using device code flow
 
 #### Usage
 
-    AzureCLICredential$login()
+    AzureCLICredential$login(force = FALSE)
+
+#### Arguments
+
+- `force`:
+
+  If `FALSE` (default), an existing login is reused. If `TRUE`, always
+  runs `az login`.
 
 #### Returns
 
-Invisibly returns the exit status (0 for success, non-zero for failure)
+The value of
+[`az_cli_login()`](https://pedrobtz.github.io/azr/reference/az_cli_login.md),
+invisibly.
 
 ------------------------------------------------------------------------
 

@@ -40,6 +40,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.7" id="azr-037">azr 0.3.7<a class="anchor" aria-label="anchor" href="#azr-037"></a></h2>
 <ul><li>
+<code><a href="../reference/az_cli_login.html">az_cli_login()</a></code> now reuses an existing Azure CLI login instead of starting a new one, and gains <code>force = TRUE</code> to log in regardless; <code>AzureCLICredential$login()</code> gains the same argument (<a href="https://github.com/pedrobtz" class="external-link">@pedrobtz</a>, #noissue).</li>
+<li>
 <code><a href="../reference/az_cli_login.html">az_cli_login()</a></code> now prints the login URL and device code when no browser can be opened, such as in a remote VS Code session without <code>xdg-open</code>, skips the bridge page inside VS Code, where vscode-R cannot show a local file, and falls back from the bridge page to the login page (<a href="https://github.com/pedrobtz" class="external-link">@pedrobtz</a>, #noissue).</li>
 <li>
 <code>AzureCLICredential$new()</code> now defaults to <code>use_bridge = FALSE</code>, matching <code><a href="../reference/az_cli_login.html">az_cli_login()</a></code>, so automatic login opens the Microsoft device login page directly (<a href="https://github.com/pedrobtz" class="external-link">@pedrobtz</a>, #noissue).</li>
