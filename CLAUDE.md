@@ -5,15 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Shared conventions
 
-The portfolio's shared rules are synced into `.claude/shared/` from
-`pedrobtz/packages:claude/shared/`. Never edit them here. Where this file and
-a shared file disagree, this file wins for this package.
+<!-- r-skills: shared-rules -->
 
-@.claude/shared/workflow.md
-@.claude/shared/r-package.md
-@.claude/shared/ci.md
-@.claude/shared/correctness.md
-@.claude/shared/assurance.md
+The portfolio's shared rules (`workflow`, `r-package`, `ci`, `native-code`,
+`correctness`, `assurance`) come from the
+[r-skills](https://github.com/pedrobtz/r-skills) plugin's `rules/`, loaded at
+session start because of the marker above. Never copy them here. Where this
+file and a shared rule disagree, this file wins for this package. Cloud
+sessions do not load the plugin and run without them.
 
 ## What this is
 
@@ -30,7 +29,7 @@ belongs here only when it exercises the credential layer.
 
 **Dependency stance.** Hard dependencies stay at the current set (`httr2`,
 `cli`, `rlang`, `R6`, `S7`, `jsonlite`, `utils`), a deliberate deviation from
-the zero-dependency default in `.claude/shared/r-package.md`. Everything else
+the zero-dependency default in the shared `r-package.md` rules. Everything else
 is a Suggest and every code path that touches one must work without it — see
 the invariant below.
 
@@ -215,7 +214,7 @@ working around it.
 
 Workflows live in `.github/workflows/`. `R-CMD-check.yaml`, `coverage.yaml` and
 `pkgdown.yaml` call the shared `pedrobtz/r-actions` workflows, copied from its
-`examples/` and gated by the CI labels in `.claude/shared/ci.md`: R CMD check
+`examples/` and gated by the CI labels in the shared `ci.md` rules: R CMD check
 runs one Ubuntu R-release check on pull requests and the full runner matrix
 on the weekly schedule, on dispatch and under `full-ci`; the CRAN-compiler
 containers are turned off because azr has no compiled code. Coverage
