@@ -7,7 +7,12 @@ opens the browser for authentication.
 ## Usage
 
 ``` r
-az_cli_login(tenant_id = NULL, use_bridge = FALSE, verbose = FALSE)
+az_cli_login(
+  tenant_id = NULL,
+  use_bridge = FALSE,
+  verbose = FALSE,
+  force = FALSE
+)
 ```
 
 ## Arguments
@@ -33,12 +38,35 @@ az_cli_login(tenant_id = NULL, use_bridge = FALSE, verbose = FALSE)
   the console, including error messages from the Azure CLI process. If
   `FALSE` (default), only essential messages are displayed.
 
+- force:
+
+  A logical value. If `FALSE` (default), an existing Azure CLI login is
+  reused and no new login is started. If `TRUE`, always runs `az login`,
+  for example to switch accounts.
+
 ## Value
 
-Invisibly returns the exit status (0 for success, non-zero for failure)
+Invisibly, the current account from `az account show` when an existing
+login is reused; otherwise the accounts reported by `az login` on
+success, or its non-zero exit status on failure.
 
 ## Details
 
-This function runs `az login --use-device-code`, monitors the output to
-extract the device code, copies it to the clipboard, and opens the
-authentication URL in the default browser.
+Unless `force = TRUE`, the function first runs `az account show` and,
+when the Azure CLI is already logged in (to `tenant_id`, if given),
+returns that account without starting a new login. Otherwise it runs
+`az login --use-device-code`, monitors the output to extract the device
+code, copies it to the clipboard, and opens the authentication URL in
+the default browser.
+
+## Examples
+
+``` r
+if (FALSE) { # interactive() && nzchar(Sys.which("az"))
+# Reuses the current login if there is one
+az_cli_login()
+
+# Always start a new login
+az_cli_login(force = TRUE)
+}
+```

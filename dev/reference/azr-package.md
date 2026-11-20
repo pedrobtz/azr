@@ -1,10 +1,12 @@
-# azr: Credential Chain for Seamless 'OAuth 2.0' Authentication to 'Azure Services'
+# azr: Credential Chain for OAuth 2.0 Authentication to 'Azure'
 
-Implements a credential chain for 'Azure OAuth 2.0' authentication based
-on the package 'httr2”s 'OAuth' framework. Sequentially attempts
-authentication methods until one succeeds. During development allows
-interactive browser-based flows ('Device Code' and 'Auth Code' flows)
-and non-interactive flow ('Client Secret') in batch mode.
+Implements a credential chain for 'Azure' OAuth 2.0 authentication,
+built on the OAuth framework of the 'httr2' package. Tries
+authentication methods in turn until one succeeds, so the same code runs
+on a laptop, in continuous integration and on an 'Azure' host. Supports
+client secret, workload identity, managed identity and 'Azure CLI'
+credentials, plus interactive device code and authorization code flows
+during development.
 
 ## See also
 
@@ -18,8 +20,8 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Pedro Baltazar <pedrobtz@gmail.com>
+**Maintainer**: Pedro Baltazar <pedrobtz@gmail.com> \[copyright holder\]
 
 Authors:
 
-- Pedro Baltazar <pedrobtz@gmail.com>
+- Pedro Baltazar <pedrobtz@gmail.com> \[copyright holder\]

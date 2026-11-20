@@ -2,6 +2,26 @@
 
 ## azr (development version)
 
+## azr 0.3.7
+
+CRAN release: 2026-11-13
+
+- [`az_cli_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_login.md)
+  now reuses an existing Azure CLI login instead of starting a new one,
+  and gains `force = TRUE` to log in regardless;
+  `AzureCLICredential$login()` gains the same argument
+  ([@pedrobtz](https://github.com/pedrobtz), \#noissue).
+- [`az_cli_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_login.md)
+  now prints the login URL and device code when no browser can be
+  opened, such as in a remote VS Code session without `xdg-open`, skips
+  the bridge page inside VS Code, where vscode-R cannot show a local
+  file, and falls back from the bridge page to the login page
+  ([@pedrobtz](https://github.com/pedrobtz), \#noissue).
+- `AzureCLICredential$new()` now defaults to `use_bridge = FALSE`,
+  matching
+  [`az_cli_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_login.md),
+  so automatic login opens the Microsoft device login page directly
+  ([@pedrobtz](https://github.com/pedrobtz), \#noissue).
 - [`default_credential_chain()`](https://pedrobtz.github.io/azr/dev/reference/default_credential_chain.md)
   now honours `AZURE_TOKEN_CREDENTIALS` as the Azure SDKs do: `dev`
   keeps the Azure CLI and interactive credentials, `prod` keeps client
@@ -10,11 +30,6 @@
   [`az_config()`](https://pedrobtz.github.io/azr/dev/reference/az_config.md)
   reports the variable ([@pedrobtz](https://github.com/pedrobtz),
   \#noissue).
-- `AzureCLICredential$new()` now defaults to `use_bridge = FALSE`,
-  matching
-  [`az_cli_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_login.md),
-  so automatic login opens the Microsoft device login page directly
-  ([@pedrobtz](https://github.com/pedrobtz), \#noissue).
 - `ManagedIdentityCredential` now detects App Service, Azure Functions,
   Container Apps, Azure Arc and Cloud Shell from their environment
   variables and requests tokens from their local endpoints, falling back
@@ -32,12 +47,6 @@
   deprecated alias in the constructor
   ([@pedrobtz](https://github.com/pedrobtz),
   [\#38](https://github.com/pedrobtz/azr/issues/38)).
-- [`az_cli_login()`](https://pedrobtz.github.io/azr/dev/reference/az_cli_login.md)
-  now prints the login URL and device code when no browser can be
-  opened, such as in a remote VS Code session without `xdg-open`, skips
-  the bridge page inside VS Code, where vscode-R cannot show a local
-  file, and falls back from the bridge page to the login page
-  ([@pedrobtz](https://github.com/pedrobtz), \#noissue).
 
 ## azr 0.3.6
 
@@ -138,7 +147,7 @@ CRAN release: 2026-06-26
 - Added internal `validate_required_string()` and `deprecated_arg()`
   helpers.
 - Added an `.onLoad()` hook that registers S7 methods via
-  [`S7::methods_register()`](https://rconsortium.github.io/S7/reference/methods_register.html).
+  [`S7::methods_register()`](https://rconsortium.github.io/S7/reference/S7_on_load.html).
 - Added namespace imports for the S7 `@` operator and rlang’s `:=`.
 
 ## azr 0.3.4
