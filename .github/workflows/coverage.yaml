@@ -26,6 +26,6 @@ jobs:
     # Pinned to a commit rather than @v1 because this job holds a write token:
     # it commits the badge. From v1.41.0 the badge goes to badges/coverage.svg
     # on gh-pages by default, beside the pkgdown site.
-    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@d53e033699ab3fb2fa48a156156e2f142ff68fbc # v1.43.0
+    uses: pedrobtz/r-actions/.github/workflows/coverage.yml@72ecdaf3536ed6b5984ed12815e168ee16ab8aa4 # v1.46.1
     permissions:
       contents: write
